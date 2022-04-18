@@ -1,0 +1,7 @@
+--readme README.md
+--title 'Serega API Documentation'
+--charset utf-8
+--markup markdown
+--output-dir .yardoc
+--use-cache '.yardoc/cache'
+'lib/**/*.rb'

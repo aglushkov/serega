@@ -1,0 +1,15 @@
+# frozen_string_literal: true
+
+class Serega
+  module SeregaUtils
+    # Freezes nested enumerable data
+    class SeregaEnumDeepFreeze
+      class << self
+        def call(data)
+          data.each_entry { |entry| call(entry) } if data.is_a?(Enumerable)
+          data.freeze
+        end
+      end
+    end
+  end
+end

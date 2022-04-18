@@ -1,0 +1,9 @@
+# TypeProf 0.21.2
+
+# Classes
+module Serega
+  VERSION: String
+
+  class Error < StandardError
+  end
+end
