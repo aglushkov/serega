@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 class Serega
-  module SeregaUtils
+  module Utils
     # Duplicates nested hashes and arrays
-    class SeregaEnumDeepDup
+    class EnumDeepDup
       DUP = {
         Hash => ->(data) { dup_hash_values(data) },
         Array => ->(data) { dup_array_values(data) }

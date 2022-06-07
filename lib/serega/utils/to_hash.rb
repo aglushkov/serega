@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 class Serega
-  module SeregaUtils
-    class SeregaToHash
+  module Utils
+    class ToHash
       module ClassMethods
         def call(value)
           case value
@@ -11,7 +11,7 @@ class Serega
           when NilClass, FalseClass then nil_to_hash(value)
           when String then string_to_hash(value)
           when Symbol then symbol_to_hash(value)
-          else raise SeregaError, "Cant convert #{value.class} class object to hash"
+          else raise Error, "Cant convert #{value.class} class object to hash"
           end
         end
 

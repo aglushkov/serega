@@ -1,4 +1,4 @@
-RSpec.describe Serega::SeregaUtils::SeregaToHash do
+RSpec.describe Serega::Utils::ToHash do
   subject { described_class.call(val) }
 
   context "with nil value" do
@@ -69,7 +69,7 @@ RSpec.describe Serega::SeregaUtils::SeregaToHash do
     let(:val) { true }
 
     it "returns nested hash with symbol keys with frozen empty hash final value" do
-      expect { subject }.to raise_error Serega::SeregaError, "Cant convert TrueClass class object to hash"
+      expect { subject }.to raise_error Serega::Error, "Cant convert TrueClass class object to hash"
     end
   end
 

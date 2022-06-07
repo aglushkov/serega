@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe "Serega::SeregaPlugins::Metadata" do
+RSpec.describe "Serega::Plugins::Metadata" do
   describe "loading" do
     it "loads additional :root plugin if was not loaded before" do
       serializer = Class.new(Serega) { plugin :metadata }

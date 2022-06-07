@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 class Serega
-  module SeregaUtils
+  module Utils
     # Freezes nested enumerable data
-    class SeregaEnumDeepFreeze
+    class EnumDeepFreeze
       class << self
         def call(data)
           data.each_entry { |entry| call(entry) } if data.is_a?(Enumerable)

@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 class Serega
-  module SeregaPlugins
+  module Plugins
     module Metadata
-      class SeregaMetaAttribute
+      class MetaAttribute
         class CheckPath
           module ClassMethods
             FORMAT_ONE_CHAR = /\A[a-zA-Z0-9]\z/
@@ -18,7 +18,7 @@ class Serega
             #
             # @param path [Array<String, Symbol>] Metadata attribute path names
             #
-            # @raise [SeregaError] when metadata attribute name has invalid format
+            # @raise [Error] when metadata attribute name has invalid format
             # @return [void]
             #
             def call(path)
@@ -39,7 +39,7 @@ class Serega
 
               return if valid
 
-              raise SeregaError, message(name)
+              raise Error, message(name)
             end
 
             def message(name)

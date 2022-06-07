@@ -1,7 +1,7 @@
-# Serega::SeregaPlugins.find_plugin(:metadata)
+# Serega::Plugins.find_plugin(:metadata)
 load_plugin_code(:metadata)
 
-RSpec.describe Serega::SeregaPlugins::Metadata::SeregaMetaAttribute::CheckBlock do
+RSpec.describe Serega::Plugins::Metadata::MetaAttribute::CheckBlock do
   let(:error) { "Block can have maximum 2 regular parameters (no **keyword or *array args)" }
 
   it "allows no params" do
@@ -30,16 +30,16 @@ RSpec.describe Serega::SeregaPlugins::Metadata::SeregaMetaAttribute::CheckBlock 
 
   it "prohibits three parameters" do
     block = proc { |_obj, _ctx, _foo| }
-    expect { described_class.call(block) }.to raise_error Serega::SeregaError, error
+    expect { described_class.call(block) }.to raise_error Serega::Error, error
   end
 
   it "prohibits *rest parameters" do
     block = proc { |*_foo| }
-    expect { described_class.call(block) }.to raise_error Serega::SeregaError, error
+    expect { described_class.call(block) }.to raise_error Serega::Error, error
   end
 
   it "prohibits **keywords parameters" do
     block = proc { |**_foo| }
-    expect { described_class.call(block) }.to raise_error Serega::SeregaError, error
+    expect { described_class.call(block) }.to raise_error Serega::Error, error
   end
 end

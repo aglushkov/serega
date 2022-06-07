@@ -57,8 +57,8 @@ RSpec.describe Serega do
       child = Class.new(parent)
 
       # Check child serialization classes are subclassed from parent classes
-      expect(child::SeregaConvert.superclass).to eq parent::SeregaConvert
-      expect(child::SeregaConvertItem.superclass).to eq parent::SeregaConvertItem
+      expect(child::Convert.superclass).to eq parent::Convert
+      expect(child::ConvertItem.superclass).to eq parent::ConvertItem
     end
   end
 
@@ -90,7 +90,7 @@ RSpec.describe Serega do
         end
       end
 
-      Serega::SeregaPlugins.register_plugin(plugin.plugin_name, plugin)
+      Serega::Plugins.register_plugin(plugin.plugin_name, plugin)
 
       serializer_class.plugin(:test)
       expect(serializer_class.config[:plugins]).to eq [:test]
@@ -98,7 +98,7 @@ RSpec.describe Serega do
 
     it "raises error if plugin is already loaded" do
       serializer_class.plugin(plugin)
-      expect { serializer_class.plugin(plugin) }.to raise_error Serega::SeregaError, "This plugin is already loaded"
+      expect { serializer_class.plugin(plugin) }.to raise_error Serega::Error, "This plugin is already loaded"
     end
   end
 
@@ -117,7 +117,7 @@ RSpec.describe Serega do
         end
       end
 
-      Serega::SeregaPlugins.register_plugin(plugin.plugin_name, plugin)
+      Serega::Plugins.register_plugin(plugin.plugin_name, plugin)
 
       expect(serializer_class.plugin_used?(:test)).to be false
       serializer_class.plugin(:test)

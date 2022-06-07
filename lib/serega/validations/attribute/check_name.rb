@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Serega
-  class SeregaAttribute
+  class Attribute
     class CheckName
       module ClassMethods
         FORMAT_ONE_CHAR = /\A[a-zA-Z0-9]\z/
@@ -16,7 +16,7 @@ class Serega
         #
         # @param name [String, Symbol] Attribute name
         #
-        # @raise [SeregaError] when name has invalid format
+        # @raise [Error] when name has invalid format
         # @return [void]
         #
         def call(name)
@@ -31,7 +31,7 @@ class Serega
 
           return if valid
 
-          raise SeregaError, message(name)
+          raise Error, message(name)
         end
 
         private

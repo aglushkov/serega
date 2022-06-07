@@ -4,11 +4,11 @@ class Serega
   #
   # Stores Attribute data
   #
-  class SeregaAttribute
+  class Attribute
     #
     # Stores Attribute instance methods
     #
-    module SeregaAttributeInstanceMethods
+    module AttributeInstanceMethods
       # @return [Symbol] Attribute name
       attr_reader :name
 
@@ -36,7 +36,7 @@ class Serega
         check(name, opts, block)
 
         @name = name.to_sym
-        @opts = SeregaUtils::SeregaEnumDeepDup.call(opts)
+        @opts = Utils::EnumDeepDup.call(opts)
         @block = block
       end
 
@@ -124,7 +124,7 @@ class Serega
       end
     end
 
-    extend Serega::SeregaHelpers::SeregaSerializerClassHelper
-    include SeregaAttributeInstanceMethods
+    extend Serega::Helpers::SerializerClassHelper
+    include AttributeInstanceMethods
   end
 end

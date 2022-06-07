@@ -1,5 +1,5 @@
 class Serega
-  class SeregaMap
+  class Map
     module ClassMethods
       def call(only:, except:, with:)
         params = {only: only, except: except, with: with}
@@ -31,6 +31,6 @@ class Serega
     end
 
     extend ClassMethods
-    extend Serega::SeregaHelpers::SeregaSerializerClassHelper
+    extend Serega::Helpers::SerializerClassHelper
   end
 end

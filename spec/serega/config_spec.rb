@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Serega::SeregaConfig do
+RSpec.describe Serega::Config do
   let(:serializer_class) { Class.new(Serega) }
   let(:config) { serializer_class.config }
 

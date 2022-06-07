@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe "Serega::SeregaPlugins::ContextMetadata" do
+RSpec.describe "Serega::Plugins::ContextMetadata" do
   describe "loading" do
     it "loads additional :root plugin if was not loaded before" do
       serializer = Class.new(Serega) { plugin :context_metadata }
@@ -30,13 +30,13 @@ RSpec.describe "Serega::SeregaPlugins::ContextMetadata" do
     it "raises error when default context meta key is not a Hash" do
       ser = Class.new(Serega) { plugin :context_metadata }
       expect { ser.new(meta: []) }
-        .to raise_error Serega::SeregaError, "Option :meta must be a Hash, but Array was given"
+        .to raise_error Serega::Error, "Option :meta must be a Hash, but Array was given"
     end
 
     it "raises error when configured context meta key is not a Hash" do
       ser = Class.new(Serega) { plugin :context_metadata, context_metadata_key: :foo }
       expect { ser.new(foo: []) }
-        .to raise_error Serega::SeregaError, "Option :foo must be a Hash, but Array was given"
+        .to raise_error Serega::Error, "Option :foo must be a Hash, but Array was given"
     end
   end
 

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Serega
-  class SeregaAttribute
+  class Attribute
     class CheckOptKey
       module ClassMethods
         #
@@ -9,7 +9,7 @@ class Serega
         #
         # @param opts [Hash] Attribute options
         #
-        # @raise [SeregaError] Error that option has invalid value
+        # @raise [Error] Error that option has invalid value
         #
         # @return [void]
         #
@@ -19,7 +19,7 @@ class Serega
           value = opts[:key]
           return if value.is_a?(String) || value.is_a?(Symbol)
 
-          raise SeregaError, "Invalid option :key => #{value.inspect}. Must be a String or a Symbol"
+          raise Error, "Invalid option :key => #{value.inspect}. Must be a String or a Symbol"
         end
       end
 

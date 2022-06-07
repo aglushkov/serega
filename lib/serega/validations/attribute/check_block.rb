@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Serega
-  class SeregaAttribute
+  class Attribute
     class CheckBlock
       module ClassMethods
         ALLOWED_PARAM_TYPES = %i[opt req]
@@ -23,7 +23,7 @@ class Serega
         #
         # @param block [Proc] Block that returns serialized attribute value
         #
-        # @raise [SeregaError] Error that block has invalid arguments
+        # @raise [Error] Error that block has invalid arguments
         #
         # @return [void]
         #
@@ -33,7 +33,7 @@ class Serega
           params = block.parameters
           return if (params.count <= 2) && params.all? { |par| ALLOWED_PARAM_TYPES.include?(par[0]) }
 
-          raise SeregaError, "Block can have maximum 2 regular parameters (no **keyword or *array args)"
+          raise Error, "Block can have maximum 2 regular parameters (no **keyword or *array args)"
         end
       end
 

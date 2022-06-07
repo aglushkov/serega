@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Serega
-  class SeregaAttribute
+  class Attribute
     class CheckOptMany
       module ClassMethods
         #
@@ -9,7 +9,7 @@ class Serega
         #
         # @param opts [Hash] Attribute options
         #
-        # @raise [SeregaError] Error that option has invalid value
+        # @raise [Error] Error that option has invalid value
         #
         # @return [void]
         #
@@ -19,7 +19,7 @@ class Serega
           value = opts[:many]
           return if (value == true) || (value == false)
 
-          raise SeregaError, "Invalid option :many => #{value.inspect}. Must have a boolean value"
+          raise Error, "Invalid option :many => #{value.inspect}. Must have a boolean value"
         end
       end
 

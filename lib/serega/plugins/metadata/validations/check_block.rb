@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 class Serega
-  module SeregaPlugins
+  module Plugins
     module Metadata
-      class SeregaMetaAttribute
+      class MetaAttribute
         class CheckBlock
           module ClassMethods
             ALLOWED_PARAM_TYPES = %i[opt req]
@@ -25,17 +25,17 @@ class Serega
             #
             # @param block [Proc] Block that returns serialized meta attribute value
             #
-            # @raise [SeregaError] Error that block has invalid arguments
+            # @raise [Error] Error that block has invalid arguments
             #
             # @return [void]
             #
             def call(block)
-              raise SeregaError, "Block must be provided when defining meta attribute" unless block
+              raise Error, "Block must be provided when defining meta attribute" unless block
 
               params = block.parameters
               return if (params.count <= 2) && params.all? { |par| ALLOWED_PARAM_TYPES.include?(par[0]) }
 
-              raise SeregaError, "Block can have maximum 2 regular parameters (no **keyword or *array args)"
+              raise Error, "Block can have maximum 2 regular parameters (no **keyword or *array args)"
             end
           end
 

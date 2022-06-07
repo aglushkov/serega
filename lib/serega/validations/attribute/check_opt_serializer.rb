@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Serega
-  class SeregaAttribute
+  class Attribute
     class CheckOptSerializer
       module ClassMethods
         #
@@ -9,7 +9,7 @@ class Serega
         #
         # @param opts [Hash] Attribute options
         #
-        # @raise [SeregaError] Error that option has invalid value
+        # @raise [Error] Error that option has invalid value
         #
         # @return [void]
         #
@@ -19,7 +19,7 @@ class Serega
           value = opts[:serializer]
           return if valid_serializer?(value)
 
-          raise SeregaError, "Invalid option :serializer => #{value.inspect}." \
+          raise Error, "Invalid option :serializer => #{value.inspect}." \
             " Can be a Serega subclass, a String or a Proc without arguments"
         end
 

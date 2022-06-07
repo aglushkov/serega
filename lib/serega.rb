@@ -5,7 +5,7 @@ require_relative "serega/version"
 # Parent class for your serializers
 class Serega
   # A generic exception Serega uses.
-  class SeregaError < StandardError; end
+  class Error < StandardError; end
 
   # @return [Hash] frozen hash
   FROZEN_EMPTY_HASH = {}.freeze
@@ -33,7 +33,7 @@ require_relative "serega/map"
 require_relative "serega/plugins"
 
 class Serega
-  @config = SeregaConfig.new(
+  @config = Config.new(
     {
       plugins: [],
       allowed_opts: %i[key serializer many hide],
@@ -42,31 +42,31 @@ class Serega
   )
 
   # Core serializer class methods
-  module SeregaClassMethods
-    # @return [SeregaConfig] current serializer config
+  module ClassMethods
+    # @return [Config] current serializer config
     attr_reader :config
 
     private def inherited(subclass)
-      config_class = Class.new(self::SeregaConfig)
+      config_class = Class.new(self::Config)
       config_class.serializer_class = subclass
-      subclass.const_set(:SeregaConfig, config_class)
-      subclass.instance_variable_set(:@config, subclass::SeregaConfig.new(config.opts))
+      subclass.const_set(:Config, config_class)
+      subclass.instance_variable_set(:@config, subclass::Config.new(config.opts))
 
-      attribute_class = Class.new(self::SeregaAttribute)
+      attribute_class = Class.new(self::Attribute)
       attribute_class.serializer_class = subclass
-      subclass.const_set(:SeregaAttribute, attribute_class)
+      subclass.const_set(:Attribute, attribute_class)
 
-      map_class = Class.new(self::SeregaMap)
+      map_class = Class.new(self::Map)
       map_class.serializer_class = subclass
-      subclass.const_set(:SeregaMap, map_class)
+      subclass.const_set(:Map, map_class)
 
-      convert_class = Class.new(self::SeregaConvert)
+      convert_class = Class.new(self::Convert)
       convert_class.serializer_class = subclass
-      subclass.const_set(:SeregaConvert, convert_class)
+      subclass.const_set(:Convert, convert_class)
 
-      convert_item_class = Class.new(self::SeregaConvertItem)
+      convert_item_class = Class.new(self::ConvertItem)
       convert_item_class.serializer_class = subclass
-      subclass.const_set(:SeregaConvertItem, convert_item_class)
+      subclass.const_set(:ConvertItem, convert_item_class)
 
       # Assign same attributes
       attributes.each do |attr|
@@ -85,9 +85,9 @@ class Serega
     # @return [class<Module>] Loaded plugin module
     #
     def plugin(name, **opts)
-      raise SeregaError, "This plugin is already loaded" if plugin_used?(name)
+      raise Error, "This plugin is already loaded" if plugin_used?(name)
 
-      plugin = SeregaPlugins.find_plugin(name)
+      plugin = Plugins.find_plugin(name)
 
       # We split loading of plugin to three parts - before_load, load, after_load:
       #
@@ -124,7 +124,7 @@ class Serega
     #
     # Lists attributes
     #
-    # @return [Array<Serega::SeregaAttribute>] attributes list
+    # @return [Array<Serega::Attribute>] attributes list
     #
     def attributes
       @attributes ||= []
@@ -137,10 +137,10 @@ class Serega
     # @param opts [Hash] Options to serialize attribute
     # @param block [Proc] Custom block to find attribute value. Accepts object and context.
     #
-    # @return [Serega::SeregaAttribute] Added attribute
+    # @return [Serega::Attribute] Added attribute
     #
     def attribute(name, **opts, &block)
-      self::SeregaAttribute.new(name: name, opts: opts, block: block).tap do |attribute|
+      self::Attribute.new(name: name, opts: opts, block: block).tap do |attribute|
         attributes << attribute
       end
     end
@@ -153,7 +153,7 @@ class Serega
     # @param opts [Hash] Options for attribute serialization
     # @param block [Proc] Custom block to find attribute value. Accepts object and context.
     #
-    # @return [Serega::SeregaAttribute] Added attribute
+    # @return [Serega::Attribute] Added attribute
     #
     def relation(name, serializer:, **opts, &block)
       attribute(name, serializer: serializer, **opts, &block)
@@ -163,7 +163,7 @@ class Serega
   #
   # Core serializer instance methods
   #
-  module SeregaInstanceMethods
+  module InstanceMethods
     attr_reader :context
 
     #
@@ -183,20 +183,20 @@ class Serega
     # @return [Hash] Serialization result
     #
     def to_h(object)
-      self.class::SeregaConvert.call(object, context, map)
+      self.class::Convert.call(object, context, map)
     end
 
     def map
       @map ||= begin
-        only = SeregaUtils::SeregaToHash.call(context[:only])
-        except = SeregaUtils::SeregaToHash.call(context[:except])
-        with = SeregaUtils::SeregaToHash.call(context[:with])
+        only = Utils::ToHash.call(context[:only])
+        except = Utils::ToHash.call(context[:except])
+        with = Utils::ToHash.call(context[:with])
 
-        self.class::SeregaMap.call(only: only, except: except, with: with)
+        self.class::Map.call(only: only, except: except, with: with)
       end
     end
   end
 
-  extend SeregaClassMethods
-  include SeregaInstanceMethods
+  extend ClassMethods
+  include InstanceMethods
 end

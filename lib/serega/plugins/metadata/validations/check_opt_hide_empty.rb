@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 class Serega
-  module SeregaPlugins
+  module Plugins
     module Metadata
-      class SeregaMetaAttribute
+      class MetaAttribute
         class CheckOptHideEmpty
           module ClassMethods
             #
@@ -11,7 +11,7 @@ class Serega
             #
             # @param opts [Hash] Attribute options
             #
-            # @raise [SeregaError] Error that option has invalid value
+            # @raise [Error] Error that option has invalid value
             #
             # @return [void]
             #
@@ -21,7 +21,7 @@ class Serega
               value = opts[:hide_empty]
               return if value == true
 
-              raise SeregaError, "Invalid option :hide_empty => #{value.inspect}. Must be true"
+              raise Error, "Invalid option :hide_empty => #{value.inspect}. Must be true"
             end
           end
 

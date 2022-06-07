@@ -2,7 +2,7 @@
 
 class Serega
   # Module in which all Serega plugins should be stored
-  module SeregaPlugins
+  module Plugins
     @plugins = {}
 
     class << self
@@ -20,13 +20,13 @@ class Serega
       #
       # @param name [Symbol, Module] plugin name or plugin itself
       #
-      # @raise [SeregaError] Raises SeregaError when plugin was not found
+      # @raise [Error] Raises Error when plugin was not found
       #
       # @example Find plugin when providing name
-      #   Serega::Plugins.find_plugin(:presenter) # => Serega::SeregaPlugins::SeregaPresenter
+      #   Serega::Plugins.find_plugin(:presenter) # => Serega::Plugins::Presenter
       #
       # @example Find plugin when providing plugin itself
-      #   Serega::Plugins.find_plugin(SeregaPresenter) # => SeregaPresenter
+      #   Serega::Plugins.find_plugin(Presenter) # => Presenter
       #
       # @return [Class<Module>] Plugin core module
       #
@@ -36,7 +36,7 @@ class Serega
 
         require_plugin(name)
 
-        @plugins[name] || raise(SeregaError, "Plugin '#{name}' did not register itself correctly")
+        @plugins[name] || raise(Error, "Plugin '#{name}' did not register itself correctly")
       end
 
       private
@@ -44,7 +44,7 @@ class Serega
       def require_plugin(name)
         require "serega/plugins/#{name}/#{name}"
       rescue LoadError
-        raise SeregaError, "Plugin '#{name}' does not exist"
+        raise Error, "Plugin '#{name}' does not exist"
       end
     end
   end

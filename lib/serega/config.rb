@@ -6,8 +6,8 @@ class Serega
   #
   # Core class that stores serializer configuration
   #
-  class SeregaConfig
-    module SeregaConfigInstanceMethods
+  class Config
+    module ConfigInstanceMethods
       extend Forwardable
 
       # @return [Hash] Current config data
@@ -20,7 +20,7 @@ class Serega
       # @param opts [Hash] Initial config options
       #
       def initialize(opts = {})
-        @opts = SeregaUtils::SeregaEnumDeepDup.call(opts)
+        @opts = Utils::EnumDeepDup.call(opts)
       end
 
       #
@@ -42,7 +42,7 @@ class Serega
       def_delegators :opts, :[], :[]=, :fetch, :keys, :has_key?
     end
 
-    include SeregaConfigInstanceMethods
-    extend Serega::SeregaHelpers::SeregaSerializerClassHelper
+    include ConfigInstanceMethods
+    extend Serega::Helpers::SerializerClassHelper
   end
 end

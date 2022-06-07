@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Serega
-  module SeregaPlugins
+  module Plugins
     module Metadata
       def self.plugin_name
         :metadata
@@ -12,8 +12,8 @@ class Serega
       end
 
       def self.load_plugin(serializer_class, **_opts)
-        serializer_class.extend(SeregaClassMethods)
-        serializer_class::SeregaConvert.include(ConvertInstanceMethods)
+        serializer_class.extend(ClassMethods)
+        serializer_class::Convert.include(ConvertInstanceMethods)
 
         require_relative "./meta_attribute"
         require_relative "./validations/check_block"
@@ -22,22 +22,22 @@ class Serega
         require_relative "./validations/check_opts"
         require_relative "./validations/check_path"
 
-        meta_attribute_class = Class.new(SeregaMetaAttribute)
+        meta_attribute_class = Class.new(MetaAttribute)
         meta_attribute_class.serializer_class = serializer_class
-        serializer_class.const_set(:SeregaMetaAttribute, meta_attribute_class)
+        serializer_class.const_set(:MetaAttribute, meta_attribute_class)
       end
 
       def self.after_load_plugin(serializer_class, **_opts)
         serializer_class.config[:allowed_metadata_opts] = %i[hide_nil hide_empty]
       end
 
-      module SeregaClassMethods
+      module ClassMethods
         private def inherited(subclass)
           super
 
-          meta_attribute_class = self::SeregaMetaAttribute
+          meta_attribute_class = self::MetaAttribute
           meta_attribute_class.serializer_class = subclass
-          subclass.const_set(:SeregaMetaAttribute, meta_attribute_class)
+          subclass.const_set(:MetaAttribute, meta_attribute_class)
 
           # Assign same attributes
           meta_attributes.each do |attr|
@@ -74,7 +74,7 @@ class Serega
         # @return [MetadataAttribute] Added metadata attribute
         #
         def meta_attribute(*path, **opts, &block)
-          meta_attribute = self::SeregaMetaAttribute.new(path: path, opts: opts, block: block)
+          meta_attribute = self::MetaAttribute.new(path: path, opts: opts, block: block)
           meta_attributes << meta_attribute
         end
       end

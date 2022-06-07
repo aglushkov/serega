@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Serega
-  class SeregaAttribute
+  class Attribute
     class CheckOpts
       module ClassMethods
         #
@@ -11,7 +11,7 @@ class Serega
         # @param opts [Hash] Attribute options
         # @param allowed_opts [Array<Symbol>] Allowed options keys
         #
-        # @raise [SeregaError] when attribute has invalid options
+        # @raise [Error] when attribute has invalid options
         #
         # @return [void]
         #
@@ -19,7 +19,7 @@ class Serega
           opts.each_key do |key|
             next if allowed_opts.include?(key.to_sym)
 
-            raise SeregaError, "Invalid option #{key.inspect}. Allowed options are: #{allowed_opts.map(&:inspect).join(", ")}"
+            raise Error, "Invalid option #{key.inspect}. Allowed options are: #{allowed_opts.map(&:inspect).join(", ")}"
           end
 
           check_each_opt(opts)
