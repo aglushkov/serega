@@ -14,13 +14,17 @@ class Serega
       private
 
       def construct_map(serializer_class, only:, except:, with:)
-        serializer_class.attributes.each_with_object([]) do |attribute, map|
+        serializer_class.attributes.each_with_object([]) do |(name, attribute), map|
           next unless attribute.visible?(only: only, except: except, with: with)
 
           nested_map =
             if attribute.relation?
-              name = attribute.name
-              construct_map(attribute.serializer, only: only[name] || {}, with: with[name] || {}, except: except[name] || {})
+              construct_map(
+                attribute.serializer,
+                only: only[name] || FROZEN_EMPTY_HASH,
+                with: with[name] || FROZEN_EMPTY_HASH,
+                except: except[name] || FROZEN_EMPTY_HASH
+              )
             else
               FROZEN_EMPTY_ARRAY
             end

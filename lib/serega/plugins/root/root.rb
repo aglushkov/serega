@@ -16,7 +16,7 @@ class Serega
       end
 
       def self.after_load_plugin(serializer_class, **opts)
-        serializer_class.root(root: opts[:root] || ROOT_DEFAULT, root_one: opts[:root_one], root_many: opts[:root_many])
+        serializer_class.root(opts[:root] || ROOT_DEFAULT, one: opts[:root_one], many: opts[:root_many])
       end
 
       module ClassMethods
@@ -29,32 +29,32 @@ class Serega
         #
         # @return [Hash] Configured root names
         #
-        def root(root: nil, root_one: nil, root_many: nil)
-          root_one ||= root
-          root_many ||= root
+        def root(root = nil, one: nil, many: nil)
+          one ||= root
+          many ||= root
 
-          config[:root_one] = root_one ? root_one.to_sym : nil
-          config[:root_many] = root_many ? root_many.to_sym : nil
+          one = one.to_sym if one
+          many = many.to_sym if many
 
-          {root_one: root_one, root_many: root_many}
+          config[:root] = {one: one, many: many}
         end
       end
 
       module ConvertInstanceMethods
         def to_h
           hash = super
+          root = build_root(opts)
           hash = {root => hash} if root
           hash
         end
 
         private
 
-        def root
-          return @root if defined?(@root)
+        def build_root(opts)
+          return opts[:root] if opts.key?(:root)
 
-          config = serializer_class.config
-          root = many? ? config[:root_many] : config[:root_one]
-          @root = root
+          root_config = self.class.serializer_class.config[:root]
+          many? ? root_config[:many] : root_config[:one]
         end
       end
     end

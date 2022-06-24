@@ -13,6 +13,7 @@ class Serega
   # @return [Array] frozen array
   FROZEN_EMPTY_ARRAY = [].freeze
 end
+
 require_relative "serega/helpers/serializer_class_helper"
 require_relative "serega/utils/enum_deep_dup"
 require_relative "serega/utils/to_hash"
@@ -69,7 +70,7 @@ class Serega
       subclass.const_set(:ConvertItem, convert_item_class)
 
       # Assign same attributes
-      attributes.each do |attr|
+      attributes.each_value do |attr|
         subclass.attribute(attr.name, **attr.opts, &attr.block)
       end
 
@@ -124,10 +125,10 @@ class Serega
     #
     # Lists attributes
     #
-    # @return [Array<Serega::Attribute>] attributes list
+    # @return [Hash] attributes list
     #
     def attributes
-      @attributes ||= []
+      @attributes ||= {}
     end
 
     #
@@ -141,7 +142,7 @@ class Serega
     #
     def attribute(name, **opts, &block)
       self::Attribute.new(name: name, opts: opts, block: block).tap do |attribute|
-        attributes << attribute
+        attributes[attribute.name] = attribute
       end
     end
 
@@ -164,15 +165,18 @@ class Serega
   # Core serializer instance methods
   #
   module InstanceMethods
-    attr_reader :context
+    # Serializer attributes visibility modifiers
+    attr_reader :only, :except, :with
 
     #
     # Instantiates new Serega class. It will be more effective to call this manually if context is constant.
     #
     # @param context [Hash] Serialization context
     #
-    def initialize(context = {})
-      @context = context
+    def initialize(only: nil, except: nil, with: nil)
+      @only = Utils::ToHash.call(only)
+      @except = Utils::ToHash.call(except)
+      @with = Utils::ToHash.call(with)
     end
 
     #
@@ -182,18 +186,15 @@ class Serega
     #
     # @return [Hash] Serialization result
     #
-    def to_h(object)
-      self.class::Convert.call(object, context, map)
+    def to_h(object, **opts)
+      self.class::Convert.call(object, **opts, map: map)
     end
 
+    #
+    # Returns nested array of attributes in order how they will be serialized
+    #
     def map
-      @map ||= begin
-        only = Utils::ToHash.call(context[:only])
-        except = Utils::ToHash.call(context[:except])
-        with = Utils::ToHash.call(context[:with])
-
-        self.class::Map.call(only: only, except: except, with: with)
-      end
+      @map ||= self.class::Map.call(only: only, except: except, with: with)
     end
   end
 

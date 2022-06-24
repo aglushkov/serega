@@ -57,7 +57,7 @@ class Serega
 
           def check(path, opts, block)
             CheckPath.call(path)
-            CheckOpts.call(opts, self.class.serializer_class.config[:allowed_metadata_opts])
+            CheckOpts.call(opts, self.class.serializer_class.config[:metadata][:allowed_opts])
             CheckBlock.call(block)
           end
         end

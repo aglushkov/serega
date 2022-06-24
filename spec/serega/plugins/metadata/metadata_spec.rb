@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
-RSpec.describe "Serega::Plugins::Metadata" do
+load_plugin_code :metadata
+
+RSpec.describe Serega::Plugins::Metadata do
   describe "loading" do
     it "loads additional :root plugin if was not loaded before" do
       serializer = Class.new(Serega) { plugin :metadata }
@@ -9,33 +11,32 @@ RSpec.describe "Serega::Plugins::Metadata" do
 
     it "loads additional :root plugin with custom root config" do
       serializer = Class.new(Serega) { plugin :metadata, root_one: :user, root_many: :users }
-      expect(serializer.config[:root_one]).to eq :user
-      expect(serializer.config[:root_many]).to eq :users
+      expect(serializer.config[:root][:one]).to eq :user
+      expect(serializer.config[:root][:many]).to eq :users
     end
   end
 
   describe "inheritance" do
-    let(:base_serializer) do
-      Class.new(Serega) do
-        plugin :metadata
-        meta_attribute(:version, hide_nil: true) { "1.2.3" }
-      end
+    let(:parent) { Class.new(Serega) { plugin :metadata } }
+    let(:child) { Class.new(parent) }
+
+    it "inherits MetaAttribute class" do
+      expect(parent::MetaAttribute).to be child::MetaAttribute.superclass
     end
 
-    let(:serializer) { Class.new(base_serializer) }
-
     it "inherits meta attributes" do
-      meta_attributes = serializer.meta_attributes
+      parent_attr = parent.meta_attribute(:version, hide_nil: true) { "1.2.3" }
+      child_attr = child.meta_attributes[0]
 
-      expect(meta_attributes.count).to eq 1
-      expect(meta_attributes[0].path).to eq [:version]
-      expect(meta_attributes[0].opts).to eq(hide_nil: true)
-      expect(meta_attributes[0].value(nil, nil)).to eq "1.2.3"
+      expect(child_attr).not_to equal parent_attr
+      expect(child_attr.path).to eq [:version]
+      expect(child_attr.opts).to eq(hide_nil: true)
+      expect(child_attr.value(nil, nil)).to eq "1.2.3"
     end
   end
 
   describe "serialization" do
-    subject(:response) { user_serializer.new(context).to_h(obj) }
+    subject(:response) { user_serializer.new.to_h(obj, context: context) }
 
     let(:obj) { double(first_name: "FIRST_NAME") }
     let(:context) { {} }

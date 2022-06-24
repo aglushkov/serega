@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
-RSpec.describe "Serega::Plugins::Root" do
+load_plugin_code :root
+
+RSpec.describe Serega::Plugins::Root do
   describe "serialization" do
     let(:response) { user_serializer.new.to_h(user) }
 
@@ -41,6 +43,26 @@ RSpec.describe "Serega::Plugins::Root" do
       it "adds root key to multiple objects response" do
         response = user_serializer.new.to_h([user])
         expect(response).to eq(users: [{first_name: "FIRST_NAME"}])
+      end
+    end
+
+    context "with root provided as serialization option" do
+      let(:user) { double(first_name: "FIRST_NAME") }
+      let(:user_serializer) do
+        Class.new(Serega) do
+          plugin :root
+          attribute :first_name
+        end
+      end
+
+      it "adds root key to single object response" do
+        response = user_serializer.new.to_h(user, root: :customer)
+        expect(response).to eq(customer: {first_name: "FIRST_NAME"})
+      end
+
+      it "adds root key to multiple objects response" do
+        response = user_serializer.new.to_h([user], root: :customers)
+        expect(response).to eq(customers: [{first_name: "FIRST_NAME"}])
       end
     end
   end

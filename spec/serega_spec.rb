@@ -45,11 +45,7 @@ RSpec.describe Serega do
 
       # Check attributes are copied to child attributes
       child = Class.new(parent)
-      expect(child.attributes.count).to eq 1
-      expect(child.attributes[0].name).to eq :foo
-
-      # Check child attribute class is a subclass of parent attribute class
-      expect(child.attributes[0].class.superclass).to eq parent.attributes[0].class
+      expect(child.attributes[:foo].class.superclass).to eq parent.attributes[:foo].class
     end
 
     it "inherits serialization classes" do
@@ -127,21 +123,21 @@ RSpec.describe Serega do
 
   describe ".attribute" do
     it "adds new attribute" do
-      attribute = serializer_class.attribute :foo
-      expect(serializer_class.attributes).to eq [attribute]
+      attribute = serializer_class.attribute "foo"
+      expect(serializer_class.attributes).to eq(foo: attribute)
     end
   end
 
   describe ".attributes" do
-    it "returns empty array when no attributes added" do
-      expect(serializer_class.attributes).to eq []
+    it "returns empty hash when no attributes added" do
+      expect(serializer_class.attributes).to eq({})
     end
 
     it "returns list of added attributes" do
       foo = serializer_class.attribute :foo
       bar = serializer_class.attribute :bar
 
-      expect(serializer_class.attributes).to eq [foo, bar]
+      expect(serializer_class.attributes).to eq(foo: foo, bar: bar)
     end
   end
 
@@ -152,14 +148,16 @@ RSpec.describe Serega do
 
     it "adds new attribute" do
       attribute = serializer_class.relation(:foo, serializer: serializer_class)
-      expect(serializer_class.attributes).to eq [attribute]
+      expect(serializer_class.attributes[:foo]).to eq attribute
     end
   end
 
   describe ".initialize" do
-    it "initializes serializer with context" do
-      serializer = serializer_class.new("context")
-      expect(serializer.context).to eq "context"
+    it "initializes serializer with attribute visibility modifiers" do
+      serializer = serializer_class.new(only: :foo, except: :bar, with: :bazz)
+      expect(serializer.only).to eq(foo: {})
+      expect(serializer.except).to eq(bar: {})
+      expect(serializer.with).to eq(bazz: {})
     end
   end
 
@@ -171,10 +169,11 @@ RSpec.describe Serega do
       end
     end
 
-    let(:serializer) { serializer_class.new(data: "bar") }
+    let(:serializer) { serializer_class.new }
 
     it "returns serialized response" do
-      expect(serializer.to_h("foo")).to eq({obj: "foo", ctx: "bar"})
+      expect(serializer.to_h("foo", context: {data: "bar"}))
+        .to eq({obj: "foo", ctx: "bar"})
     end
   end
 end

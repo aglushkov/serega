@@ -19,4 +19,17 @@ else
   gem "pry-byebug", "~> 3.9"
 end
 
-gem "debug", ">= 1.0.0" if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("3.1")
+# ORM plugins
+ruby_version = Gem::Version.new(RUBY_VERSION)
+ar_version =
+  if ruby_version >= Gem::Version.new("3.0")
+    "~> 7.0"
+  elsif ruby_version >= Gem::Version.new("2.5")
+    "~> 6.0"
+  else
+    "~> 5.2"
+  end
+
+gem "activerecord", ar_version
+gem "sqlite3", platforms: [:ruby]
+gem "activerecord-jdbcsqlite3-adapter", platforms: [:jruby]

@@ -28,14 +28,14 @@ class Serega
       end
 
       def self.after_load_plugin(serializer_class, **_opts)
-        serializer_class.config[:allowed_metadata_opts] = %i[hide_nil hide_empty]
+        serializer_class.config[plugin_name] = {allowed_opts: %i[hide_nil hide_empty]}
       end
 
       module ClassMethods
         private def inherited(subclass)
           super
 
-          meta_attribute_class = self::MetaAttribute
+          meta_attribute_class = Class.new(self::MetaAttribute)
           meta_attribute_class.serializer_class = subclass
           subclass.const_set(:MetaAttribute, meta_attribute_class)
 
@@ -89,7 +89,7 @@ class Serega
         private
 
         def add_metadata(hash)
-          serializer_class.meta_attributes.each do |meta_attribute|
+          self.class.serializer_class.meta_attributes.each do |meta_attribute|
             metadata = meta_attribute_value(meta_attribute)
             next unless metadata
 
@@ -98,7 +98,7 @@ class Serega
         end
 
         def meta_attribute_value(meta_attribute)
-          value = meta_attribute.value(object, context)
+          value = meta_attribute.value(object, opts[:context])
           return if meta_attribute.hide?(value)
 
           # Example:

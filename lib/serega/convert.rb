@@ -3,19 +3,17 @@
 class Serega
   class Convert
     module ConvertClassMethods
-      def call(object, context, map)
-        new(object, context, map).to_h
+      def call(object, **opts)
+        new(object, **opts).to_h
       end
     end
 
     module ConvertInstanceMethods
-      attr_reader :object, :context, :serializer_class, :map
+      attr_reader :object, :opts
 
-      def initialize(object, context, map)
+      def initialize(object, **opts)
         @object = object
-        @context = context
-        @map = map
-        @serializer_class = self.class.serializer_class
+        @opts = opts
       end
 
       def to_h
@@ -29,14 +27,14 @@ class Serega
       end
 
       def one(object)
-        serializer_class::ConvertItem.call(object, context, map)
+        self.class.serializer_class::ConvertItem.call(object, opts[:context], opts[:map])
       end
 
       def many?
-        return @many if defined?(@many)
+        many = opts[:many]
+        return many unless many.nil?
 
-        many = context[:many]
-        @many = many.nil? ? object.is_a?(Enumerable) : many
+        object.is_a?(Enumerable)
       end
     end
 
