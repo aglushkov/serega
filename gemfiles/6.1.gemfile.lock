@@ -1,49 +1,40 @@
 PATH
-  remote: .
+  remote: ..
   specs:
     serega (0.0.1)
 
 GEM
   remote: https://rubygems.org/
   specs:
-    activemodel (7.0.3)
-      activesupport (= 7.0.3)
-    activerecord (7.0.3)
-      activemodel (= 7.0.3)
-      activesupport (= 7.0.3)
-    activerecord-jdbc-adapter (50.0)
-      activerecord (>= 2.2)
-    activerecord-jdbcsqlite3-adapter (50.0)
-      activerecord-jdbc-adapter (~> 50.0)
+    activemodel (6.1.6)
+      activesupport (= 6.1.6)
+    activerecord (6.1.6)
+      activemodel (= 6.1.6)
+      activesupport (= 6.1.6)
+    activerecord-jdbc-adapter (61.2-java)
+      activerecord (~> 6.1.0)
+    activerecord-jdbcsqlite3-adapter (61.2-java)
+      activerecord-jdbc-adapter (= 61.2)
       jdbc-sqlite3 (~> 3.8, < 3.30)
-    activesupport (7.0.3)
+    activesupport (6.1.6)
       concurrent-ruby (~> 1.0, >= 1.0.2)
       i18n (>= 1.6, < 2)
       minitest (>= 5.1)
       tzinfo (~> 2.0)
+      zeitwerk (~> 2.3)
     ast (2.4.2)
     concurrent-ruby (1.1.10)
-    debug (1.5.0)
-      irb (>= 1.3.6)
-      reline (>= 0.2.7)
     diff-lcs (1.5.0)
     docile (1.4.0)
     i18n (1.10.0)
       concurrent-ruby (~> 1.0)
-    io-console (0.5.11)
-    io-console (0.5.11-java)
-    irb (1.4.1)
-      reline (>= 0.3.0)
     jdbc-sqlite3 (3.28.0)
     minitest (5.16.1)
     parallel (1.22.1)
-    parser (3.1.1.0)
+    parser (3.1.2.0)
       ast (~> 2.4.1)
     rainbow (3.1.1)
-    rake (13.0.6)
-    regexp_parser (2.2.1)
-    reline (0.3.1)
-      io-console (~> 0.5)
+    regexp_parser (2.5.0)
     rexml (3.2.5)
     rspec (3.11.0)
       rspec-core (~> 3.11.0)
@@ -58,16 +49,16 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.11.0)
     rspec-support (3.11.0)
-    rubocop (1.26.1)
+    rubocop (1.29.1)
       parallel (~> 1.10)
       parser (>= 3.1.0.0)
       rainbow (>= 2.2.2, < 4.0)
       regexp_parser (>= 1.8, < 3.0)
-      rexml
-      rubocop-ast (>= 1.16.0, < 2.0)
+      rexml (>= 3.2.5, < 4.0)
+      rubocop-ast (>= 1.17.0, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 1.4.0, < 3.0)
-    rubocop-ast (1.16.0)
+    rubocop-ast (1.18.0)
       parser (>= 3.1.1.0)
     rubocop-performance (1.13.3)
       rubocop (>= 1.7.0, < 2.0)
@@ -80,27 +71,26 @@ GEM
     simplecov-html (0.12.3)
     simplecov_json_formatter (0.1.4)
     sqlite3 (1.4.4)
-    standard (1.9.1)
-      rubocop (= 1.26.1)
+    standard (1.12.1)
+      rubocop (= 1.29.1)
       rubocop-performance (= 1.13.3)
     tzinfo (2.0.4)
       concurrent-ruby (~> 1.0)
-    unicode-display_width (2.1.0)
+    unicode-display_width (2.2.0)
+    zeitwerk (2.6.0)
 
 PLATFORMS
   universal-java-11
   x86_64-linux
 
 DEPENDENCIES
-  activerecord (~> 7.0)
-  activerecord-jdbcsqlite3-adapter
-  debug (>= 1.0.0)
-  rake (~> 13.0)
-  rspec (~> 3.0)
+  activerecord (~> 6.1.0)
+  activerecord-jdbcsqlite3-adapter (~> 61.0)
+  rspec (~> 3.11)
   serega!
-  simplecov (~> 0.21)
+  simplecov (~> 0.21.2)
   sqlite3
-  standard (~> 1.3)
+  standard (~> 1.12, >= 1.12.1)
 
 BUNDLED WITH
    2.3.15

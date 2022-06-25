@@ -1,27 +1,63 @@
 name: Ruby
 
 on:
-  push:
-    branches:
-      - master
-
-  pull_request:
+  - push
+  - pull_request
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: Ruby ${{ matrix.ruby }}
+    name: Ruby ${{ matrix.ruby }} (AR ${{ matrix.activerecord }})
     strategy:
+      fail-fast: false
       matrix:
-        ruby:
-          - '3.0.2'
+        include:
+          - ruby: "head"
+            activerecord: "7.0"
+          - ruby: "3.1"
+            activerecord: "7.0"
+          - ruby: "3.0"
+            activerecord: "7.0"
+          - ruby: "2.7"
+            activerecord: "7.0"
+          - ruby: "2.7"
+            activerecord: "6.1"
+          - ruby: "2.7"
+            activerecord: "5.2"
+          - ruby: "2.6"
+            activerecord: "6.1"
+          - ruby: "2.6"
+            activerecord: "5.2"
+          - ruby: "jruby-9.3.4.0"
+            activerecord: "5.2"
+          - ruby: "jruby-9.3.4.0"
+            activerecord: "6.1"
+          - ruby: "truffleruby-22.1.0"
+            activerecord: "7.0"
+          - ruby: "truffleruby-22.1.0"
+            activerecord: "6.1"
+
+    env:
+      BUNDLE_GEMFILE: gemfiles/${{ matrix.activerecord }}.gemfile
+      CC_TEST_REPORTER_ID: 2b0dd65d1c078b0d9f6edc768751ab9f210decdace1eae9651603a6bccff96ca
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: ${{ matrix.ruby }}
-        bundler-cache: true
-    - name: Run the default task
-      run: bundle exec rake
+      - uses: actions/checkout@v2
+      - name: Set up Ruby ${{ matrix.ruby }} (AR ${{ matrix.activerecord }})
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+
+      # Check code standards only for latest MRI. It takes a lot of time for jruby or truffleruby
+      - name: Check Code Standards
+        if: startsWith(matrix.ruby, '3.1')
+        run: bundle exec standardrb
+
+      - name: Run Tests
+        run: bundle exec rspec
+
+      # https://github.com/paambaati/codeclimate-action
+      - name: Publish code coverage to code-climate
+        uses: paambaati/codeclimate-action@v3.0.0
+        if: (github.event_name == 'push') && startsWith(matrix.ruby, '3.1')

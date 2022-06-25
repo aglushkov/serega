@@ -5,10 +5,15 @@ if RUBY_ENGINE == "ruby" && (ARGV.none? || ARGV == ["spec"] || ARGV == ["spec/"]
   SimpleCov.start
 end
 
-if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("3.1.0")
-  require "debug"
-else
-  require "pry-byebug"
+unless ENV["CI"]
+  begin
+    if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("3.1.0")
+      require "debug"
+    else
+      require "pry-byebug"
+    end
+  rescue LoadError
+  end
 end
 
 require "serega"
