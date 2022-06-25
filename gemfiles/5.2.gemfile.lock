@@ -1,0 +1,98 @@
+PATH
+  remote: ..
+  specs:
+    serega (0.0.1)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    activemodel (5.2.8)
+      activesupport (= 5.2.8)
+    activerecord (5.2.8)
+      activemodel (= 5.2.8)
+      activesupport (= 5.2.8)
+      arel (>= 9.0)
+    activerecord-jdbc-adapter (52.8-java)
+      activerecord (~> 5.2.0)
+    activerecord-jdbcsqlite3-adapter (52.8-java)
+      activerecord-jdbc-adapter (= 52.8)
+      jdbc-sqlite3 (~> 3.8, < 3.30)
+    activesupport (5.2.8)
+      concurrent-ruby (~> 1.0, >= 1.0.2)
+      i18n (>= 0.7, < 2)
+      minitest (~> 5.1)
+      tzinfo (~> 1.1)
+    arel (9.0.0)
+    ast (2.4.2)
+    concurrent-ruby (1.1.10)
+    diff-lcs (1.5.0)
+    docile (1.4.0)
+    i18n (1.10.0)
+      concurrent-ruby (~> 1.0)
+    jdbc-sqlite3 (3.28.0)
+    minitest (5.16.1)
+    parallel (1.22.1)
+    parser (3.1.2.0)
+      ast (~> 2.4.1)
+    rainbow (3.1.1)
+    regexp_parser (2.5.0)
+    rexml (3.2.5)
+    rspec (3.11.0)
+      rspec-core (~> 3.11.0)
+      rspec-expectations (~> 3.11.0)
+      rspec-mocks (~> 3.11.0)
+    rspec-core (3.11.0)
+      rspec-support (~> 3.11.0)
+    rspec-expectations (3.11.0)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.11.0)
+    rspec-mocks (3.11.1)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.11.0)
+    rspec-support (3.11.0)
+    rubocop (1.29.1)
+      parallel (~> 1.10)
+      parser (>= 3.1.0.0)
+      rainbow (>= 2.2.2, < 4.0)
+      regexp_parser (>= 1.8, < 3.0)
+      rexml (>= 3.2.5, < 4.0)
+      rubocop-ast (>= 1.17.0, < 2.0)
+      ruby-progressbar (~> 1.7)
+      unicode-display_width (>= 1.4.0, < 3.0)
+    rubocop-ast (1.18.0)
+      parser (>= 3.1.1.0)
+    rubocop-performance (1.13.3)
+      rubocop (>= 1.7.0, < 2.0)
+      rubocop-ast (>= 0.4.0)
+    ruby-progressbar (1.11.0)
+    simplecov (0.21.2)
+      docile (~> 1.1)
+      simplecov-html (~> 0.11)
+      simplecov_json_formatter (~> 0.1)
+    simplecov-html (0.12.3)
+    simplecov_json_formatter (0.1.4)
+    sqlite3 (1.4.4)
+    standard (1.12.1)
+      rubocop (= 1.29.1)
+      rubocop-performance (= 1.13.3)
+    thread_safe (0.3.6)
+    thread_safe (0.3.6-java)
+    tzinfo (1.2.9)
+      thread_safe (~> 0.1)
+    unicode-display_width (2.2.0)
+
+PLATFORMS
+  universal-java-11
+  x86_64-linux
+
+DEPENDENCIES
+  activerecord (~> 5.2.3)
+  activerecord-jdbcsqlite3-adapter
+  rspec (~> 3.11)
+  serega!
+  simplecov (~> 0.21.2)
+  sqlite3
+  standard (~> 1.12, >= 1.12.1)
+
+BUNDLED WITH
+   2.3.15
