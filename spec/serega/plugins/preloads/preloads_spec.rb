@@ -25,9 +25,10 @@ RSpec.describe Serega::Plugins::Preloads do
   describe "InstanceMethods" do
     it "adds #preloads method as a delegator to #{described_class}::PreloadsConstructor" do
       serializer_class.plugin :preloads
-      serializer = serializer_class.allocate
+      serializer = serializer_class.new
+      map = serializer.instance_variable_get(:@map)
 
-      allow(described_class::PreloadsConstructor).to receive(:call).with(serializer).and_return("RES")
+      allow(described_class::PreloadsConstructor).to receive(:call).with(map).and_return("RES")
 
       expect(serializer.preloads).to be "RES"
     end

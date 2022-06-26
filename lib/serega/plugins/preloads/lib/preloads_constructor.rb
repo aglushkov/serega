@@ -15,9 +15,9 @@ class Serega
           #
           # @return [Hash]
           #
-          def call(serializer)
+          def call(map)
             preloads = {}
-            append_many(preloads, serializer.map)
+            append_many(preloads, map)
             preloads
           end
 

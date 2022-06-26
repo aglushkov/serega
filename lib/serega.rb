@@ -17,6 +17,8 @@ end
 require_relative "serega/helpers/serializer_class_helper"
 require_relative "serega/utils/enum_deep_dup"
 require_relative "serega/utils/to_hash"
+require_relative "serega/utils/to_json"
+require_relative "serega/utils/as_json"
 
 require_relative "serega/attribute"
 require_relative "serega/validations/attribute/check_block"
@@ -38,7 +40,8 @@ class Serega
     {
       plugins: [],
       allowed_opts: %i[key serializer many hide],
-      max_cached_map_per_serializer_count: 50
+      max_cached_map_per_serializer_count: 50,
+      to_json: ->(data) { Utils::ToJSON.call(data) }
     }
   )
 
@@ -165,18 +168,17 @@ class Serega
   # Core serializer instance methods
   #
   module InstanceMethods
-    # Serializer attributes visibility modifiers
-    attr_reader :only, :except, :with
-
     #
     # Instantiates new Serega class. It will be more effective to call this manually if context is constant.
     #
     # @param context [Hash] Serialization context
     #
     def initialize(only: nil, except: nil, with: nil)
-      @only = Utils::ToHash.call(only)
-      @except = Utils::ToHash.call(except)
-      @with = Utils::ToHash.call(with)
+      @map = self.class::Map.call(
+        only: Utils::ToHash.call(only),
+        except: Utils::ToHash.call(except),
+        with: Utils::ToHash.call(with)
+      )
     end
 
     #
@@ -187,14 +189,33 @@ class Serega
     # @return [Hash] Serialization result
     #
     def to_h(object, **opts)
-      self.class::Convert.call(object, **opts, map: map)
+      self.class::Convert.call(object, **opts, map: @map)
     end
 
     #
-    # Returns nested array of attributes in order how they will be serialized
+    # Serializes provided object to json
     #
-    def map
-      @map ||= self.class::Map.call(only: only, except: except, with: with)
+    # @param object [Object] Serialized object
+    #
+    # @return [Hash] Serialization result
+    #
+    def to_json(object, **opts)
+      hash = to_h(object, **opts)
+      self.class.config[:to_json].call(hash)
+    end
+
+    #
+    # Serializes provided object as json (uses only JSON-compatible types)
+    # When you later serialize/deserialize it from JSON you should receive
+    # equal object
+    #
+    # @param object [Object] Serialized object
+    #
+    # @return [Hash] Serialization result
+    #
+    def as_json(object, **opts)
+      hash = to_h(object, **opts)
+      Utils::AsJSON.call(hash, to_json: self.class.config[:to_json])
     end
   end
 

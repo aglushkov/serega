@@ -11,10 +11,17 @@ RSpec.describe Serega do
     subject(:config) { serializer_class.config }
 
     it "generates default config" do
-      expect(config.keys).to eq %i[plugins allowed_opts max_cached_map_per_serializer_count]
+      expect(config.keys).to eq %i[
+        plugins
+        allowed_opts
+        max_cached_map_per_serializer_count
+        to_json
+      ]
+
       expect(config[:plugins]).to eq []
       expect(config[:allowed_opts]).to eq %i[key serializer many hide]
       expect(config[:max_cached_map_per_serializer_count]).to eq 50
+      expect(config[:to_json].call({})).to eq "{}"
     end
   end
 
@@ -152,16 +159,7 @@ RSpec.describe Serega do
     end
   end
 
-  describe ".initialize" do
-    it "initializes serializer with attribute visibility modifiers" do
-      serializer = serializer_class.new(only: :foo, except: :bar, with: :bazz)
-      expect(serializer.only).to eq(foo: {})
-      expect(serializer.except).to eq(bar: {})
-      expect(serializer.with).to eq(bazz: {})
-    end
-  end
-
-  describe "#to_h" do
+  describe "serialization methods" do
     let(:serializer_class) do
       Class.new(described_class) do
         attribute(:obj) { |obj| obj }
@@ -171,9 +169,25 @@ RSpec.describe Serega do
 
     let(:serializer) { serializer_class.new }
 
-    it "returns serialized response" do
-      expect(serializer.to_h("foo", context: {data: "bar"}))
-        .to eq({obj: "foo", ctx: "bar"})
+    describe "#to_h" do
+      it "returns serialized to hash response" do
+        expect(serializer.to_h("foo", context: {data: "bar"}))
+          .to eq({obj: "foo", ctx: "bar"})
+      end
+    end
+
+    describe "#to_json" do
+      it "returns serialized to json response" do
+        expect(serializer.to_json("foo", context: {data: "bar"}))
+          .to eq('{"obj":"foo","ctx":"bar"}')
+      end
+    end
+
+    describe "#as_json" do
+      it "returns serialized as json response (with JSON compatible types)" do
+        expect(serializer.as_json("foo", context: {data: "bar"}))
+          .to eq({"obj" => "foo", "ctx" => "bar"})
+      end
     end
   end
 end

@@ -42,7 +42,7 @@ class Serega
       module InstanceMethods
         # @return [Hash] relations that can be preloaded to omit N+1
         def preloads
-          @preloads ||= PreloadsConstructor.call(self)
+          @preloads ||= PreloadsConstructor.call(@map)
         end
       end
 
