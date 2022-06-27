@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe Serega::Convert do
-  subject { user_serializer.new(**modifiers).to_h(user, context: context) }
+  subject(:result) { user_serializer.new(**modifiers).to_h(user, context: context) }
 
   let(:user_serializer) do
     Class.new(Serega) do
@@ -16,7 +16,7 @@ RSpec.describe Serega::Convert do
     let(:user) { nil }
 
     it "returns empty hash" do
-      expect(subject).to eq({})
+      expect(result).to eq({})
     end
   end
 
@@ -24,7 +24,7 @@ RSpec.describe Serega::Convert do
     let(:user) { [] }
 
     it "returns empty array" do
-      expect(subject).to eq([])
+      expect(result).to eq([])
     end
   end
 
@@ -32,7 +32,7 @@ RSpec.describe Serega::Convert do
     let(:user) { double(first_name: "FIRST_NAME", last_name: "LAST_NAME") }
 
     it "returns hash" do
-      expect(subject).to eq({first_name: "FIRST_NAME", last_name: "LAST_NAME"})
+      expect(result).to eq({first_name: "FIRST_NAME", last_name: "LAST_NAME"})
     end
   end
 
@@ -55,7 +55,7 @@ RSpec.describe Serega::Convert do
     end
 
     it "returns hash with relations" do
-      expect(subject).to eq({first_name: "FIRST_NAME", last_name: "LAST_NAME", comment: {text: "TEXT"}})
+      expect(result).to eq({first_name: "FIRST_NAME", last_name: "LAST_NAME", comment: {text: "TEXT"}})
     end
   end
 
@@ -78,7 +78,7 @@ RSpec.describe Serega::Convert do
     end
 
     it "returns hash with relations" do
-      expect(subject).to eq({first_name: "FIRST_NAME", last_name: "LAST_NAME", comments: [{text: "TEXT"}]})
+      expect(result).to eq({first_name: "FIRST_NAME", last_name: "LAST_NAME", comments: [{text: "TEXT"}]})
     end
   end
 
@@ -92,7 +92,7 @@ RSpec.describe Serega::Convert do
     end
 
     it "returns serialized object without hidden attributes" do
-      expect(subject).to eq({last_name: "LAST_NAME"})
+      expect(result).to eq({last_name: "LAST_NAME"})
     end
   end
 
@@ -108,7 +108,7 @@ RSpec.describe Serega::Convert do
     let(:modifiers) { {with: :first_name} }
 
     it "returns specified in `:with` option hidden attributes" do
-      expect(subject).to include({first_name: "FIRST_NAME"})
+      expect(result).to include({first_name: "FIRST_NAME"})
     end
   end
 
@@ -124,7 +124,7 @@ RSpec.describe Serega::Convert do
     let(:modifiers) { {only: :first_name} }
 
     it "returns hash with `only` selected attributes" do
-      expect(subject).to eq({first_name: "FIRST_NAME"})
+      expect(result).to eq({first_name: "FIRST_NAME"})
     end
   end
 
@@ -133,7 +133,7 @@ RSpec.describe Serega::Convert do
     let(:modifiers) { {except: :first_name} }
 
     it "returns hash without :excepted attributes" do
-      expect(subject).to eq({last_name: "LAST_NAME"})
+      expect(result).to eq({last_name: "LAST_NAME"})
     end
   end
 
@@ -149,7 +149,7 @@ RSpec.describe Serega::Convert do
     let(:modifiers) { {with: %w[first_name last_name]} }
 
     it "returns specified in `:with` option hidden attributes" do
-      expect(subject).to include({first_name: "FIRST_NAME", last_name: "LAST_NAME"})
+      expect(result).to include({first_name: "FIRST_NAME", last_name: "LAST_NAME"})
     end
   end
 
@@ -166,7 +166,7 @@ RSpec.describe Serega::Convert do
     let(:modifiers) { {only: %i[first_name last_name]} }
 
     it "returns hash with `only` selected attributes" do
-      expect(subject).to eq({first_name: "FIRST_NAME", last_name: "LAST_NAME"})
+      expect(result).to eq({first_name: "FIRST_NAME", last_name: "LAST_NAME"})
     end
   end
 
@@ -183,7 +183,7 @@ RSpec.describe Serega::Convert do
     let(:modifiers) { {except: %i[first_name last_name]} }
 
     it "returns hash without :excepted attributes" do
-      expect(subject).to eq({middle_name: "MIDDLE_NAME"})
+      expect(result).to eq({middle_name: "MIDDLE_NAME"})
     end
   end
 
@@ -208,7 +208,7 @@ RSpec.describe Serega::Convert do
     let(:modifiers) { {with: {comment: :text}} }
 
     it "returns hash with additional attributes specified in `:with` option" do
-      expect(subject).to include({first_name: "FIRST_NAME", comment: {text: "TEXT"}})
+      expect(result).to include({first_name: "FIRST_NAME", comment: {text: "TEXT"}})
     end
   end
 
@@ -233,7 +233,7 @@ RSpec.describe Serega::Convert do
     let(:modifiers) { {only: {comment: :text}} }
 
     it "returns hash with `only` selected attributes" do
-      expect(subject).to eq({comment: {text: "TEXT"}})
+      expect(result).to eq({comment: {text: "TEXT"}})
     end
   end
 
@@ -258,7 +258,7 @@ RSpec.describe Serega::Convert do
     let(:modifiers) { {except: {comment: :text}} }
 
     it "returns hash without excepted attributes" do
-      expect(subject).to eq({first_name: "FIRST_NAME", last_name: "LAST_NAME", comment: {}})
+      expect(result).to eq({first_name: "FIRST_NAME", last_name: "LAST_NAME", comment: {}})
     end
   end
 
@@ -283,7 +283,7 @@ RSpec.describe Serega::Convert do
     let(:modifiers) { {except: :comment} }
 
     it "returns hash without excepted attributes" do
-      expect(subject).to eq({first_name: "FIRST_NAME", last_name: "LAST_NAME"})
+      expect(result).to eq({first_name: "FIRST_NAME", last_name: "LAST_NAME"})
     end
   end
 
@@ -308,7 +308,7 @@ RSpec.describe Serega::Convert do
     let(:modifiers) { {only: :comment} }
 
     it "returns hash with only requested fields and all fields of requested relation" do
-      expect(subject).to eq({comment: {text: "TEXT"}})
+      expect(result).to eq({comment: {text: "TEXT"}})
     end
   end
 end

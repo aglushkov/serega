@@ -33,7 +33,7 @@ RSpec.describe Serega::Attribute do
 
     it "saves provided block" do
       block = proc {}
-      expect(attribute_class.new(name: :name).block).to eq nil
+      expect(attribute_class.new(name: :name).block).to be_nil
       expect(attribute_class.new(name: :name, block: block).block).to eq block
     end
   end
@@ -59,24 +59,24 @@ RSpec.describe Serega::Attribute do
 
   describe "#many" do
     it "returns provided :many option" do
-      expect(attribute_class.new(name: :name, opts: {many: true}).many).to eq true
-      expect(attribute_class.new(name: :name, opts: {many: false}).many).to eq false
-      expect(attribute_class.new(name: :name).many).to eq nil
+      expect(attribute_class.new(name: :name, opts: {many: true}).many).to be true
+      expect(attribute_class.new(name: :name, opts: {many: false}).many).to be false
+      expect(attribute_class.new(name: :name).many).to be_nil
     end
   end
 
   describe "#hide" do
     it "returns provided :hide option" do
-      expect(attribute_class.new(name: :name, opts: {hide: true}).hide).to eq true
-      expect(attribute_class.new(name: :name, opts: {hide: false}).hide).to eq false
-      expect(attribute_class.new(name: :name).hide).to eq nil
+      expect(attribute_class.new(name: :name, opts: {hide: true}).hide).to be true
+      expect(attribute_class.new(name: :name, opts: {hide: false}).hide).to be false
+      expect(attribute_class.new(name: :name).hide).to be_nil
     end
   end
 
   describe "#relation?" do
     it "returns true if serializer option provided" do
-      expect(attribute_class.new(name: :name).relation?).to eq false
-      expect(attribute_class.new(name: :name, opts: {serializer: serializer_class}).relation?).to eq true
+      expect(attribute_class.new(name: :name).relation?).to be false
+      expect(attribute_class.new(name: :name, opts: {serializer: serializer_class}).relation?).to be true
     end
   end
 
@@ -140,34 +140,34 @@ RSpec.describe Serega::Attribute do
     end
 
     it "returns by default true when attribute is not hidden" do
-      expect(attribute_class.new(name: :name).visible?(**default)).to eq true
+      expect(attribute_class.new(name: :name).visible?(**default)).to be true
     end
 
     it "returns by default false when attribute is hidden" do
-      expect(attribute_class.new(name: :name, opts: {hide: true}).visible?(**default)).to eq false
+      expect(attribute_class.new(name: :name, opts: {hide: true}).visible?(**default)).to be false
     end
 
     it "returns false when attribute is hidden via :only parameter" do
-      expect(attribute_class.new(name: :name).visible?(**only(:other))).to eq false
+      expect(attribute_class.new(name: :name).visible?(**only(:other))).to be false
     end
 
     it "returns true when attribute is shown via :only parameter" do
-      expect(attribute_class.new(name: :name, opts: {hide: true}).visible?(**only(:name))).to eq true
+      expect(attribute_class.new(name: :name, opts: {hide: true}).visible?(**only(:name))).to be true
     end
 
     it "returns true when attribute is shown via :with parameter" do
-      expect(attribute_class.new(name: :name, opts: {hide: true}).visible?(**with(:name))).to eq true
+      expect(attribute_class.new(name: :name, opts: {hide: true}).visible?(**with(:name))).to be true
     end
 
     it "returns false when attribute is hidden via :except parameter" do
-      expect(attribute_class.new(name: :name).visible?(**except(:name))).to eq false
+      expect(attribute_class.new(name: :name).visible?(**except(:name))).to be false
     end
 
     it "skips :except parameter if it has nested keys" do
       args = except(:name)
       args[:except][:name] = {foo: {}}
 
-      expect(attribute_class.new(name: :name).visible?(**args)).to eq true
+      expect(attribute_class.new(name: :name).visible?(**args)).to be true
     end
   end
 end

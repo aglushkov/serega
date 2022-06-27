@@ -1,12 +1,12 @@
 RSpec.describe Serega::Utils::ToHash do
-  subject { described_class.call(val) }
+  subject(:result) { described_class.call(val) }
 
   context "with nil value" do
     let(:val) { nil }
 
     it "returns frozen hash" do
-      expect(subject).to eq({})
-      expect(subject).to be_frozen
+      expect(result).to eq({})
+      expect(result).to be_frozen
     end
   end
 
@@ -14,8 +14,8 @@ RSpec.describe Serega::Utils::ToHash do
     let(:val) { false }
 
     it "returns frozen hash" do
-      expect(subject).to eq({})
-      expect(subject).to be_frozen
+      expect(result).to eq({})
+      expect(result).to be_frozen
     end
   end
 
@@ -23,9 +23,9 @@ RSpec.describe Serega::Utils::ToHash do
     let(:val) { %w[foo bar] }
 
     it "returns hash with symbol keys and frozen empty hash values" do
-      expect(subject).to eq(foo: {}, bar: {})
-      expect(subject[:foo]).to be_frozen
-      expect(subject[:bar]).to be_frozen
+      expect(result).to eq(foo: {}, bar: {})
+      expect(result[:foo]).to be_frozen
+      expect(result[:bar]).to be_frozen
     end
   end
 
@@ -33,8 +33,8 @@ RSpec.describe Serega::Utils::ToHash do
     let(:val) { :foo }
 
     it "returns hash with frozen empty hash value" do
-      expect(subject).to eq(foo: {})
-      expect(subject[:foo]).to be_frozen
+      expect(result).to eq(foo: {})
+      expect(result[:foo]).to be_frozen
     end
   end
 
@@ -42,8 +42,8 @@ RSpec.describe Serega::Utils::ToHash do
     let(:val) { "foo" }
 
     it "returns hash with symbol key and frozen empty hash value" do
-      expect(subject).to eq(foo: {})
-      expect(subject[:foo]).to be_frozen
+      expect(result).to eq(foo: {})
+      expect(result[:foo]).to be_frozen
     end
   end
 
@@ -51,8 +51,8 @@ RSpec.describe Serega::Utils::ToHash do
     let(:val) { {foo: :bar} }
 
     it "returns nested hash with frozen empty hash final value" do
-      expect(subject).to eq(foo: {bar: {}})
-      expect(subject[:foo][:bar]).to be_frozen
+      expect(result).to eq(foo: {bar: {}})
+      expect(result[:foo][:bar]).to be_frozen
     end
   end
 
@@ -60,33 +60,33 @@ RSpec.describe Serega::Utils::ToHash do
     let(:val) { {"foo" => "bar"} }
 
     it "returns nested hash with symbol keys with frozen empty hash final value" do
-      expect(subject).to eq(foo: {bar: {}})
-      expect(subject[:foo][:bar]).to be_frozen
+      expect(result).to eq(foo: {bar: {}})
+      expect(result[:foo][:bar]).to be_frozen
     end
   end
 
-  context "with no-supported type value " do
+  context "with no-supported type value" do
     let(:val) { true }
 
     it "returns nested hash with symbol keys with frozen empty hash final value" do
-      expect { subject }.to raise_error Serega::Error, "Cant convert TrueClass class object to hash"
+      expect { result }.to raise_error Serega::Error, "Cant convert TrueClass class object to hash"
     end
   end
 
-  context "complex value test" do
+  context "with complex value test" do
     let(:val) { [:a, "b", c: {"d" => [:e, "f"]}] }
 
     it "returns nested hash with symbol keys" do
-      expect(subject).to eq(
+      expect(result).to eq(
         a: {},
         b: {},
         c: {d: {e: {}, f: {}}}
       )
 
-      expect(subject.dig(:a)).to be_frozen
-      expect(subject.dig(:b)).to be_frozen
-      expect(subject.dig(:c, :d, :e)).to be_frozen
-      expect(subject.dig(:c, :d, :f)).to be_frozen
+      expect(result.dig(:a)).to be_frozen
+      expect(result.dig(:b)).to be_frozen
+      expect(result.dig(:c, :d, :e)).to be_frozen
+      expect(result.dig(:c, :d, :f)).to be_frozen
     end
   end
 end

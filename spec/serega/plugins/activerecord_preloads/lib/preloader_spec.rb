@@ -9,14 +9,12 @@ RSpec.describe Serega::Plugins::ActiverecordPreloads do
     let(:plugin) { Serega::Plugins::ActiverecordPreloads }
 
     describe ".handlers" do
-      it "returns memorized array of handlers" do
+      it "returns array of handlers" do
         expect(described_class.handlers).to eq [
           plugin::ActiverecordRelation,
           plugin::ActiverecordObject,
           plugin::ActiverecordArray
         ]
-
-        expect(described_class.handlers).to be described_class.handlers
       end
     end
 

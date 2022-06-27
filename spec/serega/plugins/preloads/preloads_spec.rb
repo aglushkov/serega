@@ -45,7 +45,7 @@ RSpec.describe Serega::Plugins::Preloads do
 
       it "returns nil when provided nil" do
         attribute = serializer_class.attribute :foo, preload: nil
-        expect(attribute.preloads).to eq(nil)
+        expect(attribute.preloads).to be_nil
       end
 
       it "returns formatted provided preloads" do

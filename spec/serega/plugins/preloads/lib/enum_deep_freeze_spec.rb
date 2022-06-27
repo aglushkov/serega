@@ -5,7 +5,7 @@ load_plugin_code :preloads
 RSpec.describe Serega::Plugins::Preloads::EnumDeepFreeze do
   it "deeply freezes provided hash" do
     hash = {key1: {key11: {key111: :value111}}, key2: [{key22: {key222: :value222}}]}
-    Serega::Plugins::Preloads::EnumDeepFreeze.call(hash)
+    described_class.call(hash)
 
     expect(hash).to be_frozen
     expect(hash[:key1]).to be_frozen

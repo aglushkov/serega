@@ -52,7 +52,7 @@ RSpec.describe Serega::Plugins::Presenter do
 
     serializer.attribute(:rev) { |obj| obj.rev }
     rev = serializer.new.to_h("123")[:rev]
-    expect("321").to eq rev
+    expect(rev).to eq "321"
   end
 
   it "allows to override attribute methods" do
@@ -67,6 +67,6 @@ RSpec.describe Serega::Plugins::Presenter do
 
     res = serializer.new.to_h(nil)
     value = res[:value]
-    expect("VALUE").to eq value
+    expect(value).to eq "VALUE"
   end
 end
