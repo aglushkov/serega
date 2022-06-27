@@ -4,7 +4,7 @@ RSpec.describe Serega do
   let(:serializer_class) { Class.new(described_class) }
 
   it "has a version number" do
-    expect(described_class::VERSION).not_to be nil
+    expect(described_class::VERSION).not_to be_nil
   end
 
   describe ".config" do
@@ -27,7 +27,7 @@ RSpec.describe Serega do
 
   describe ".inherited" do
     it "inherits config" do
-      parent = Class.new(Serega)
+      parent = Class.new(described_class)
       parent.config[:foo] = :bar
 
       # Check config values are inherited
@@ -47,7 +47,7 @@ RSpec.describe Serega do
     end
 
     it "inherits attributes" do
-      parent = Class.new(Serega)
+      parent = Class.new(described_class)
       parent.attribute(:foo)
 
       # Check attributes are copied to child attributes
@@ -56,7 +56,7 @@ RSpec.describe Serega do
     end
 
     it "inherits serialization classes" do
-      parent = Class.new(Serega)
+      parent = Class.new(described_class)
       child = Class.new(parent)
 
       # Check child serialization classes are subclassed from parent classes
@@ -67,6 +67,7 @@ RSpec.describe Serega do
 
   describe ".plugin" do
     let(:plugin) { Module.new }
+
     it "runs plugin callbacks" do
       opts = {foo: :bar}
       allow(plugin).to receive_messages(

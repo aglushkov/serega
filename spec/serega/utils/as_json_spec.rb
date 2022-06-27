@@ -14,7 +14,7 @@ RSpec.describe Serega::Utils::AsJSON do
     let(:time) { Time.now }
     let(:big) { BigDecimal("1") }
 
-    it "it transforms data to json compatible types" do
+    it "transforms data to json compatible types" do
       expect(as_json(nil)).to eq(from_json(nil))
       expect(as_json(true)).to eq(from_json(true))
       expect(as_json(false)).to eq(from_json(false))
@@ -30,7 +30,7 @@ RSpec.describe Serega::Utils::AsJSON do
   end
 
   describe "transforming nested hashes and arrays" do
-    it "it transforms data to json compatible types" do
+    it "transforms data to json compatible types" do
       data = {
         data: {
           a0: :a0,

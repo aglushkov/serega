@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-RSpec.describe Serega do
-  subject(:version) { described_class::VERSION }
+RSpec.describe "Serega::VERSION" do
+  subject(:version) { Serega::VERSION }
 
   it "has a version number" do
     expect(version).to be_a String

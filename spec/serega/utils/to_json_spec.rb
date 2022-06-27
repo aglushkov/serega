@@ -11,7 +11,7 @@ RSpec.describe Serega::Utils::ToJSON do
   end
 
   describe "transforming different data types" do
-    it "it transforms data to json" do
+    it "transforms data to json" do
       expect(to_json(nil)).to eq(real_json(nil))
       expect(to_json(true)).to eq(real_json(true))
       expect(to_json(false)).to eq(real_json(false))
@@ -26,7 +26,7 @@ RSpec.describe Serega::Utils::ToJSON do
   end
 
   describe "transforming nested hashes" do
-    it "it transforms data to json" do
+    it "transforms data to json" do
       data = {
         data: {
           a1: "1",

@@ -52,7 +52,7 @@ jobs:
       # Check code standards only for latest MRI. It takes a lot of time for jruby or truffleruby
       - name: Check Code Standards
         if: startsWith(matrix.ruby, '3.1')
-        run: bundle exec standardrb
+        run: bundle exec rubocop
 
       - name: Run Tests
         run: bundle exec rspec
