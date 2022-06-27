@@ -169,9 +169,11 @@ class Serega
   #
   module InstanceMethods
     #
-    # Instantiates new Serega class. It will be more effective to call this manually if context is constant.
+    # Instantiates new Serega class
     #
-    # @param context [Hash] Serialization context
+    # @param only [Array, Hash, String, Symbol] The only attributes to serialize
+    # @param except [Array, Hash, String, Symbol] Attributes to hide
+    # @param with [Array, Hash, String, Symbol] Attributes (usually hidden) to serialize additionally
     #
     def initialize(only: nil, except: nil, with: nil)
       @map = self.class::Map.call(
@@ -185,6 +187,7 @@ class Serega
     # Serializes provided object to hash
     #
     # @param object [Object] Serialized object
+    # @param opts [Hash] Serialization options, like :context and :many
     #
     # @return [Hash] Serialization result
     #
