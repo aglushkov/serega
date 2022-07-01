@@ -12,12 +12,13 @@ RSpec.describe Serega::Attribute do
     end
 
     it "validates provided params" do
+      opts = {foo: :bar}
       block = proc {}
-      attribute_class.new(name: :current_name, opts: {foo: :bar}, block: block)
+      attribute_class.new(name: :current_name, opts: opts, block: block)
 
       expect(described_class::CheckName).to have_received(:call).with(:current_name)
-      expect(described_class::CheckOpts).to have_received(:call).with({foo: :bar}, serializer_class.config[:allowed_opts])
-      expect(described_class::CheckBlock).to have_received(:call).with(block)
+      expect(described_class::CheckOpts).to have_received(:call).with({foo: :bar}, serializer_class.config[:attribute_keys])
+      expect(described_class::CheckBlock).to have_received(:call).with(opts, block)
     end
 
     it "symbolizes name" do

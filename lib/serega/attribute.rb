@@ -37,7 +37,7 @@ class Serega
 
         @name = name.to_sym
         @opts = Utils::EnumDeepDup.call(opts)
-        @block = block
+        @block = opts[:value] || block
       end
 
       # @return [Symbol] Object method name to will be used to get attribute value unless block provided
@@ -119,8 +119,8 @@ class Serega
 
       def check(name, opts, block)
         CheckName.call(name)
-        CheckOpts.call(opts, self.class.serializer_class.config[:allowed_opts])
-        CheckBlock.call(block)
+        CheckOpts.call(opts, self.class.serializer_class.config[:attribute_keys])
+        CheckBlock.call(opts, block)
       end
     end
 

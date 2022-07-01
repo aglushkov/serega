@@ -5,7 +5,15 @@ class Serega
     module ValidateModifiers
       class Validate
         class << self
-          def call(serializer_class, fields, prev_names = [])
+          def call(serializer_class, fields)
+            return unless fields
+
+            validate(serializer_class, fields, [])
+          end
+
+          private
+
+          def validate(serializer_class, fields, prev_names)
             fields.each do |name, nested_fields|
               attribute = serializer_class.attributes[name]
 
@@ -14,11 +22,9 @@ class Serega
 
               raise_nested_error(name, prev_names, nested_fields) unless attribute.relation?
               nested_serializer = attribute.serializer
-              call(nested_serializer, nested_fields, prev_names + [name])
+              validate(nested_serializer, nested_fields, prev_names + [name])
             end
           end
-
-          private
 
           def raise_error(name, prev_names)
             field_name = field_name(name, prev_names)

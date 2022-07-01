@@ -11,15 +11,19 @@ RSpec.describe Serega do
     subject(:config) { serializer_class.config }
 
     it "generates default config" do
-      expect(config.keys).to eq %i[
+      expect(config.keys).to match_array %i[
         plugins
-        allowed_opts
+        initiate_keys
+        serialize_keys
+        attribute_keys
         max_cached_map_per_serializer_count
         to_json
       ]
 
       expect(config[:plugins]).to eq []
-      expect(config[:allowed_opts]).to eq %i[key serializer many hide]
+      expect(config[:serialize_keys]).to match_array(%i[context many])
+      expect(config[:initiate_keys]).to match_array(%i[only except with])
+      expect(config[:attribute_keys]).to match_array(%i[key value serializer many hide])
       expect(config[:max_cached_map_per_serializer_count]).to eq 50
       expect(config[:to_json].call({})).to eq "{}"
     end
@@ -165,10 +169,12 @@ RSpec.describe Serega do
       Class.new(described_class) do
         attribute(:obj) { |obj| obj }
         attribute(:ctx) { |obj, ctx| ctx[:data] }
+        attribute(:except) { "EXCEPT" }
       end
     end
 
-    let(:serializer) { serializer_class.new }
+    let(:opts) { {except: :except} }
+    let(:serializer) { serializer_class.new(**opts) }
 
     describe "#to_h" do
       it "returns serialized to hash response" do
@@ -187,6 +193,27 @@ RSpec.describe Serega do
     describe "#as_json" do
       it "returns serialized as json response (with JSON compatible types)" do
         expect(serializer.as_json("foo", context: {data: "bar"}))
+          .to eq({"obj" => "foo", "ctx" => "bar"})
+      end
+    end
+
+    describe ".to_h" do
+      it "returns serialized to hash response" do
+        expect(serializer_class.to_h("foo", **opts, context: {data: "bar"}))
+          .to eq({obj: "foo", ctx: "bar"})
+      end
+    end
+
+    describe ".to_json" do
+      it "returns serialized to json response" do
+        expect(serializer_class.to_json("foo", **opts, context: {data: "bar"}))
+          .to eq('{"obj":"foo","ctx":"bar"}')
+      end
+    end
+
+    describe ".as_json" do
+      it "returns serialized as json response (with JSON compatible types)" do
+        expect(serializer_class.as_json("foo", **opts, context: {data: "bar"}))
           .to eq({"obj" => "foo", "ctx" => "bar"})
       end
     end

@@ -13,10 +13,15 @@ class Serega
       end
 
       module InstanceMethods
-        def initialize(only: nil, except: nil, with: nil)
-          only = ParseStringModifiers.call(only)
-          except = ParseStringModifiers.call(except)
-          with = ParseStringModifiers.call(with)
+        private
+
+        def prepare_modifiers(opts)
+          opts = {
+            only: ParseStringModifiers.call(opts[:only]),
+            except: ParseStringModifiers.call(opts[:except]),
+            with: ParseStringModifiers.call(opts[:with])
+          }
+
           super
         end
       end

@@ -21,6 +21,7 @@ require_relative "serega/utils/to_json"
 require_relative "serega/utils/as_json"
 
 require_relative "serega/attribute"
+require_relative "serega/validations/check_allowed_keys"
 require_relative "serega/validations/attribute/check_block"
 require_relative "serega/validations/attribute/check_name"
 require_relative "serega/validations/attribute/check_opt_hide"
@@ -39,7 +40,9 @@ class Serega
   @config = Config.new(
     {
       plugins: [],
-      allowed_opts: %i[key serializer many hide],
+      initiate_keys: %i[only with except],
+      attribute_keys: %i[key value serializer many hide],
+      serialize_keys: %i[context many],
       max_cached_map_per_serializer_count: 50,
       to_json: ->(data) { Utils::ToJSON.call(data) }
     }
@@ -162,12 +165,29 @@ class Serega
     def relation(name, serializer:, **opts, &block)
       attribute(name, serializer: serializer, **opts, &block)
     end
+
+    def to_h(object, opts = FROZEN_EMPTY_HASH)
+      initiate_keys = config[:initiate_keys]
+      new(opts.slice(*initiate_keys)).to_h(object, opts.except(*initiate_keys))
+    end
+
+    def to_json(object, opts = FROZEN_EMPTY_HASH)
+      initiate_keys = config[:initiate_keys]
+      new(opts.slice(*initiate_keys)).to_json(object, opts.except(*initiate_keys))
+    end
+
+    def as_json(object, opts = FROZEN_EMPTY_HASH)
+      initiate_keys = config[:initiate_keys]
+      new(opts.slice(*initiate_keys)).as_json(object, opts.except(*initiate_keys))
+    end
   end
 
   #
   # Core serializer instance methods
   #
   module InstanceMethods
+    attr_reader :opts
+
     #
     # Instantiates new Serega class
     #
@@ -175,12 +195,10 @@ class Serega
     # @param except [Array, Hash, String, Symbol] Attributes to hide
     # @param with [Array, Hash, String, Symbol] Attributes (usually hidden) to serialize additionally
     #
-    def initialize(only: nil, except: nil, with: nil)
-      @map = self.class::Map.call(
-        only: Utils::ToHash.call(only),
-        except: Utils::ToHash.call(except),
-        with: Utils::ToHash.call(with)
-      )
+    def initialize(opts = FROZEN_EMPTY_HASH)
+      CheckAllowedKeys.call(opts, self.class.config[:initiate_keys])
+      opts = prepare_modifiers(opts) if opts && (opts != FROZEN_EMPTY_HASH)
+      @opts = opts
     end
 
     #
@@ -191,8 +209,9 @@ class Serega
     #
     # @return [Hash] Serialization result
     #
-    def to_h(object, **opts)
-      self.class::Convert.call(object, **opts, map: @map)
+    def to_h(object, opts = FROZEN_EMPTY_HASH)
+      CheckAllowedKeys.call(opts, self.class.config[:serialize_keys])
+      self.class::Convert.call(object, **opts, map: map)
     end
 
     #
@@ -202,8 +221,8 @@ class Serega
     #
     # @return [Hash] Serialization result
     #
-    def to_json(object, **opts)
-      hash = to_h(object, **opts)
+    def to_json(object, opts = FROZEN_EMPTY_HASH)
+      hash = to_h(object, opts)
       self.class.config[:to_json].call(hash)
     end
 
@@ -216,9 +235,23 @@ class Serega
     #
     # @return [Hash] Serialization result
     #
-    def as_json(object, **opts)
-      hash = to_h(object, **opts)
+    def as_json(object, opts = FROZEN_EMPTY_HASH)
+      hash = to_h(object, opts)
       Utils::AsJSON.call(hash, to_json: self.class.config[:to_json])
+    end
+
+    private
+
+    def map
+      @map ||= self.class::Map.call(opts)
+    end
+
+    def prepare_modifiers(opts)
+      {
+        only: Utils::ToHash.call(opts[:only]),
+        except: Utils::ToHash.call(opts[:except]),
+        with: Utils::ToHash.call(opts[:with])
+      }
     end
   end
 

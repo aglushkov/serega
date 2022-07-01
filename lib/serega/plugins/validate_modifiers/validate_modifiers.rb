@@ -8,19 +8,34 @@ class Serega
       end
 
       def self.load_plugin(serializer_class, **_opts)
-        serializer_class::Map.extend(MapClassMethods)
+        serializer_class.include(InstanceMethods)
         require_relative "./validate"
       end
 
-      module MapClassMethods
+      def self.after_load_plugin(serializer_class, **opts)
+        serializer_class.config[:validate_modifiers] = {auto: opts.fetch(:auto, true)}
+      end
+
+      module InstanceMethods
+        # Raises error if some modifiers are invalid
+        def validate_modifiers
+          @modifiers_validated ||= begin
+            Validate.call(self.class, opts[:only])
+            Validate.call(self.class, opts[:except])
+            Validate.call(self.class, opts[:with])
+            true
+          end
+        end
+
         private
 
-        def construct_map(serializer_class, only:, except:, with:)
-          Validate.call(serializer_class, only)
-          Validate.call(serializer_class, except)
-          Validate.call(serializer_class, with)
+        def initialize(opts)
           super
+          validate_modifiers if self.class.config[:validate_modifiers][:auto]
         end
+      end
+
+      module InstanceMethods
       end
     end
 

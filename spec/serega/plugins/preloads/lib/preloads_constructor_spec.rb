@@ -14,7 +14,7 @@ RSpec.describe Serega::Plugins::Preloads::PreloadsConstructor do
   let(:user_ser) { user_serializer.new }
 
   def map(serializer)
-    serializer.instance_variable_get(:@map)
+    serializer.send(:map)
   end
 
   it "returns empty hash when no attributes requested" do

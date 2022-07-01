@@ -14,7 +14,7 @@ class Serega
       def self.after_load_plugin(serializer_class, **_opts)
         config = serializer_class.config
         config[plugin_name] = {}
-        config[:allowed_opts] << :format
+        config[:attribute_keys] << :format
       end
 
       module AttributeInstanceMethods

@@ -17,6 +17,7 @@ class Serega
 
       def self.after_load_plugin(serializer_class, **opts)
         serializer_class.root(opts[:root] || ROOT_DEFAULT, one: opts[:root_one], many: opts[:root_many])
+        serializer_class.config[:serialize_keys] << :root
       end
 
       module ClassMethods

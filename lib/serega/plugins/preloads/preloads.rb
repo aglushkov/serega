@@ -34,7 +34,7 @@ class Serega
 
       def self.after_load_plugin(serializer_class, **opts)
         config = serializer_class.config
-        config[:allowed_opts] += [:preload, :preload_path]
+        config[:attribute_keys] += [:preload, :preload_path]
         config[:preloads] = {auto_preload_relations: opts.fetch(:auto_preload_relations, true)}
       end
 
@@ -42,7 +42,7 @@ class Serega
       module InstanceMethods
         # @return [Hash] relations that can be preloaded to omit N+1
         def preloads
-          @preloads ||= PreloadsConstructor.call(@map)
+          @preloads ||= PreloadsConstructor.call(map)
         end
       end
 

@@ -41,9 +41,13 @@ RSpec.describe Serega::Map do
     ser
   end
 
+  def map(opts)
+    described_class.call(opts)
+  end
+
   describe ".call" do
     it "returns all not hidden attributes by default" do
-      result = described_class.call(only: {}, except: {}, with: {})
+      result = map({})
       expected_result = [
         [a.attributes[:a1], []],
         [a.attributes[:a2], []],
@@ -57,7 +61,7 @@ RSpec.describe Serega::Map do
     end
 
     it "returns only attributes from :only option" do
-      result = described_class.call(only: {a2: {}, d: {d1: {}}}, except: {}, with: {})
+      result = map(only: {a2: {}, d: {d1: {}}}, except: {}, with: {})
       expected_result = [
         [a.attributes[:a2], []],
         [a.attributes[:d], [
@@ -69,7 +73,7 @@ RSpec.describe Serega::Map do
     end
 
     it "returns all not hidden attributes except provided in :except option" do
-      result = described_class.call(only: {}, except: {a2: {}, d: {d1: {}}}, with: {})
+      result = map(only: {}, except: {a2: {}, d: {d1: {}}}, with: {})
       expected_result = [
         [a.attributes[:a1], []],
         [a.attributes[:d], [
@@ -81,7 +85,7 @@ RSpec.describe Serega::Map do
     end
 
     it "returns all not hidden attributes and attributes defined in :with option" do
-      result = described_class.call(only: {}, except: {}, with: {a3: {}, b: {}, c: {c3: {}}})
+      result = map(only: {}, except: {}, with: {a3: {}, b: {}, c: {c3: {}}})
       expected_result = [
         [a.attributes[:a1], []],
         [a.attributes[:a2], []],

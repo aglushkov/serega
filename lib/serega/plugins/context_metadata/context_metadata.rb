@@ -19,7 +19,10 @@ class Serega
       end
 
       def self.after_load_plugin(serializer_class, **opts)
-        serializer_class.config[plugin_name] = {key: opts[:context_metadata_key] || DEFAULT_CONTEXT_METADATA_KEY}
+        config = serializer_class.config
+        meta_key = opts[:context_metadata_key] || DEFAULT_CONTEXT_METADATA_KEY
+        config[plugin_name] = {key: meta_key}
+        config[:serialize_keys] << meta_key
       end
 
       module InstanceMethods

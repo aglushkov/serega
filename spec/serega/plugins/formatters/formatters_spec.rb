@@ -11,7 +11,7 @@ RSpec.describe Serega::Plugins::Formatters do
 
     it "adds allowed :format attribute option" do
       serializer = Class.new(Serega) { plugin :formatters }
-      expect(serializer.config[:allowed_opts]).to include(:format)
+      expect(serializer.config[:attribute_keys]).to include(:format)
     end
   end
 

@@ -7,9 +7,9 @@ RSpec.describe Serega::Plugins::Preloads do
 
   it "adds allowed attribute options" do
     serializer_class.plugin :preloads
-    allowed_opts = serializer_class.config[:allowed_opts]
-    expect(allowed_opts).to include :preload
-    expect(allowed_opts).to include :preload_path
+    attribute_keys = serializer_class.config[:attribute_keys]
+    expect(attribute_keys).to include :preload
+    expect(attribute_keys).to include :preload_path
   end
 
   it "configures to preload relations by default" do
@@ -26,7 +26,7 @@ RSpec.describe Serega::Plugins::Preloads do
     it "adds #preloads method as a delegator to #{described_class}::PreloadsConstructor" do
       serializer_class.plugin :preloads
       serializer = serializer_class.new
-      map = serializer.instance_variable_get(:@map)
+      map = serializer.send(:map)
 
       allow(described_class::PreloadsConstructor).to receive(:call).with(map).and_return("RES")
 

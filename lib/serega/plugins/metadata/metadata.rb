@@ -28,7 +28,7 @@ class Serega
       end
 
       def self.after_load_plugin(serializer_class, **_opts)
-        serializer_class.config[plugin_name] = {allowed_opts: %i[hide_nil hide_empty]}
+        serializer_class.config[plugin_name] = {attribute_keys: %i[hide_nil hide_empty]}
       end
 
       module ClassMethods
