@@ -8,10 +8,12 @@ inherit_gem:
 AllCops:
   NewCops: enable
   Exclude:
-    - vendor/bundle/**/*
     - .github/**/*
+    - coverage/**/*
+    - doc/**/*
     - pkg/**/*
     - sig/**/*
+    - vendor/bundle/**/*
 
 RSpec/MultipleExpectations:
   Enabled: false

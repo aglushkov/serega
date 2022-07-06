@@ -5,10 +5,10 @@ class Serega
     module Metadata
       class MetaAttribute
         class CheckBlock
-          module ClassMethods
-            ALLOWED_PARAM_TYPES = %i[opt req]
-            private_constant :ALLOWED_PARAM_TYPES
+          ALLOWED_PARAM_TYPES = %i[opt req]
+          private_constant :ALLOWED_PARAM_TYPES
 
+          class << self
             #
             # Checks block provided with attribute
             # Block must have up to two arguments - object and context.
@@ -38,8 +38,6 @@ class Serega
               raise Error, "Block can have maximum 2 regular parameters (no **keyword or *array args)"
             end
           end
-
-          extend ClassMethods
         end
       end
     end

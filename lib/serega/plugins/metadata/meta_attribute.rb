@@ -11,6 +11,9 @@ class Serega
         # Stores Attribute instance methods
         #
         module InstanceMethods
+          # @return [Symbol] Meta attribute name
+          attr_reader :name
+
           # @return [Symbol] Meta attribute full path
           attr_reader :path
 
@@ -32,6 +35,7 @@ class Serega
           def initialize(path:, opts:, block:)
             check(path, opts, block)
 
+            @name = path.join(".").to_sym
             @path = Utils::EnumDeepDup.call(path)
             @opts = Utils::EnumDeepDup.call(opts)
             @block = block

@@ -5,7 +5,7 @@ class Serega
     module Metadata
       class MetaAttribute
         class CheckOpts
-          module ClassMethods
+          class << self
             #
             # Validates attribute options
             # Checks used options are allowed and then checks options values.
@@ -34,8 +34,6 @@ class Serega
               CheckOptHideNil.call(opts)
             end
           end
-
-          extend ClassMethods
         end
       end
     end

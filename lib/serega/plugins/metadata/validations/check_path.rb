@@ -5,12 +5,12 @@ class Serega
     module Metadata
       class MetaAttribute
         class CheckPath
-          module ClassMethods
-            FORMAT_ONE_CHAR = /\A[a-zA-Z0-9]\z/
-            FORMAT_MANY_CHARS = /\A[a-zA-Z0-9][a-zA-Z0-9_-]*?[a-zA-Z0-9]\z/ # allow '-' and '_' in the middle
+          FORMAT_ONE_CHAR = /\A[a-zA-Z0-9]\z/
+          FORMAT_MANY_CHARS = /\A[a-zA-Z0-9][a-zA-Z0-9_-]*?[a-zA-Z0-9]\z/ # allow '-' and '_' in the middle
 
-            private_constant :FORMAT_ONE_CHAR, :FORMAT_MANY_CHARS
+          private_constant :FORMAT_ONE_CHAR, :FORMAT_MANY_CHARS
 
+          class << self
             #
             # Checks allowed characters in specified metadata path parts.
             # Globally allowed characters: "a-z", "A-Z", "0-9".
@@ -46,8 +46,6 @@ class Serega
               %(Invalid metadata path #{name.inspect}, globally allowed characters: "a-z", "A-Z", "0-9". Minus and low line "-", "_" also allowed except as the first or last character)
             end
           end
-
-          extend ClassMethods
         end
       end
     end

@@ -28,7 +28,7 @@ class Serega
       end
 
       def self.after_load_plugin(serializer_class, **_opts)
-        serializer_class.config[plugin_name] = {attribute_keys: %i[hide_nil hide_empty]}
+        serializer_class.config[plugin_name] = {attribute_keys: %i[path hide_nil hide_empty]}
       end
 
       module ClassMethods
@@ -39,8 +39,8 @@ class Serega
           meta_attribute_class.serializer_class = subclass
           subclass.const_set(:MetaAttribute, meta_attribute_class)
 
-          # Assign same attributes
-          meta_attributes.each do |attr|
+          # Assign same metadata attributes
+          meta_attributes.each_value do |attr|
             subclass.meta_attribute(*attr.path, **attr.opts, &attr.block)
           end
         end
@@ -51,7 +51,7 @@ class Serega
         # @return [Array] Added metadata attributes
         #
         def meta_attributes
-          @meta_attributes ||= []
+          @meta_attributes ||= {}
         end
 
         #
@@ -74,22 +74,22 @@ class Serega
         # @return [MetadataAttribute] Added metadata attribute
         #
         def meta_attribute(*path, **opts, &block)
-          meta_attribute = self::MetaAttribute.new(path: path, opts: opts, block: block)
-          meta_attributes << meta_attribute
+          attribute = self::MetaAttribute.new(path: path, opts: opts, block: block)
+          meta_attributes[attribute.name] = attribute
         end
       end
 
       module ConvertInstanceMethods
         def to_h
-          super.tap do |hash|
-            add_metadata(hash)
-          end
+          hash = super
+          add_metadata(hash)
+          hash
         end
 
         private
 
         def add_metadata(hash)
-          self.class.serializer_class.meta_attributes.each do |meta_attribute|
+          self.class.serializer_class.meta_attributes.each_value do |meta_attribute|
             metadata = meta_attribute_value(meta_attribute)
             next unless metadata
 

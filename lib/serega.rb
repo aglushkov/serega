@@ -147,13 +147,12 @@ class Serega
     # @return [Serega::Attribute] Added attribute
     #
     def attribute(name, **opts, &block)
-      self::Attribute.new(name: name, opts: opts, block: block).tap do |attribute|
-        attributes[attribute.name] = attribute
-      end
+      attribute = self::Attribute.new(name: name, opts: opts, block: block)
+      attributes[attribute.name] = attribute
     end
 
     #
-    # Adds relation
+    # Adds attribute with forced :serializer option
     #
     # @param name [Symbol] Attribute name. Attribute value will be found by executing `object.<name>`
     # @param serializer [Serega, Proc] Specifies nested serializer for relationship

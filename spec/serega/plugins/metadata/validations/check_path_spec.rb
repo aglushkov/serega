@@ -6,9 +6,8 @@ RSpec.describe Serega::Plugins::Metadata::MetaAttribute::CheckPath do
   end
 
   it "prohibits empty name" do
-    name = ""
-    expect { described_class.call([name]) }.to raise_error Serega::Error, error(name)
-    expect { described_class.call([:foo, name]) }.to raise_error Serega::Error, error(name)
+    expect { described_class.call([""]) }.to raise_error Serega::Error, error("")
+    expect { described_class.call([:foo, ""]) }.to raise_error Serega::Error, error("")
   end
 
   it "allows one char A-Za-z0-9" do

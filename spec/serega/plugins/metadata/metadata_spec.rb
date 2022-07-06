@@ -26,12 +26,27 @@ RSpec.describe Serega::Plugins::Metadata do
 
     it "inherits meta attributes" do
       parent_attr = parent.meta_attribute(:version, hide_nil: true) { "1.2.3" }
-      child_attr = child.meta_attributes[0]
 
+      expect(child.meta_attributes.length).to eq 1
+      child_attr = child.meta_attributes[:version]
       expect(child_attr).not_to equal parent_attr
-      expect(child_attr.path).to eq [:version]
       expect(child_attr.opts).to eq(hide_nil: true)
+      expect(child_attr.path).to eq([:version])
       expect(child_attr.value(nil, nil)).to eq "1.2.3"
+    end
+
+    it "allows to override meta attributes" do
+      parent.meta_attribute(:version, :minor) { "1" }
+      child_attr = child.meta_attributes[:"version.minor"]
+
+      expect(child.meta_attributes.length).to eq 1
+      expect(child_attr.value(nil, nil)).to eq "1"
+
+      child.meta_attribute(:version, :minor) { "2" }
+      expect(child.meta_attributes.length).to eq 1
+
+      child_attr = child.meta_attributes[:"version.minor"]
+      expect(child_attr.value(nil, nil)).to eq "2"
     end
   end
 

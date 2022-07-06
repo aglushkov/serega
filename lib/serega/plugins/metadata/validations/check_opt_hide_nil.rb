@@ -5,7 +5,7 @@ class Serega
     module Metadata
       class MetaAttribute
         class CheckOptHideNil
-          module ClassMethods
+          class << self
             #
             # Checks attribute :after_hide_if option
             #
@@ -24,8 +24,6 @@ class Serega
               raise Error, "Invalid option :hide_nil => #{value.inspect}. Must be true"
             end
           end
-
-          extend ClassMethods
         end
       end
     end
