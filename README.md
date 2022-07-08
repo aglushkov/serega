@@ -3,6 +3,7 @@
   The Serega Ruby Serializer provides easy and powerfull DSL to describe your objects and to serialize them to Hash or JSON.
 
   It has also some great features:
+  
     * Configurable serialized fields. No more multiple serializers for same resource. Yay!
     * Built-in object presenter ([presenter] plugin)
     * Solution for N+1 problem (via [preloads] or [activerecord_preloads] plugins)
@@ -104,12 +105,12 @@
       attribute :posts, serializer: "PostSerializer"
       attribute :posts, serializer: -> { PostSerializer }
 
-      # Also we can use `relation` method to add attributes with serializer
+      # We can use `relation` word to describe attributes with serializers
       relation :posts, serializer: PostSerializer
 
       # Option `:many` specifies a has_many relationship
       # Usually it is defined automatically by checking `value.is_a?(Enumerable)`
-      attribute :posts, serializer: FirstNameSerializer, many: true
+      attribute :posts, serializer: PostSerializer, many: true
 
       # Option `:preload` can be specified when enabled `:preloads` or `:activerecord_preloads` plugin
       # It allows to specify what should be preloaded to serialized attribute
