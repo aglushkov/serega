@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    serega (0.0.1)
+    serega (0.1.0)
 
 GEM
   remote: https://rubygems.org/
@@ -35,11 +35,12 @@ GEM
     irb (1.4.1)
       reline (>= 0.3.0)
     jdbc-sqlite3 (3.28.0)
-    minitest (5.16.1)
+    minitest (5.16.2)
     parallel (1.22.1)
     parser (3.1.2.0)
       ast (~> 2.4.1)
     rainbow (3.1.1)
+    rake (13.0.6)
     regexp_parser (2.5.0)
     reline (0.3.1)
       io-console (~> 0.5)
@@ -96,6 +97,7 @@ DEPENDENCIES
   activerecord (~> 7.0)
   activerecord-jdbcsqlite3-adapter
   debug (>= 1.0.0)
+  rake (~> 13.0)
   rspec (~> 3.0)
   rubocop-rspec (~> 2.11, >= 2.11.1)
   serega!
