@@ -1,5 +1,8 @@
 ## [Unreleased]
 
-## [0.1.0] - 2022-03-06
+## [0.1.0] - 2022-08-07
 
-- Initial release
+- Initial public release ([@aglushkov][])
+
+
+[@aglushkov]: https://github.com/aglushkov

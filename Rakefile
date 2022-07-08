@@ -8,3 +8,9 @@ RSpec::Core::RakeTask.new(:spec)
 require "standard/rake"
 
 task default: %i[spec standard]
+
+task :examples do
+  Dir["examples/*.rb"].each do |file|
+    `ruby '#{file}'`
+  end
+end
