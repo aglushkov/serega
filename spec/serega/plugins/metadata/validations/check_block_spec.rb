@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Serega::Plugins.find_plugin(:metadata)
 load_plugin_code(:metadata)
 

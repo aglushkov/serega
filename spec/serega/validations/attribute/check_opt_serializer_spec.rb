@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe Serega::Attribute::CheckOptSerializer do
   def error(value)
     "Invalid option :serializer => #{value.inspect}. Can be a Serega subclass, a String or a Proc without arguments"

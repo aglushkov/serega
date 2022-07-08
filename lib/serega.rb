@@ -22,10 +22,12 @@ require_relative "serega/utils/as_json"
 
 require_relative "serega/attribute"
 require_relative "serega/validations/check_allowed_keys"
+require_relative "serega/validations/check_opt_is_bool"
+require_relative "serega/validations/check_opt_is_hash"
 require_relative "serega/validations/attribute/check_block"
 require_relative "serega/validations/attribute/check_name"
 require_relative "serega/validations/attribute/check_opt_hide"
-require_relative "serega/validations/attribute/check_opt_key"
+require_relative "serega/validations/attribute/check_opt_method"
 require_relative "serega/validations/attribute/check_opt_many"
 require_relative "serega/validations/attribute/check_opt_serializer"
 require_relative "serega/validations/attribute/check_opts"
@@ -208,8 +210,12 @@ class Serega
     #
     # @return [Hash] Serialization result
     #
-    def to_h(object, opts = FROZEN_EMPTY_HASH)
+    def to_h(object, opts = {})
       CheckAllowedKeys.call(opts, self.class.config[:serialize_keys])
+      CheckOptIsHash.call(opts, :context)
+      CheckOptIsBool.call(opts, :many)
+      opts[:context] ||= {}
+
       self.class::Convert.call(object, **opts, map: map)
     end
 

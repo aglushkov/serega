@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe Serega::Attribute::CheckOptMany do
   def error(value)
     "Invalid option :many => #{value.inspect}. Must have a boolean value"

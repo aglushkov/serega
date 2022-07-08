@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 load_plugin_code(:metadata)
 
 RSpec.describe Serega::Plugins::Metadata::MetaAttribute::CheckPath do

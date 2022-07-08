@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe Serega::Attribute::CheckBlock do
   let(:block_error) { "Block can have maximum two regular parameters (no **keyword or *array args)" }
   let(:value_error) { "Option :value must be a Proc that is able to accept two parameters (no **keyword or *array args)" }

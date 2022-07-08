@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe Serega::Utils::ToHash do
   subject(:result) { described_class.call(val) }
 

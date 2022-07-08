@@ -24,7 +24,7 @@ class Serega
 
         def check_each_opt(opts)
           CheckOptHide.call(opts)
-          CheckOptKey.call(opts)
+          CheckOptMethod.call(opts)
           CheckOptMany.call(opts)
           CheckOptSerializer.call(opts)
         end

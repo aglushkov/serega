@@ -3,7 +3,7 @@
 class Serega
   class Attribute
     class CheckBlock
-      module ClassMethods
+      class << self
         #
         # Checks :value option or a block provided with attribute
         # Must have up to two arguments - object and context.
@@ -76,8 +76,6 @@ class Serega
           "Block and a :value option can not be provided together"
         end
       end
-
-      extend ClassMethods
     end
   end
 end

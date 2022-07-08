@@ -15,6 +15,9 @@ AllCops:
     - sig/**/*
     - vendor/bundle/**/*
 
+Style/FrozenStringLiteralComment:
+  Enabled: true
+
 RSpec/MultipleExpectations:
   Enabled: false
 

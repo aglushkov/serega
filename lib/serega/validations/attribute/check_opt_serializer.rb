@@ -3,7 +3,7 @@
 class Serega
   class Attribute
     class CheckOptSerializer
-      module ClassMethods
+      class << self
         #
         # Checks attribute :serializer option
         #
@@ -31,8 +31,6 @@ class Serega
             (value.is_a?(Class) && (value < Serega))
         end
       end
-
-      extend ClassMethods
     end
   end
 end
