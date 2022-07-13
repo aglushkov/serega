@@ -86,8 +86,8 @@
       # Regular attribute
       attribute :first_name
 
-      # Option :method specifies method in object
-      attribute :FirstName, method: :first_name
+      # Option :key specifies method in object
+      attribute :FirstName, key: :first_name
 
       # Option :value specifies attribute value
       attribute :first_name, value: proc { |_obj, _ctx| "foo" }

@@ -3,7 +3,7 @@
 RSpec.describe Serega::Attribute::CheckOpts do
   before do
     allow(Serega::Attribute::CheckOptHide).to receive(:call).with(opts)
-    allow(Serega::Attribute::CheckOptMethod).to receive(:call).with(opts)
+    allow(Serega::Attribute::CheckOptKey).to receive(:call).with(opts)
     allow(Serega::Attribute::CheckOptMany).to receive(:call).with(opts)
     allow(Serega::Attribute::CheckOptSerializer).to receive(:call).with(opts)
   end
@@ -26,7 +26,7 @@ RSpec.describe Serega::Attribute::CheckOpts do
     described_class.call(opts, attribute_keys)
 
     expect(Serega::Attribute::CheckOptHide).to have_received(:call).with(opts)
-    expect(Serega::Attribute::CheckOptMethod).to have_received(:call).with(opts)
+    expect(Serega::Attribute::CheckOptKey).to have_received(:call).with(opts)
     expect(Serega::Attribute::CheckOptMany).to have_received(:call).with(opts)
     expect(Serega::Attribute::CheckOptSerializer).to have_received(:call).with(opts)
   end

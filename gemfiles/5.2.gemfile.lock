@@ -6,18 +6,18 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    activemodel (5.2.8)
-      activesupport (= 5.2.8)
-    activerecord (5.2.8)
-      activemodel (= 5.2.8)
-      activesupport (= 5.2.8)
+    activemodel (5.2.8.1)
+      activesupport (= 5.2.8.1)
+    activerecord (5.2.8.1)
+      activemodel (= 5.2.8.1)
+      activesupport (= 5.2.8.1)
       arel (>= 9.0)
     activerecord-jdbc-adapter (52.8-java)
       activerecord (~> 5.2.0)
     activerecord-jdbcsqlite3-adapter (52.8-java)
       activerecord-jdbc-adapter (= 52.8)
       jdbc-sqlite3 (~> 3.8, < 3.30)
-    activesupport (5.2.8)
+    activesupport (5.2.8.1)
       concurrent-ruby (~> 1.0, >= 1.0.2)
       i18n (>= 0.7, < 2)
       minitest (~> 5.1)
@@ -27,7 +27,7 @@ GEM
     concurrent-ruby (1.1.10)
     diff-lcs (1.5.0)
     docile (1.4.0)
-    i18n (1.10.0)
+    i18n (1.12.0)
       concurrent-ruby (~> 1.0)
     jdbc-sqlite3 (3.28.0)
     minitest (5.16.2)
@@ -35,6 +35,7 @@ GEM
     parser (3.1.2.0)
       ast (~> 2.4.1)
     rainbow (3.1.1)
+    rake (13.0.6)
     regexp_parser (2.5.0)
     rexml (3.2.5)
     rspec (3.11.0)
@@ -59,7 +60,7 @@ GEM
       rubocop-ast (>= 1.17.0, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 1.4.0, < 3.0)
-    rubocop-ast (1.18.0)
+    rubocop-ast (1.19.1)
       parser (>= 3.1.1.0)
     rubocop-performance (1.13.3)
       rubocop (>= 1.7.0, < 2.0)
@@ -90,6 +91,7 @@ PLATFORMS
 DEPENDENCIES
   activerecord (~> 5.2.3)
   activerecord-jdbcsqlite3-adapter
+  rake (~> 13.0)
   rspec (~> 3.11)
   rubocop-rspec (~> 2.11, >= 2.11.1)
   serega!

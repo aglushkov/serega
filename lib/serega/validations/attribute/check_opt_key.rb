@@ -2,9 +2,9 @@
 
 class Serega
   class Attribute
-    class CheckOptMethod
+    class CheckOptKey
       #
-      # Checks attribute :method option
+      # Checks attribute :key option
       #
       # @param opts [Hash] Attribute options
       #
@@ -13,12 +13,12 @@ class Serega
       # @return [void]
       #
       def self.call(opts)
-        return unless opts.key?(:method)
+        return unless opts.key?(:key)
 
-        value = opts[:method]
+        value = opts[:key]
         return if value.is_a?(String) || value.is_a?(Symbol)
 
-        raise Error, "Invalid option :method => #{value.inspect}. Must be a String or a Symbol"
+        raise Error, "Invalid option :key => #{value.inspect}. Must be a String or a Symbol"
       end
     end
   end
