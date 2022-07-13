@@ -20,13 +20,16 @@
 7. Make local gem release `gem build serega.gemspec`
 8. Repeat
   ```
-  bundle exec rspec \
-  && bundle exec rubocop -A \
-  && bundle exec rake examples
+  bundle update \
+    && BUNDLE_GEMFILE=gemfiles/5.2.gemfile bundle update \
+    && BUNDLE_GEMFILE=gemfiles/6.1.gemfile bundle update \
+    && BUNDLE_GEMFILE=gemfiles/7.0.gemfile bundle update \
+    && bundle exec rspec \
+    && bundle exec rubocop -A \
+    && bundle exec rake examples
   ```
-8. Commit all changes except VERSION file
 9. Add CHANGELOG, README notices.
-10. Commit VERSION, CHANGELOG, README.
+10. Commit all changes.
   ```
   git add . && git commit -m "Release v$(cat "VERSION")"
   ```
