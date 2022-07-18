@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Serega::Attribute::CheckName do
+RSpec.describe Serega::Validations::Attribute::CheckName do
   def error(name)
     %(Invalid attribute name = #{name.inspect}. Globally allowed characters: "a-z", "A-Z", "0-9". Minus and low line "-", "_" also allowed except as the first or last character)
   end

@@ -33,11 +33,11 @@ class Serega
       # @param block [Proc] Proc that receives object and context and finds attribute value
       #
       def initialize(name:, opts: {}, block: nil)
-        check(name, opts, block)
+        self.class.serializer_class::CheckAttributeParams.new(name, opts, block).validate
 
         @name = name.to_sym
         @opts = Utils::EnumDeepDup.call(opts)
-        @block = opts[:value] || block
+        @block = block
       end
 
       # @return [Symbol] Object method name to will be used to get attribute value unless block provided
@@ -77,7 +77,7 @@ class Serega
       def value_block
         return @value_block if instance_variable_defined?(:@value_block)
 
-        @value_block = block || keyword_block
+        @value_block = block || opts[:value] || const_block || keyword_block
       end
 
       #
@@ -112,15 +112,16 @@ class Serega
 
       private
 
+      def const_block
+        return unless opts.key?(:const)
+
+        const = opts[:const]
+        proc { const }
+      end
+
       def keyword_block
         key_method_name = key
         proc { |object| object.public_send(key_method_name) }
-      end
-
-      def check(name, opts, block)
-        CheckName.call(name)
-        CheckOpts.call(opts, self.class.serializer_class.config[:attribute_keys])
-        CheckBlock.call(opts, block)
       end
     end
 

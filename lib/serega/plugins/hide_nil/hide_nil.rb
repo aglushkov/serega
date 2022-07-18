@@ -22,7 +22,7 @@ class Serega
       #
       def self.load_plugin(serializer_class, **_opts)
         serializer_class::Attribute.include(AttributeMethods)
-        serializer_class::Attribute::CheckOpts.extend(CheckOptsClassMethods)
+        serializer_class::CheckAttributeParams.include(CheckAttributeParamsInstanceMethods)
         serializer_class::ConvertItem.extend(ConvertItemClassMethods)
       end
 
@@ -37,10 +37,10 @@ class Serega
         end
       end
 
-      module CheckOptsClassMethods
+      module CheckAttributeParamsInstanceMethods
         private
 
-        def check_each_opt(opts)
+        def check_opts
           super
           CheckOptHideNil.call(opts)
         end

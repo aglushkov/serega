@@ -23,7 +23,7 @@ RSpec.describe Serega do
       expect(config[:plugins]).to eq []
       expect(config[:serialize_keys]).to match_array(%i[context many])
       expect(config[:initiate_keys]).to match_array(%i[only except with])
-      expect(config[:attribute_keys]).to match_array(%i[key value serializer many hide])
+      expect(config[:attribute_keys]).to match_array(%i[key value serializer many hide const])
       expect(config[:max_cached_map_per_serializer_count]).to eq 50
       expect(config[:to_json].call({})).to eq "{}"
     end
@@ -176,8 +176,15 @@ RSpec.describe Serega do
     let(:opts) { {except: :except} }
     let(:serializer) { serializer_class.new(**opts) }
 
+    describe "#call" do
+      it "returns serialized response" do
+        expect(serializer.call("foo", context: {data: "bar"}))
+          .to eq({obj: "foo", ctx: "bar"})
+      end
+    end
+
     describe "#to_h" do
-      it "returns serialized to hash response" do
+      it "returns serialized response same as .call method" do
         expect(serializer.to_h("foo", context: {data: "bar"}))
           .to eq({obj: "foo", ctx: "bar"})
       end
@@ -197,8 +204,15 @@ RSpec.describe Serega do
       end
     end
 
+    describe ".call" do
+      it "returns serialized to response" do
+        expect(serializer_class.call("foo", **opts, context: {data: "bar"}))
+          .to eq({obj: "foo", ctx: "bar"})
+      end
+    end
+
     describe ".to_h" do
-      it "returns serialized to hash response" do
+      it "returns serialized response same as .call method" do
         expect(serializer_class.to_h("foo", **opts, context: {data: "bar"}))
           .to eq({obj: "foo", ctx: "bar"})
       end

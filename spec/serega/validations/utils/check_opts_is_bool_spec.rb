@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Serega::CheckOptIsBool do
+RSpec.describe Serega::Validations::Utils::CheckOptIsBool do
   def error(key, value)
     "Invalid option #{key.inspect} => #{value.inspect}. Must have a boolean value"
   end
