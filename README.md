@@ -95,6 +95,9 @@
       # Block also specifies attribute value
       attribute(:first_name) { |_obj, _ctx| "foo" }
 
+      # Option :const specifies attribute with specific constant value
+      attribute(:type, const: 'user')
+
       # Option :hide specifies attributes that should not be serialized by default
       # They can be serialized only when directly requested by modifiers :with or :only
       attribute :tags, hide: true
