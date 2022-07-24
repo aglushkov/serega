@@ -1,24 +1,34 @@
 # frozen_string_literal: true
 
 class Serega
-  class Attribute
-    class CheckOptKey
-      #
-      # Checks attribute :key option
-      #
-      # @param opts [Hash] Attribute options
-      #
-      # @raise [Error] Error that option has invalid value
-      #
-      # @return [void]
-      #
-      def self.call(opts)
-        return unless opts.key?(:key)
+  module Validations
+    module Attribute
+      class CheckOptKey
+        #
+        # Checks attribute :key option
+        #
+        # @param opts [Hash] Attribute options
+        #
+        # @raise [Error] Error that option has invalid value
+        #
+        # @return [void]
+        #
+        class << self
+          def call(opts, block = nil)
+            return unless opts.key?(:key)
 
-        value = opts[:key]
-        return if value.is_a?(String) || value.is_a?(Symbol)
+            check_usage_with_other_params(opts, block)
+            Utils::CheckOptIsStringOrSymbol.call(opts, :key)
+          end
 
-        raise Error, "Invalid option :key => #{value.inspect}. Must be a String or a Symbol"
+          private
+
+          def check_usage_with_other_params(opts, block)
+            raise Error, "Option :key can not be used together with option :const" if opts.key?(:const)
+            raise Error, "Option :key can not be used together with option :value" if opts.key?(:value)
+            raise Error, "Option :key can not be used together with block" if block
+          end
+        end
       end
     end
   end

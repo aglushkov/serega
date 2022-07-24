@@ -23,7 +23,7 @@ class Serega
         serializer_class.include(InstanceMethods)
         serializer_class::Attribute.include(AttributeMethods)
 
-        serializer_class::Attribute::CheckOpts.extend(CheckOptsClassMethods)
+        serializer_class::CheckAttributeParams.include(CheckAttributeParamsInstanceMethods)
 
         require_relative "./lib/enum_deep_freeze"
         require_relative "./lib/format_user_preloads"
@@ -85,10 +85,10 @@ class Serega
         end
       end
 
-      module CheckOptsClassMethods
+      module CheckAttributeParamsInstanceMethods
         private
 
-        def check_each_opt(opts)
+        def check_opts
           super
           CheckOptPreloadPath.call(opts)
         end

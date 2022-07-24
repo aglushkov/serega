@@ -21,16 +21,21 @@ require_relative "serega/utils/to_json"
 require_relative "serega/utils/as_json"
 
 require_relative "serega/attribute"
-require_relative "serega/validations/check_allowed_keys"
-require_relative "serega/validations/check_opt_is_bool"
-require_relative "serega/validations/check_opt_is_hash"
+require_relative "serega/validations/utils/check_allowed_keys"
+require_relative "serega/validations/utils/check_opt_is_bool"
+require_relative "serega/validations/utils/check_opt_is_hash"
+require_relative "serega/validations/utils/check_opt_is_string_or_symbol"
 require_relative "serega/validations/attribute/check_block"
 require_relative "serega/validations/attribute/check_name"
+require_relative "serega/validations/attribute/check_opt_const"
 require_relative "serega/validations/attribute/check_opt_hide"
 require_relative "serega/validations/attribute/check_opt_key"
 require_relative "serega/validations/attribute/check_opt_many"
 require_relative "serega/validations/attribute/check_opt_serializer"
-require_relative "serega/validations/attribute/check_opts"
+require_relative "serega/validations/attribute/check_opt_value"
+require_relative "serega/validations/check_attribute_params"
+require_relative "serega/validations/check_initiate_params"
+require_relative "serega/validations/check_serialize_params"
 
 require_relative "serega/config"
 require_relative "serega/convert"
@@ -43,12 +48,24 @@ class Serega
     {
       plugins: [],
       initiate_keys: %i[only with except],
-      attribute_keys: %i[key value serializer many hide],
+      attribute_keys: %i[key value serializer many hide const],
       serialize_keys: %i[context many],
       max_cached_map_per_serializer_count: 50,
       to_json: ->(data) { Utils::ToJSON.call(data) }
     }
   )
+
+  check_attribute_params_class = Class.new(Validations::CheckAttributeParams)
+  check_attribute_params_class.serializer_class = self
+  const_set(:CheckAttributeParams, check_attribute_params_class)
+
+  check_initiate_params_class = Class.new(Validations::CheckInitiateParams)
+  check_initiate_params_class.serializer_class = self
+  const_set(:CheckInitiateParams, check_initiate_params_class)
+
+  check_serialize_params_class = Class.new(Validations::CheckSerializeParams)
+  check_serialize_params_class.serializer_class = self
+  const_set(:CheckSerializeParams, check_serialize_params_class)
 
   # Core serializer class methods
   module ClassMethods
@@ -76,6 +93,18 @@ class Serega
       convert_item_class = Class.new(self::ConvertItem)
       convert_item_class.serializer_class = subclass
       subclass.const_set(:ConvertItem, convert_item_class)
+
+      check_attribute_params_class = Class.new(self::CheckAttributeParams)
+      check_attribute_params_class.serializer_class = subclass
+      subclass.const_set(:CheckAttributeParams, check_attribute_params_class)
+
+      check_initiate_params_class = Class.new(self::CheckInitiateParams)
+      check_initiate_params_class.serializer_class = subclass
+      subclass.const_set(:CheckInitiateParams, check_initiate_params_class)
+
+      check_serialize_params_class = Class.new(self::CheckSerializeParams)
+      check_serialize_params_class.serializer_class = subclass
+      subclass.const_set(:CheckSerializeParams, check_serialize_params_class)
 
       # Assign same attributes
       attributes.each_value do |attr|
@@ -167,9 +196,13 @@ class Serega
       attribute(name, serializer: serializer, **opts, &block)
     end
 
-    def to_h(object, opts = FROZEN_EMPTY_HASH)
+    def call(object, opts = FROZEN_EMPTY_HASH)
       initiate_keys = config[:initiate_keys]
       new(opts.slice(*initiate_keys)).to_h(object, opts.except(*initiate_keys))
+    end
+
+    def to_h(object, opts = FROZEN_EMPTY_HASH)
+      call(object, opts)
     end
 
     def to_json(object, opts = FROZEN_EMPTY_HASH)
@@ -197,7 +230,7 @@ class Serega
     # @param with [Array, Hash, String, Symbol] Attributes (usually hidden) to serialize additionally
     #
     def initialize(opts = FROZEN_EMPTY_HASH)
-      CheckAllowedKeys.call(opts, self.class.config[:initiate_keys])
+      self.class::CheckInitiateParams.call(opts)
       opts = prepare_modifiers(opts) if opts && (opts != FROZEN_EMPTY_HASH)
       @opts = opts
     end
@@ -210,13 +243,16 @@ class Serega
     #
     # @return [Hash] Serialization result
     #
-    def to_h(object, opts = {})
-      CheckAllowedKeys.call(opts, self.class.config[:serialize_keys])
-      CheckOptIsHash.call(opts, :context)
-      CheckOptIsBool.call(opts, :many)
+    def call(object, opts = {})
+      self.class::CheckSerializeParams.call(opts)
       opts[:context] ||= {}
 
       self.class::Convert.call(object, **opts, map: map)
+    end
+
+    # @see #call
+    def to_h(object, opts = {})
+      call(object, opts)
     end
 
     #
