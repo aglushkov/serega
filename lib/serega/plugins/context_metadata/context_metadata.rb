@@ -14,8 +14,8 @@ class Serega
       end
 
       def self.load_plugin(serializer_class, **_opts)
-        serializer_class.include(InstanceMethods)
         serializer_class::Convert.include(ConvertInstanceMethods)
+        serializer_class::CheckSerializeParams.extend(CheckSerializeParamsClassMethods)
       end
 
       def self.after_load_plugin(serializer_class, **opts)
@@ -25,16 +25,12 @@ class Serega
         config[:serialize_keys] << meta_key
       end
 
-      module InstanceMethods
-        def to_h(object, **opts)
-          meta_key = self.class.config[:context_metadata][:key]
-          meta = opts[meta_key]
-
-          if meta && !meta.is_a?(Hash)
-            raise Serega::Error, "Option :#{meta_key} must be a Hash, but #{meta.class} was given"
-          end
-
+      module CheckSerializeParamsClassMethods
+        def check_opts(opts)
           super
+
+          meta_key = serializer_class.config[:context_metadata][:key]
+          Validations::Utils::CheckOptIsHash.call(opts, meta_key)
         end
       end
 
