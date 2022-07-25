@@ -1,6 +1,13 @@
 ## [Unreleased]
 
 
+## [0.1.4] - 2022-08-25
+
+- Fix context_metadata plugin error
+  ```ruby
+    wrong number of arguments (given 2, expected 1)
+  ```
+
 ## [0.1.3] - 2022-08-25
 
 - Fix activerecord_preloads plugin error
