@@ -106,6 +106,18 @@ UserSerializer.include(
   end
 )
 
+CommentSerializer.include(
+  Module.new do
+    def to_h(*)
+      old_level = ActiveRecord::Base.logger.level
+      ActiveRecord::Base.logger.level = Logger::DEBUG
+      super
+    ensure
+      ActiveRecord::Base.logger.level = old_level
+    end
+  end
+)
+
 def example(message)
   puts
   puts "----------------"
@@ -156,4 +168,9 @@ end
 example("Loaded relation included posts:") do
   users = User.all.includes(:posts).load
   UserSerializer.new.to_h(users)
+end
+
+example("No preloads:") do
+  comments = Comment.all
+  CommentSerializer.to_h(comments)
 end

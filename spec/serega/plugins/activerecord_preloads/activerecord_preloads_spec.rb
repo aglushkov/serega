@@ -43,7 +43,7 @@ RSpec.describe Serega::Plugins::ActiverecordPreloads do
     it "skips preloading for empty array" do
       object = []
       serializer = serializer_class.new
-      expect(serializer.to_h(object, many: false)[:itself]).to be object
+      expect(serializer.to_h(object, {many: false})[:itself]).to be object
     end
 
     it "skips preloading when nothing to preload" do

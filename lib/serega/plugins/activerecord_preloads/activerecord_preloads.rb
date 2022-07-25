@@ -37,7 +37,7 @@ class Serega
         # Override original #to_h method
         # @see Serega#to_h
         #
-        def to_h(object, **opts)
+        def to_h(object, *)
           object = add_preloads(object)
           super
         end
