@@ -35,7 +35,7 @@ class Serega
       def self.after_load_plugin(serializer_class, **opts)
         config = serializer_class.config
         config[:attribute_keys] += [:preload, :preload_path]
-        config[:preloads] = {auto_preload_relations: opts.fetch(:auto_preload_relations, true)}
+        config[:preloads] = {auto_preload_attributes_with_serializer: opts.fetch(:auto_preload_attributes_with_serializer, false)}
       end
 
       # Adds #preloads instance method
@@ -67,7 +67,7 @@ class Serega
           preloads =
             if preloads_provided
               opts[:preload]
-            elsif relation? && self.class.serializer_class.config[:preloads][:auto_preload_relations]
+            elsif relation? && self.class.serializer_class.config[:preloads][:auto_preload_attributes_with_serializer]
               key
             end
 
