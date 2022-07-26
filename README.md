@@ -144,13 +144,18 @@
 ## Plugins
 
 ### Plugin :preloads
-  Allows to find preloads for serialized object. Automatically preloads all relations without specifying :preload  manually.
-  To skip preload for specific relation, specify `preload: false` option.
-  To skip preload for all relations, change config option `config[:auto_preload_relations] = false`
+  Allows to find `preloads` for current serializer. It merges **only** preloads specified in currently serialized attributes, skipping preloads of not serialized attributes.
+
+  Preloads can be fetched using `MySerializer.preloads` or `MySerializer.new(modifiers_opts).preloads` methods.
+
+  Config option `config[:preloads][:auto_preload_attributes_with_serializer] = true` can be specified to automatically add `preload: <attribute_key>` to all attributes with `:serializer` option.
+
+  Preloads can be disabled with `preload: false` option. Or it can be overwritten with `preload: <another_key>` option.
 
   ```ruby
     class AppSerializer < Serega
-      plugin :activerecord_preloads
+      plugin :preloads
+      config[:preloads][:auto_preload_attributes_with_serializer] = true
     end
 
     class PostSerializer < AppSerializer

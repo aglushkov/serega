@@ -46,6 +46,7 @@ RSpec.describe Serega::Plugins::Preloads::PreloadsConstructor do
   end
 
   it "returns preloads generated automatically for relations" do
+    user_serializer.config[:preloads][:auto_preload_attributes_with_serializer] = true
     user_serializer.relation :email, serializer: base
 
     result = described_class.call(map(user_ser))
@@ -77,7 +78,7 @@ RSpec.describe Serega::Plugins::Preloads::PreloadsConstructor do
   end
 
   it "returns nested preloads for relations" do
-    user_serializer.relation :profile, serializer: profile_serializer
+    user_serializer.relation :profile, preload: :profile, serializer: profile_serializer
     profile_serializer.attribute :email, preload: %i[confirmed_email unconfirmed_email]
 
     result = described_class.call(map(user_ser))

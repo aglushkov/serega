@@ -1,5 +1,6 @@
 ## [Unreleased]
 
+- Change `preloads` plugin config option `config[:preloads][:auto_preload_relation] = true` to `config[:preloads][:auto_preload_attributes_with_serializer] = false`, so now there are no surprises where this preloads come from.
 
 ## [0.1.4] - 2022-08-25
 
