@@ -17,9 +17,19 @@ RSpec.describe Serega::Plugins::Preloads do
     expect(serializer_class.config[:preloads][:auto_preload_attributes_with_serializer]).to be false
   end
 
-  it "allows to configure to not preload relations by default" do
-    serializer_class.plugin :preloads, auto_preload_attributes_with_serializer: false
-    expect(serializer_class.config[:preloads][:auto_preload_attributes_with_serializer]).to be false
+  it "configures to not hide attributes with preload option by default" do
+    serializer_class.plugin :preloads
+    expect(serializer_class.config[:preloads][:auto_hide_attributes_with_preload]).to be false
+  end
+
+  it "allows to configure to preload relations by default" do
+    serializer_class.plugin :preloads, auto_preload_attributes_with_serializer: true
+    expect(serializer_class.config[:preloads][:auto_preload_attributes_with_serializer]).to be true
+  end
+
+  it "allows to configure to hide attributes with preloads by default" do
+    serializer_class.plugin :preloads, auto_hide_attributes_with_preload: true
+    expect(serializer_class.config[:preloads][:auto_hide_attributes_with_preload]).to be true
   end
 
   describe "InstanceMethods" do
@@ -86,6 +96,48 @@ RSpec.describe Serega::Plugins::Preloads do
         allow(validator).to receive(:call).and_return(nil)
         attribute = serializer_class.attribute :foo
         expect(validator).to have_received(:call).with(attribute.opts)
+      end
+    end
+
+    describe "#hide" do
+      context "without auto_hide config" do
+        it "returns opt :hide" do
+          a0 = serializer_class.attribute :a0
+          a1 = serializer_class.attribute :a1, preload: :a1
+          a2 = serializer_class.attribute :a2, preload: :a2, hide: true
+          a3 = serializer_class.attribute :a3, preload: :a3, hide: false
+
+          expect(a0.hide).to be_nil
+          expect(a1.hide).to be_nil
+          expect(a2.hide).to be true
+          expect(a3.hide).to be false
+        end
+      end
+
+      context "with auto_hide config" do
+        before do
+          serializer_class.config[:preloads][:auto_hide_attributes_with_preload] = true
+        end
+
+        it "returns opt :hide => true when preload is not blank" do
+          a0 = serializer_class.attribute :a0
+          a1 = serializer_class.attribute :a1, preload: :a1
+          a2 = serializer_class.attribute :a2, preload: :a2, hide: true
+          a3 = serializer_class.attribute :a3, preload: :a3, hide: false
+          a4 = serializer_class.attribute :a4, preload: nil
+          a5 = serializer_class.attribute :a5, preload: false
+          a6 = serializer_class.attribute :a6, preload: {}
+          a7 = serializer_class.attribute :a7, preload: []
+
+          expect(a0.hide).to be_nil
+          expect(a1.hide).to be true
+          expect(a2.hide).to be true
+          expect(a3.hide).to be false
+          expect(a4.hide).to be_nil
+          expect(a5.hide).to be_nil
+          expect(a6.hide).to be_nil
+          expect(a7.hide).to be_nil
+        end
       end
     end
   end

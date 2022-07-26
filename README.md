@@ -150,12 +150,15 @@
 
   Config option `config[:preloads][:auto_preload_attributes_with_serializer] = true` can be specified to automatically add `preload: <attribute_key>` to all attributes with `:serializer` option.
 
-  Preloads can be disabled with `preload: false` option. Or it can be overwritten with `preload: <another_key>` option.
+  Config option `config[:preloads][:auto_hide_attributes_with_preload] = true` can be specified to automatically add `hide: true` to all attributes with any `:preload`. It also works for automatically assigned preloads.
+
+  Preloads can be disabled with `preload: false` option. Or auto added preloads can be overwritten with `preload: <another_key>` option.
 
   ```ruby
     class AppSerializer < Serega
-      plugin :preloads
-      config[:preloads][:auto_preload_attributes_with_serializer] = true
+      plugin :preloads,
+        auto_preload_attributes_with_serializer: true,
+        auto_hide_attributes_with_preload: true
     end
 
     class PostSerializer < AppSerializer
