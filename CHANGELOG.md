@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [0.1.5] - 2022-08-27
+
 - Added config option `config[:preloads][:auto_hide_attributes_with_preload]` to `preloads` plugin. By default it is `false`.
 
 - Plugin `validate_modifiers` now raises `Serega:AttributeNotExist` error when requested attribute not exists
