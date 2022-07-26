@@ -34,7 +34,7 @@ RSpec.describe Serega::Plugins::ValidateModifiers do
 
   it "raises error when some provided field not exist" do
     expect { serializer.new(only: "foo_bar,extra") }
-      .to raise_error Serega::Error, "Attribute 'extra' not exists"
+      .to raise_error Serega::AttributeNotExist, "Attribute 'extra' not exists"
   end
 
   it "does not raise error when configured to not validate by default" do
@@ -43,7 +43,7 @@ RSpec.describe Serega::Plugins::ValidateModifiers do
     ser = nil
     expect { ser = serializer.new(only: "foo_bar,extra") }.not_to raise_error
     expect { ser.validate_modifiers }
-      .to raise_error Serega::Error, "Attribute 'extra' not exists"
+      .to raise_error Serega::AttributeNotExist, "Attribute 'extra' not exists"
   end
 
   it "validates deeply nested fields" do
@@ -83,6 +83,6 @@ RSpec.describe Serega::Plugins::ValidateModifiers do
     a.attribute :c, serializer: c
 
     expect { a.new(except: "a1,a2,c(c1,c2),b(b1,b2,c(c1,c2(c3))") }
-      .to raise_error Serega::Error, "Attribute 'c2' ('b.c.c2') is not a relation to add 'c3' attribute"
+      .to raise_error Serega::AttributeNotExist, "Attribute 'c2' ('b.c.c2') has no :serializer option specified to add nested 'c3' attribute"
   end
 end

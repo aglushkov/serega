@@ -298,12 +298,17 @@
 
 ### Plugin :validate_modifiers
 
-  By default we will not raise any error if not existed attribute provided in modifiers.
-  But we can enable this validation
+  By default we will not raise any error if not existed attribute provided in modifiers (`:only, :except, :with` options provided to `Serializer#new` method).
+
+  We can enable this validation using `:validate_modifiers` plugin
 
   ```ruby
-    PostSerializer.plugin(:validate_modifiers)
+    UserSerializer.plugin(:validate_modifiers)
+    UserSerializer.new(only: [:foo, :bar]) # => raises Serega::AttributeNotExist
   ```
+
+  Now we will raise `Serega::AttributeNotExist` error when not existing attribute provided to modifiers.
+
 
 ### Plugin :hide_nil
 
@@ -316,6 +321,12 @@
       attribute :email, hide_nil: true
     end
   ```
+
+## Errors
+
+  - `Serega::Error` is a base error raised by this gem.
+  - `Serega::AttributeNotExist` error is raised when validating attributes in `:only, :except, :with` modifiers with `:validate_modifiers` plugin
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rspec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
