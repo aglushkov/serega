@@ -25,7 +25,15 @@ class Serega
           formatter = opts[:format]
           return original_block unless formatter
 
-          @value_block = formatted_block(formatter, original_block)
+          new_value_block = formatted_block(formatter, original_block)
+
+          # Detect formatted :const value in advance
+          if opts.key?(:const)
+            const_value = new_value_block.call
+            new_value_block = proc { const_value }
+          end
+
+          @value_block = new_value_block
         end
 
         private
