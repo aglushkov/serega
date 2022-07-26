@@ -19,17 +19,20 @@ AllCops:
 Style/FrozenStringLiteralComment:
   Enabled: true
 
-RSpec/MultipleExpectations:
+RSpec/ExampleLength:
   Enabled: false
 
-RSpec/ExampleLength:
+RSpec/FilePath:
+  Enabled: false
+
+RSpec/MultipleExpectations:
   Enabled: false
 
 RSpec/MultipleMemoizedHelpers:
   Enabled: false
 
-RSpec/VerifiedDoubles:
+RSpec/NestedGroups:
   Enabled: false
 
-RSpec/FilePath:
+RSpec/VerifiedDoubles:
   Enabled: false

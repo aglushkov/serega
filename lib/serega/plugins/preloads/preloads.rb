@@ -35,7 +35,10 @@ class Serega
       def self.after_load_plugin(serializer_class, **opts)
         config = serializer_class.config
         config[:attribute_keys] += [:preload, :preload_path]
-        config[:preloads] = {auto_preload_attributes_with_serializer: opts.fetch(:auto_preload_attributes_with_serializer, false)}
+        config[:preloads] = {
+          auto_preload_attributes_with_serializer: opts.fetch(:auto_preload_attributes_with_serializer, false),
+          auto_hide_attributes_with_preload: opts.fetch(:auto_hide_attributes_with_preload, false)
+        }
       end
 
       # Adds #preloads instance method
@@ -60,7 +63,21 @@ class Serega
           @preloads_path = get_preloads_path
         end
 
+        def hide
+          res = super
+          return res unless res.nil?
+
+          auto_hide_attribute_with_preloads? || nil
+        end
+
         private
+
+        def auto_hide_attribute_with_preloads?
+          return @auto_hide_attribute_with_preloads if defined?(@auto_hide_attribute_with_preloads)
+
+          auto = self.class.serializer_class.config[:preloads][:auto_hide_attributes_with_preload]
+          @auto_hide_attribute_with_preloads = auto && !preloads.nil? && (preloads != false) && (preloads != {})
+        end
 
         def get_preloads
           preloads_provided = opts.key?(:preload)
