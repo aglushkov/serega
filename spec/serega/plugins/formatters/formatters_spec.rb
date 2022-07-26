@@ -17,24 +17,45 @@ RSpec.describe Serega::Plugins::Formatters do
 
   describe "Attribute methods" do
     let(:serializer) { Class.new(Serega) { plugin :formatters } }
+    let(:reverse) { ->(value) { value.reverse } }
 
     context "with configured formatter" do
+      before do
+        serializer.config[:formatters][:reverse] = reverse
+      end
+
       it "formats result of attribute value" do
-        serializer.config[:formatters][:rev] = ->(value) { value.reverse }
-        attribute = serializer.attribute(:a, format: :rev) { |obj| obj }
+        attribute = serializer.attribute(:a, format: :reverse) { |obj| obj }
 
         expect(attribute.value("123", nil)).to eq "321"
         expect(attribute.value([1, 2, 3], nil)).to eq [3, 2, 1]
+      end
+
+      it "formats result of :const attribute value in advance" do
+        attribute = serializer.attribute(:a, const: "123", format: :reverse)
+        attribute.value_block # precalculate
+
+        allow(reverse).to receive(:call)
+        expect(attribute.value_block.call).to eq "321"
+        expect(reverse).not_to have_received(:call)
       end
     end
 
     context "with block formatter" do
       it "formats result of attribute value" do
-        formatter = ->(value) { value.reverse }
-        attribute = serializer.attribute(:a, format: formatter) { |obj| obj }
+        attribute = serializer.attribute(:a, format: reverse) { |obj| obj }
 
         expect(attribute.value("123", nil)).to eq "321"
         expect(attribute.value([1, 2, 3], nil)).to eq [3, 2, 1]
+      end
+
+      it "formats result of :const attribute value in advance" do
+        attribute = serializer.attribute(:a, const: "123", format: reverse)
+        attribute.value_block # precalculate
+
+        allow(reverse).to receive(:call)
+        expect(attribute.value_block.call).to eq "321"
+        expect(reverse).not_to have_received(:call)
       end
     end
   end
