@@ -2,7 +2,7 @@
 
 load_plugin_code :preloads
 
-RSpec.describe Serega::Plugins::Preloads do
+RSpec.describe Serega::SeregaPlugins::Preloads do
   let(:serializer_class) { Class.new(Serega) }
 
   it "adds allowed attribute options" do

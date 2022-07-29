@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Serega
-  module Validations
+  module SeregaValidations
     module Attribute
       class CheckName
         FORMAT_ONE_CHAR = /\A[a-zA-Z0-9]\z/

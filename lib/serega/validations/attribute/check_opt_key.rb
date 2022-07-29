@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Serega
-  module Validations
+  module SeregaValidations
     module Attribute
       class CheckOptKey
         #
@@ -18,7 +18,7 @@ class Serega
             return unless opts.key?(:key)
 
             check_usage_with_other_params(opts, block)
-            Utils::CheckOptIsStringOrSymbol.call(opts, :key)
+            SeregaUtils::CheckOptIsStringOrSymbol.call(opts, :key)
           end
 
           private

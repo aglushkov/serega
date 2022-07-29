@@ -44,6 +44,6 @@ class Serega
     end
 
     extend ClassMethods
-    extend Serega::Helpers::SerializerClassHelper
+    extend Serega::SeregaHelpers::SerializerClassHelper
   end
 end

@@ -2,7 +2,7 @@
 
 load_plugin_code :metadata
 
-RSpec.describe Serega::Plugins::Metadata do
+RSpec.describe Serega::SeregaPlugins::Metadata do
   describe "loading" do
     it "loads additional :root plugin if was not loaded before" do
       serializer = Class.new(Serega) { plugin :metadata }

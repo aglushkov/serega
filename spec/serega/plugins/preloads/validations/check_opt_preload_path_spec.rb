@@ -2,7 +2,7 @@
 
 load_plugin_code :preloads
 
-RSpec.describe Serega::Plugins::Preloads::CheckOptPreloadPath do
+RSpec.describe Serega::SeregaPlugins::Preloads::CheckOptPreloadPath do
   let(:validator) { described_class }
 
   it "does not raise error when no preload_path option" do

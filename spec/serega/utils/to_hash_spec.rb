@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Serega::Utils::ToHash do
+RSpec.describe Serega::SeregaUtils::ToHash do
   subject(:result) { described_class.call(val) }
 
   context "with nil value" do

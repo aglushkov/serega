@@ -2,7 +2,7 @@
 
 load_plugin_code :formatters
 
-RSpec.describe Serega::Plugins::Formatters do
+RSpec.describe Serega::SeregaPlugins::Formatters do
   describe "loading" do
     it "adds empty :formatters config option" do
       serializer = Class.new(Serega) { plugin :formatters }

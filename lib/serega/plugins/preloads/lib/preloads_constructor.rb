@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Serega
-  module Plugins
+  module SeregaPlugins
     module Preloads
       #
       # Finds relations to preload for provided serializer
@@ -29,7 +29,7 @@ class Serega
               next unless current_preloads
 
               has_nested = nested_map.any?
-              current_preloads = Utils::EnumDeepDup.call(current_preloads) if has_nested
+              current_preloads = SeregaUtils::EnumDeepDup.call(current_preloads) if has_nested
               append_current(preloads, current_preloads)
               next unless has_nested
 

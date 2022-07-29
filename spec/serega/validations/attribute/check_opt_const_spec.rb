@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Serega::Validations::Attribute::CheckOptConst do
+RSpec.describe Serega::SeregaValidations::Attribute::CheckOptConst do
   it "prohibits to use with :value opt" do
     expect { described_class.call(const: :foo, value: -> {}) }
       .to raise_error Serega::Error, "Option :const can not be used together with option :value"

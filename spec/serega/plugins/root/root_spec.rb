@@ -2,7 +2,7 @@
 
 load_plugin_code :root
 
-RSpec.describe Serega::Plugins::Root do
+RSpec.describe Serega::SeregaPlugins::Root do
   describe "serialization" do
     let(:response) { user_serializer.new.to_h(user) }
 

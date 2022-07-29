@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Serega
-  module Utils
+  module SeregaUtils
     class ToJSON
       class << self
         def call(data)

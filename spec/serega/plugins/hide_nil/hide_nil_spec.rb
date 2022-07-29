@@ -2,7 +2,7 @@
 
 load_plugin_code :hide_nil
 
-RSpec.describe Serega::Plugins::HideNil do
+RSpec.describe Serega::SeregaPlugins::HideNil do
   let(:serializer_class) { Class.new(Serega) }
 
   it "adds allowed attribute options" do

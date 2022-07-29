@@ -2,10 +2,10 @@
 
 load_plugin_code(:metadata)
 
-RSpec.describe Serega::Plugins::Metadata::MetaAttribute::CheckOpts do
+RSpec.describe Serega::SeregaPlugins::Metadata::MetaAttribute::CheckOpts do
   before do
-    allow(Serega::Plugins::Metadata::MetaAttribute::CheckOptHideEmpty).to receive(:call).with(opts)
-    allow(Serega::Plugins::Metadata::MetaAttribute::CheckOptHideNil).to receive(:call).with(opts)
+    allow(Serega::SeregaPlugins::Metadata::MetaAttribute::CheckOptHideEmpty).to receive(:call).with(opts)
+    allow(Serega::SeregaPlugins::Metadata::MetaAttribute::CheckOptHideNil).to receive(:call).with(opts)
   end
 
   let(:opts) { {opt1: :foo, opt2: :bar} }
@@ -25,7 +25,7 @@ RSpec.describe Serega::Plugins::Metadata::MetaAttribute::CheckOpts do
   it "checks each option value" do
     described_class.call(opts, attribute_keys)
 
-    expect(Serega::Plugins::Metadata::MetaAttribute::CheckOptHideEmpty).to have_received(:call).with(opts)
-    expect(Serega::Plugins::Metadata::MetaAttribute::CheckOptHideNil).to have_received(:call).with(opts)
+    expect(Serega::SeregaPlugins::Metadata::MetaAttribute::CheckOptHideEmpty).to have_received(:call).with(opts)
+    expect(Serega::SeregaPlugins::Metadata::MetaAttribute::CheckOptHideNil).to have_received(:call).with(opts)
   end
 end

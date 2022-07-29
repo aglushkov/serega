@@ -2,7 +2,7 @@
 
 load_plugin_code(:metadata)
 
-RSpec.describe Serega::Plugins::Metadata::MetaAttribute::CheckOptHideEmpty do
+RSpec.describe Serega::SeregaPlugins::Metadata::MetaAttribute::CheckOptHideEmpty do
   def error(value)
     "Invalid option :hide_empty => #{value.inspect}. Must be true"
   end

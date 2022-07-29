@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-# Serega::Plugins.find_plugin(:metadata)
+# Serega::SeregaPlugins.find_plugin(:metadata)
 load_plugin_code(:metadata)
 
-RSpec.describe Serega::Plugins::Metadata::MetaAttribute::CheckBlock do
+RSpec.describe Serega::SeregaPlugins::Metadata::MetaAttribute::CheckBlock do
   let(:error) { "Block can have maximum 2 regular parameters (no **keyword or *array args)" }
 
   it "allows no params" do

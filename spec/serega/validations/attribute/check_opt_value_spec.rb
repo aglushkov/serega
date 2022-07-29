@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Serega::Validations::Attribute::CheckOptValue do
+RSpec.describe Serega::SeregaValidations::Attribute::CheckOptValue do
   let(:value_error) { "Option :value must be a Proc that is able to accept two parameters (no **keyword or *array args)" }
   let(:opts) { {} }
 

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Serega::Validations::Attribute::CheckOptKey do
+RSpec.describe Serega::SeregaValidations::Attribute::CheckOptKey do
   def error(value)
     "Invalid option :key => #{value.inspect}. Must be a String or a Symbol"
   end

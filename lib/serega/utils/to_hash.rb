@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Serega
-  module Utils
+  module SeregaUtils
     class ToHash
       module ClassMethods
         def call(value)

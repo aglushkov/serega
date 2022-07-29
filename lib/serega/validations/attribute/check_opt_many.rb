@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Serega
-  module Validations
+  module SeregaValidations
     module Attribute
       class CheckOptMany
         #
@@ -14,7 +14,7 @@ class Serega
         # @return [void]
         #
         def self.call(opts)
-          Utils::CheckOptIsBool.call(opts, :many)
+          SeregaUtils::CheckOptIsBool.call(opts, :many)
         end
       end
     end

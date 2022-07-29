@@ -2,7 +2,7 @@
 
 load_plugin_code :preloads
 
-RSpec.describe Serega::Plugins::Preloads::PreloadsConstructor do
+RSpec.describe Serega::SeregaPlugins::Preloads::PreloadsConstructor do
   let(:base) do
     Class.new(Serega) do
       plugin :preloads

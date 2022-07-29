@@ -98,7 +98,7 @@ RSpec.describe Serega do
         end
       end
 
-      Serega::Plugins.register_plugin(plugin.plugin_name, plugin)
+      Serega::SeregaPlugins.register_plugin(plugin.plugin_name, plugin)
 
       serializer_class.plugin(:test)
       expect(serializer_class.config[:plugins]).to eq [:test]
@@ -125,7 +125,7 @@ RSpec.describe Serega do
         end
       end
 
-      Serega::Plugins.register_plugin(plugin.plugin_name, plugin)
+      Serega::SeregaPlugins.register_plugin(plugin.plugin_name, plugin)
 
       expect(serializer_class.plugin_used?(:test)).to be false
       serializer_class.plugin(:test)

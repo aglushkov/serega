@@ -20,7 +20,7 @@ class Serega
       # @param opts [Hash] Initial config options
       #
       def initialize(opts = {})
-        @opts = Utils::EnumDeepDup.call(opts)
+        @opts = SeregaUtils::EnumDeepDup.call(opts)
       end
 
       #
@@ -43,6 +43,6 @@ class Serega
     end
 
     include ConfigInstanceMethods
-    extend Serega::Helpers::SerializerClassHelper
+    extend Serega::SeregaHelpers::SerializerClassHelper
   end
 end

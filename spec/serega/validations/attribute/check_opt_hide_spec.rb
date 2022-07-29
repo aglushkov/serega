@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Serega::Validations::Attribute::CheckOptHide do
+RSpec.describe Serega::SeregaValidations::Attribute::CheckOptHide do
   def error(value)
     "Invalid option :hide => #{value.inspect}. Must have a boolean value"
   end

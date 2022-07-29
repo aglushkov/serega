@@ -2,7 +2,7 @@
 
 load_plugin_code(:metadata)
 
-RSpec.describe Serega::Plugins::Metadata::MetaAttribute::CheckPath do
+RSpec.describe Serega::SeregaPlugins::Metadata::MetaAttribute::CheckPath do
   def error(name)
     %(Invalid metadata path #{name.inspect}, globally allowed characters: "a-z", "A-Z", "0-9". Minus and low line "-", "_" also allowed except as the first or last character)
   end

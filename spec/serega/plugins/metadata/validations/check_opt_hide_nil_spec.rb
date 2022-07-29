@@ -2,7 +2,7 @@
 
 load_plugin_code(:metadata)
 
-RSpec.describe Serega::Plugins::Metadata::MetaAttribute::CheckOptHideNil do
+RSpec.describe Serega::SeregaPlugins::Metadata::MetaAttribute::CheckOptHideNil do
   def error(value)
     "Invalid option :hide_nil => #{value.inspect}. Must be true"
   end

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Serega::Validations::Attribute::CheckBlock do
+RSpec.describe Serega::SeregaValidations::Attribute::CheckBlock do
   let(:block_error) { "Block can have maximum two regular parameters (no **keyword or *array args)" }
   let(:block) { nil }
 

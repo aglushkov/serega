@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Serega::Validations::CheckAttributeParams do
+RSpec.describe Serega::SeregaValidations::CheckAttributeParams do
   subject(:validate) { described_class.new(*params).validate }
 
   let(:serializer) do
@@ -18,32 +18,32 @@ RSpec.describe Serega::Validations::CheckAttributeParams do
   let(:described_class) { serializer::CheckAttributeParams }
 
   before do
-    allow(Serega::Validations::Utils::CheckAllowedKeys).to receive(:call)
-    allow(Serega::Validations::Attribute::CheckBlock).to receive(:call)
-    allow(Serega::Validations::Attribute::CheckName).to receive(:call)
-    allow(Serega::Validations::Attribute::CheckOptConst).to receive(:call)
-    allow(Serega::Validations::Attribute::CheckOptHide).to receive(:call)
-    allow(Serega::Validations::Attribute::CheckOptKey).to receive(:call)
-    allow(Serega::Validations::Attribute::CheckOptMany).to receive(:call)
-    allow(Serega::Validations::Attribute::CheckOptSerializer).to receive(:call)
-    allow(Serega::Validations::Attribute::CheckOptValue).to receive(:call)
+    allow(Serega::SeregaValidations::SeregaUtils::CheckAllowedKeys).to receive(:call)
+    allow(Serega::SeregaValidations::Attribute::CheckBlock).to receive(:call)
+    allow(Serega::SeregaValidations::Attribute::CheckName).to receive(:call)
+    allow(Serega::SeregaValidations::Attribute::CheckOptConst).to receive(:call)
+    allow(Serega::SeregaValidations::Attribute::CheckOptHide).to receive(:call)
+    allow(Serega::SeregaValidations::Attribute::CheckOptKey).to receive(:call)
+    allow(Serega::SeregaValidations::Attribute::CheckOptMany).to receive(:call)
+    allow(Serega::SeregaValidations::Attribute::CheckOptSerializer).to receive(:call)
+    allow(Serega::SeregaValidations::Attribute::CheckOptValue).to receive(:call)
   end
 
   it "checks valid keys" do
     validate
-    expect(Serega::Validations::Utils::CheckAllowedKeys).to have_received(:call).with(opts, attribute_keys)
+    expect(Serega::SeregaValidations::SeregaUtils::CheckAllowedKeys).to have_received(:call).with(opts, attribute_keys)
   end
 
   it "checks each option value" do
     validate
 
-    expect(Serega::Validations::Attribute::CheckBlock).to have_received(:call).with(block)
-    expect(Serega::Validations::Attribute::CheckName).to have_received(:call).with(name)
-    expect(Serega::Validations::Attribute::CheckOptConst).to have_received(:call).with(opts, block)
-    expect(Serega::Validations::Attribute::CheckOptHide).to have_received(:call).with(opts)
-    expect(Serega::Validations::Attribute::CheckOptKey).to have_received(:call).with(opts, block)
-    expect(Serega::Validations::Attribute::CheckOptMany).to have_received(:call).with(opts)
-    expect(Serega::Validations::Attribute::CheckOptSerializer).to have_received(:call).with(opts)
-    expect(Serega::Validations::Attribute::CheckOptValue).to have_received(:call).with(opts, block)
+    expect(Serega::SeregaValidations::Attribute::CheckBlock).to have_received(:call).with(block)
+    expect(Serega::SeregaValidations::Attribute::CheckName).to have_received(:call).with(name)
+    expect(Serega::SeregaValidations::Attribute::CheckOptConst).to have_received(:call).with(opts, block)
+    expect(Serega::SeregaValidations::Attribute::CheckOptHide).to have_received(:call).with(opts)
+    expect(Serega::SeregaValidations::Attribute::CheckOptKey).to have_received(:call).with(opts, block)
+    expect(Serega::SeregaValidations::Attribute::CheckOptMany).to have_received(:call).with(opts)
+    expect(Serega::SeregaValidations::Attribute::CheckOptSerializer).to have_received(:call).with(opts)
+    expect(Serega::SeregaValidations::Attribute::CheckOptValue).to have_received(:call).with(opts, block)
   end
 end

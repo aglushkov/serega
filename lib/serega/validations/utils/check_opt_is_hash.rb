@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 class Serega
-  module Validations
-    module Utils
+  module SeregaValidations
+    module SeregaUtils
       class CheckOptIsHash
         def self.call(opts, key)
           return unless opts.key?(key)

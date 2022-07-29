@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Serega::Plugins do
+RSpec.describe Serega::SeregaPlugins do
   let(:described_module) { described_class }
 
   describe ".register_plugin" do

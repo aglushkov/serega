@@ -2,7 +2,7 @@
 
 load_plugin_code :preloads
 
-RSpec.describe Serega::Plugins::Preloads::FormatUserPreloads do
+RSpec.describe Serega::SeregaPlugins::Preloads::FormatUserPreloads do
   let(:format) { described_class }
 
   it "transforms nil to empty hash" do

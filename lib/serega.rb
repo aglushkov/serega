@@ -51,19 +51,19 @@ class Serega
       attribute_keys: %i[key value serializer many hide const],
       serialize_keys: %i[context many],
       max_cached_map_per_serializer_count: 50,
-      to_json: ->(data) { Utils::ToJSON.call(data) }
+      to_json: ->(data) { SeregaUtils::ToJSON.call(data) }
     }
   )
 
-  check_attribute_params_class = Class.new(Validations::CheckAttributeParams)
+  check_attribute_params_class = Class.new(SeregaValidations::CheckAttributeParams)
   check_attribute_params_class.serializer_class = self
   const_set(:CheckAttributeParams, check_attribute_params_class)
 
-  check_initiate_params_class = Class.new(Validations::CheckInitiateParams)
+  check_initiate_params_class = Class.new(SeregaValidations::CheckInitiateParams)
   check_initiate_params_class.serializer_class = self
   const_set(:CheckInitiateParams, check_initiate_params_class)
 
-  check_serialize_params_class = Class.new(Validations::CheckSerializeParams)
+  check_serialize_params_class = Class.new(SeregaValidations::CheckSerializeParams)
   check_serialize_params_class.serializer_class = self
   const_set(:CheckSerializeParams, check_serialize_params_class)
 
@@ -125,7 +125,7 @@ class Serega
     def plugin(name, **opts)
       raise Error, "This plugin is already loaded" if plugin_used?(name)
 
-      plugin = Plugins.find_plugin(name)
+      plugin = SeregaPlugins.find_plugin(name)
 
       # We split loading of plugin to three parts - before_load, load, after_load:
       #
@@ -278,7 +278,7 @@ class Serega
     #
     def as_json(object, opts = FROZEN_EMPTY_HASH)
       hash = to_h(object, opts)
-      Utils::AsJSON.call(hash, to_json: self.class.config[:to_json])
+      SeregaUtils::AsJSON.call(hash, to_json: self.class.config[:to_json])
     end
 
     private
@@ -289,9 +289,9 @@ class Serega
 
     def prepare_modifiers(opts)
       {
-        only: Utils::ToHash.call(opts[:only]),
-        except: Utils::ToHash.call(opts[:except]),
-        with: Utils::ToHash.call(opts[:with])
+        only: SeregaUtils::ToHash.call(opts[:only]),
+        except: SeregaUtils::ToHash.call(opts[:except]),
+        with: SeregaUtils::ToHash.call(opts[:with])
       }
     end
   end

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Serega
-  module Plugins
+  module SeregaPlugins
     #
     # Plugin adds `:hide_nil` option to attributes to delete them from final result
     # if value is nil

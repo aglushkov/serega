@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Serega::Validations::Utils::CheckOptIsHash do
+RSpec.describe Serega::SeregaValidations::SeregaUtils::CheckOptIsHash do
   def error(key, value)
     "Invalid option #{key.inspect} => #{value.inspect}. Must have a Hash value"
   end

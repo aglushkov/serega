@@ -2,7 +2,7 @@
 
 load_plugin_code :validate_modifiers
 
-RSpec.describe Serega::Plugins::ValidateModifiers do
+RSpec.describe Serega::SeregaPlugins::ValidateModifiers do
   let(:base_serializer) do
     serializer_class = Class.new(Serega)
     serializer_class.plugin :string_modifiers

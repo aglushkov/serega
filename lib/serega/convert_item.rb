@@ -31,7 +31,7 @@ class Serega
       end
     end
 
-    extend Serega::Helpers::SerializerClassHelper
+    extend Serega::SeregaHelpers::SerializerClassHelper
     extend ConvertItemClassMethods
   end
 end

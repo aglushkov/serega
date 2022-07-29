@@ -2,7 +2,7 @@
 
 class Serega
   # Module in which all Serega plugins should be stored
-  module Plugins
+  module SeregaPlugins
     @plugins = {}
 
     class << self
@@ -10,7 +10,7 @@ class Serega
       # Registers given plugin to be able to load it using symbol name.
       #
       # @example Register plugin
-      #   Serega::Plugins.register_plugin(:plugin_name, PluginModule)
+      #   Serega::SeregaPlugins.register_plugin(:plugin_name, PluginModule)
       def register_plugin(name, mod)
         @plugins[name] = mod
       end
@@ -23,10 +23,10 @@ class Serega
       # @raise [Error] Raises Error when plugin was not found
       #
       # @example Find plugin when providing name
-      #   Serega::Plugins.find_plugin(:presenter) # => Serega::Plugins::Presenter
+      #   Serega::SeregaPlugins.find_plugin(:presenter) # => Serega::SeregaPlugins::Presenter
       #
       # @example Find plugin when providing plugin itself
-      #   Serega::Plugins.find_plugin(Presenter) # => Presenter
+      #   Serega::SeregaPlugins.find_plugin(Presenter) # => Presenter
       #
       # @return [Class<Module>] Plugin core module
       #

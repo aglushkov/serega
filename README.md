@@ -141,7 +141,7 @@
     end
   ```
 
-## Plugins
+## SeregaPlugins
 
 ### Plugin :preloads
   Allows to find `preloads` for current serializer. It merges **only** preloads specified in currently serialized attributes, skipping preloads of not serialized attributes.

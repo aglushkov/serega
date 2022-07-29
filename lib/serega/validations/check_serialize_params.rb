@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Serega
-  module Validations
+  module SeregaValidations
     class CheckSerializeParams
       module ClassMethods
         def call(opts)
@@ -11,10 +11,10 @@ class Serega
         private
 
         def check_opts(opts)
-          Utils::CheckAllowedKeys.call(opts, allowed_opts_keys)
+          SeregaUtils::CheckAllowedKeys.call(opts, allowed_opts_keys)
 
-          Utils::CheckOptIsHash.call(opts, :context)
-          Utils::CheckOptIsBool.call(opts, :many)
+          SeregaUtils::CheckOptIsHash.call(opts, :context)
+          SeregaUtils::CheckOptIsBool.call(opts, :many)
         end
 
         def allowed_opts_keys
@@ -23,7 +23,7 @@ class Serega
       end
 
       extend ClassMethods
-      extend Serega::Helpers::SerializerClassHelper
+      extend Serega::SeregaHelpers::SerializerClassHelper
     end
   end
 end

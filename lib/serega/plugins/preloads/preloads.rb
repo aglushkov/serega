@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Serega
-  module Plugins
+  module SeregaPlugins
     #
     # Plugin adds `.preloads` method to find relations that must be preloaded
     #

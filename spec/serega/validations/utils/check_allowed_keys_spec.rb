@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Serega::Validations::Utils::CheckAllowedKeys do
+RSpec.describe Serega::SeregaValidations::SeregaUtils::CheckAllowedKeys do
   let(:opts) { {opt1: :foo, opt2: :bar} }
   let(:attribute_keys) { %i[opt1 opt2] }
 

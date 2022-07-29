@@ -4,7 +4,7 @@ class Serega
   class AttributeNotExist < Error
   end
 
-  module Plugins
+  module SeregaPlugins
     module ValidateModifiers
       class Validate
         class << self

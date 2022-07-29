@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 class Serega
-  module Validations
-    module Utils
+  module SeregaValidations
+    module SeregaUtils
       class CheckAllowedKeys
         def self.call(opts, allowed_keys)
           opts.each_key do |key|
