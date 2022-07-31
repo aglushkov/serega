@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+- Prohibit to use option :preload together with option :const (#23)
+
 - Rename constants. Add prefix Serega for come classes. Previously in applications that use same class names this classes have to be defined with two colons "::".
   - Serega::Attribute -> Serega::SeregaAttribute
   - Serega::Convert -> Serega::SeregaConvert

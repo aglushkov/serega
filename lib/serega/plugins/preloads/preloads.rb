@@ -29,6 +29,7 @@ class Serega
         require_relative "./lib/format_user_preloads"
         require_relative "./lib/main_preload_path"
         require_relative "./lib/preloads_constructor"
+        require_relative "./validations/check_opt_preload"
         require_relative "./validations/check_opt_preload_path"
       end
 
@@ -107,6 +108,7 @@ class Serega
 
         def check_opts
           super
+          CheckOptPreload.call(opts)
           CheckOptPreloadPath.call(opts)
         end
       end
