@@ -82,17 +82,17 @@ class Serega
       attribute_class.serializer_class = subclass
       subclass.const_set(:SeregaAttribute, attribute_class)
 
-      map_class = Class.new(self::Map)
+      map_class = Class.new(self::SeregaMap)
       map_class.serializer_class = subclass
-      subclass.const_set(:Map, map_class)
+      subclass.const_set(:SeregaMap, map_class)
 
-      convert_class = Class.new(self::Convert)
+      convert_class = Class.new(self::SeregaConvert)
       convert_class.serializer_class = subclass
-      subclass.const_set(:Convert, convert_class)
+      subclass.const_set(:SeregaConvert, convert_class)
 
-      convert_item_class = Class.new(self::ConvertItem)
+      convert_item_class = Class.new(self::SeregaConvertItem)
       convert_item_class.serializer_class = subclass
-      subclass.const_set(:ConvertItem, convert_item_class)
+      subclass.const_set(:SeregaConvertItem, convert_item_class)
 
       check_attribute_params_class = Class.new(self::CheckAttributeParams)
       check_attribute_params_class.serializer_class = subclass
@@ -247,7 +247,7 @@ class Serega
       self.class::CheckSerializeParams.call(opts)
       opts[:context] ||= {}
 
-      self.class::Convert.call(object, **opts, map: map)
+      self.class::SeregaConvert.call(object, **opts, map: map)
     end
 
     # @see #call
@@ -284,7 +284,7 @@ class Serega
     private
 
     def map
-      @map ||= self.class::Map.call(opts)
+      @map ||= self.class::SeregaMap.call(opts)
     end
 
     def prepare_modifiers(opts)

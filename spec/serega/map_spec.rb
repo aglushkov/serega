@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-RSpec.describe Serega::Map do
+RSpec.describe Serega::SeregaMap do
   let(:base_class) { Class.new(Serega) }
-  let(:described_class) { a::Map }
+  let(:described_class) { a::SeregaMap }
 
   let(:a) do
     ser = Class.new(base_class)

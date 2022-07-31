@@ -14,7 +14,7 @@ class Serega
       end
 
       def self.load_plugin(serializer_class, **_opts)
-        serializer_class::Convert.include(ConvertInstanceMethods)
+        serializer_class::SeregaConvert.include(SeregaConvertInstanceMethods)
         serializer_class::CheckSerializeParams.extend(CheckSerializeParamsClassMethods)
       end
 
@@ -34,7 +34,7 @@ class Serega
         end
       end
 
-      module ConvertInstanceMethods
+      module SeregaConvertInstanceMethods
         def to_h
           super.tap do |hash|
             add_context_metadata(hash)

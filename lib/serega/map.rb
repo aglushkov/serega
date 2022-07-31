@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Serega
-  class Map
+  class SeregaMap
     module ClassMethods
       def call(opts)
         @cache ||= {}

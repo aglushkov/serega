@@ -23,7 +23,7 @@ class Serega
       def self.load_plugin(serializer_class, **_opts)
         serializer_class::SeregaAttribute.include(AttributeMethods)
         serializer_class::CheckAttributeParams.include(CheckAttributeParamsInstanceMethods)
-        serializer_class::ConvertItem.extend(ConvertItemClassMethods)
+        serializer_class::SeregaConvertItem.extend(SeregaConvertItemClassMethods)
       end
 
       def self.after_load_plugin(serializer_class, **opts)
@@ -66,7 +66,7 @@ class Serega
         end
       end
 
-      module ConvertItemClassMethods
+      module SeregaConvertItemClassMethods
         private
 
         def attach_value(value, *args)

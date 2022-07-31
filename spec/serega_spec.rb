@@ -64,8 +64,8 @@ RSpec.describe Serega do
       child = Class.new(parent)
 
       # Check child serialization classes are subclassed from parent classes
-      expect(child::Convert.superclass).to eq parent::Convert
-      expect(child::ConvertItem.superclass).to eq parent::ConvertItem
+      expect(child::SeregaConvert.superclass).to eq parent::SeregaConvert
+      expect(child::SeregaConvertItem.superclass).to eq parent::SeregaConvertItem
     end
   end
 
