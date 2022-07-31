@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 class Serega
-  module Plugins
+  module SeregaPlugins
     #
     # Plugin that checks used plugins and loads correct Preloader for selected response type
-    # @see Serega::Plugins::JsonApiActiverecordPreloader
-    # @see Serega::Plugins::SimpleApiActiverecordPreloader
+    # @see Serega::SeregaPlugins::JsonApiActiverecordPreloader
+    # @see Serega::SeregaPlugins::SimpleApiActiverecordPreloader
     #
     module ActiverecordPreloads
       # @return [Symbol] plugin name

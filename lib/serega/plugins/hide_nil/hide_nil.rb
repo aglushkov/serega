@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Serega
-  module Plugins
+  module SeregaPlugins
     #
     # Plugin adds `:hide_nil` option to attributes to delete them from final result
     # if value is nil
@@ -21,9 +21,9 @@ class Serega
       # @return [void]
       #
       def self.load_plugin(serializer_class, **_opts)
-        serializer_class::Attribute.include(AttributeMethods)
+        serializer_class::SeregaAttribute.include(AttributeMethods)
         serializer_class::CheckAttributeParams.include(CheckAttributeParamsInstanceMethods)
-        serializer_class::ConvertItem.extend(ConvertItemClassMethods)
+        serializer_class::SeregaConvertItem.extend(SeregaConvertItemClassMethods)
       end
 
       def self.after_load_plugin(serializer_class, **opts)
@@ -52,7 +52,7 @@ class Serega
         #
         # @param opts [Hash] Attribute options
         #
-        # @raise [Serega::Error] Error that option has invalid value
+        # @raise [Serega::SeregaError] SeregaError that option has invalid value
         #
         # @return [void]
         #
@@ -62,11 +62,11 @@ class Serega
           value = opts[:hide_nil]
           return if (value == true) || (value == false)
 
-          raise Error, "Invalid option :hide_nil => #{value.inspect}. Must have a boolean value"
+          raise SeregaError, "Invalid option :hide_nil => #{value.inspect}. Must have a boolean value"
         end
       end
 
-      module ConvertItemClassMethods
+      module SeregaConvertItemClassMethods
         private
 
         def attach_value(value, *args)

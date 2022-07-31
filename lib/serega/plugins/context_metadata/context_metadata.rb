@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Serega
-  module Plugins
+  module SeregaPlugins
     module ContextMetadata
       DEFAULT_CONTEXT_METADATA_KEY = :meta
 
@@ -14,7 +14,7 @@ class Serega
       end
 
       def self.load_plugin(serializer_class, **_opts)
-        serializer_class::Convert.include(ConvertInstanceMethods)
+        serializer_class::SeregaConvert.include(SeregaConvertInstanceMethods)
         serializer_class::CheckSerializeParams.extend(CheckSerializeParamsClassMethods)
       end
 
@@ -30,11 +30,11 @@ class Serega
           super
 
           meta_key = serializer_class.config[:context_metadata][:key]
-          Validations::Utils::CheckOptIsHash.call(opts, meta_key)
+          SeregaValidations::SeregaUtils::CheckOptIsHash.call(opts, meta_key)
         end
       end
 
-      module ConvertInstanceMethods
+      module SeregaConvertInstanceMethods
         def to_h
           super.tap do |hash|
             add_context_metadata(hash)

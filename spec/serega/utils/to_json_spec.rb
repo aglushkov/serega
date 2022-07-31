@@ -3,7 +3,7 @@
 require "bigdecimal"
 require "json"
 
-RSpec.describe Serega::Utils::ToJSON do
+RSpec.describe Serega::SeregaUtils::ToJSON do
   def to_json(data)
     described_class.call(data)
   end

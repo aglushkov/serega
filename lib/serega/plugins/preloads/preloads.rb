@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Serega
-  module Plugins
+  module SeregaPlugins
     #
     # Plugin adds `.preloads` method to find relations that must be preloaded
     #
@@ -21,7 +21,7 @@ class Serega
       #
       def self.load_plugin(serializer_class, **_opts)
         serializer_class.include(InstanceMethods)
-        serializer_class::Attribute.include(AttributeMethods)
+        serializer_class::SeregaAttribute.include(AttributeMethods)
 
         serializer_class::CheckAttributeParams.include(CheckAttributeParamsInstanceMethods)
 

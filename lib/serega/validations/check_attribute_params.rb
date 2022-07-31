@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Serega
-  module Validations
+  module SeregaValidations
     class CheckAttributeParams
       module InstanceMethods
         attr_reader :name, :opts, :block
@@ -25,7 +25,7 @@ class Serega
         end
 
         def check_opts
-          Utils::CheckAllowedKeys.call(opts, allowed_opts_keys)
+          SeregaUtils::CheckAllowedKeys.call(opts, allowed_opts_keys)
 
           Attribute::CheckOptConst.call(opts, block)
           Attribute::CheckOptHide.call(opts)
@@ -45,7 +45,7 @@ class Serega
       end
 
       include InstanceMethods
-      extend Serega::Helpers::SerializerClassHelper
+      extend Serega::SeregaHelpers::SerializerClassHelper
     end
   end
 end

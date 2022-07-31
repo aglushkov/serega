@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Serega
-  class Map
+  class SeregaMap
     module ClassMethods
       def call(opts)
         @cache ||= {}
@@ -44,6 +44,6 @@ class Serega
     end
 
     extend ClassMethods
-    extend Serega::Helpers::SerializerClassHelper
+    extend Serega::SeregaHelpers::SerializerClassHelper
   end
 end

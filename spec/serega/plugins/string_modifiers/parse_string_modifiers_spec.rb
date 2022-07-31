@@ -2,7 +2,7 @@
 
 load_plugin_code :string_modifiers
 
-RSpec.describe Serega::Plugins::StringModifiers::ParseStringModifiers do
+RSpec.describe Serega::SeregaPlugins::StringModifiers::ParseStringModifiers do
   def parse(str)
     described_class.call(str)
   end

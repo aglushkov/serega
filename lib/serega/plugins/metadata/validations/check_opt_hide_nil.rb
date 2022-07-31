@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Serega
-  module Plugins
+  module SeregaPlugins
     module Metadata
       class MetaAttribute
         class CheckOptHideNil
@@ -11,7 +11,7 @@ class Serega
             #
             # @param opts [Hash] Attribute options
             #
-            # @raise [Error] Error that option has invalid value
+            # @raise [SeregaError] SeregaError that option has invalid value
             #
             # @return [void]
             #
@@ -21,7 +21,7 @@ class Serega
               value = opts[:hide_nil]
               return if value == true
 
-              raise Error, "Invalid option :hide_nil => #{value.inspect}. Must be true"
+              raise SeregaError, "Invalid option :hide_nil => #{value.inspect}. Must be true"
             end
           end
         end

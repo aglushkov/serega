@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Serega::Validations::Utils::CheckOptIsStringOrSymbol do
+RSpec.describe Serega::SeregaValidations::SeregaUtils::CheckOptIsStringOrSymbol do
   def error(key, value)
     "Invalid option #{key.inspect} => #{value.inspect}. Must be a String or a Symbol"
   end

@@ -4,7 +4,7 @@ require "delegate"
 require "forwardable"
 
 class Serega
-  module Plugins
+  module SeregaPlugins
     #
     # Plugin Presenter adds possibility to use declare Presenter for your objects inside serializer
     #
@@ -35,7 +35,7 @@ class Serega
       #
       def self.load_plugin(serializer_class, **_opts)
         serializer_class.extend(ClassMethods)
-        serializer_class::ConvertItem.extend(ConvertItemClassMethods)
+        serializer_class::SeregaConvertItem.extend(SeregaConvertItemClassMethods)
       end
 
       #
@@ -69,7 +69,7 @@ class Serega
           end
         end
 
-        extend Helpers::SerializerClassHelper
+        extend SeregaHelpers::SerializerClassHelper
         extend Forwardable
         include InstanceMethods
       end
@@ -85,7 +85,7 @@ class Serega
         end
 
         # Overrides {Serega::ClassMethods#attribute} method, additionally adds method
-        # to Presenter to not hit {Serega::Plugins::Presenter::Presenter#method_missing}
+        # to Presenter to not hit {Serega::SeregaPlugins::Presenter::Presenter#method_missing}
         # @see Serega::ClassMethods#attribute
         def attribute(_name, **_opts, &_block)
           super.tap do |attribute|
@@ -94,8 +94,8 @@ class Serega
         end
       end
 
-      # Includes methods to override ConvertItem class
-      module ConvertItemClassMethods
+      # Includes methods to override SeregaConvertItem class
+      module SeregaConvertItemClassMethods
         #
         # Replaces serialized object with Presenter.new(object)
         #

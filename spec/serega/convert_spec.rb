@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Serega::Convert do
+RSpec.describe Serega::SeregaConvert do
   subject(:result) { user_serializer.new(**modifiers).to_h(user, context: context) }
 
   let(:user_serializer) do

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Serega::Plugins do
+RSpec.describe Serega::SeregaPlugins do
   let(:described_module) { described_class }
 
   describe ".register_plugin" do
@@ -35,7 +35,7 @@ RSpec.describe Serega::Plugins do
 
     it "raises specific error if plugin not found" do
       expect { described_module.find_plugin(:foo) }
-        .to raise_error Serega::Error, "Plugin 'foo' does not exist"
+        .to raise_error Serega::SeregaError, "Plugin 'foo' does not exist"
     end
 
     it "raises specific error if plugin was found by name but was not registered" do
@@ -48,7 +48,7 @@ RSpec.describe Serega::Plugins do
       File.new(plugin_path, File::CREAT)
 
       expect { described_module.find_plugin(plugin_name) }
-        .to raise_error Serega::Error, "Plugin '#{plugin_name}' did not register itself correctly"
+        .to raise_error Serega::SeregaError, "Plugin '#{plugin_name}' did not register itself correctly"
     ensure
       File.unlink(plugin_path)
       Dir.unlink(plugin_dir)

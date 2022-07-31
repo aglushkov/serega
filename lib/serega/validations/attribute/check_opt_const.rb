@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Serega
-  module Validations
+  module SeregaValidations
     module Attribute
       class CheckOptConst
         #
@@ -9,7 +9,7 @@ class Serega
         #
         # @param opts [Hash] Attribute options
         #
-        # @raise [Error] Attribute validation error
+        # @raise [SeregaError] Attribute validation error
         #
         # @return [void]
         #
@@ -23,9 +23,9 @@ class Serega
           private
 
           def check_usage_with_other_params(opts, block)
-            raise Error, "Option :const can not be used together with option :key" if opts.key?(:key)
-            raise Error, "Option :const can not be used together with option :value" if opts.key?(:value)
-            raise Error, "Option :const can not be used together with block" if block
+            raise SeregaError, "Option :const can not be used together with option :key" if opts.key?(:key)
+            raise SeregaError, "Option :const can not be used together with option :value" if opts.key?(:value)
+            raise SeregaError, "Option :const can not be used together with block" if block
           end
         end
       end

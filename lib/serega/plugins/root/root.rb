@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Serega
-  module Plugins
+  module SeregaPlugins
     module Root
       # @return [Symbol] Default response root key
       ROOT_DEFAULT = :data
@@ -12,7 +12,7 @@ class Serega
 
       def self.load_plugin(serializer_class, **_opts)
         serializer_class.extend(ClassMethods)
-        serializer_class::Convert.include(ConvertInstanceMethods)
+        serializer_class::SeregaConvert.include(SeregaConvertInstanceMethods)
       end
 
       def self.after_load_plugin(serializer_class, **opts)
@@ -41,7 +41,7 @@ class Serega
         end
       end
 
-      module ConvertInstanceMethods
+      module SeregaConvertInstanceMethods
         def to_h
           hash = super
           root = build_root(opts)

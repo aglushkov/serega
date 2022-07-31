@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Serega
-  module Plugins
+  module SeregaPlugins
     module Metadata
       def self.plugin_name
         :metadata
@@ -13,7 +13,7 @@ class Serega
 
       def self.load_plugin(serializer_class, **_opts)
         serializer_class.extend(ClassMethods)
-        serializer_class::Convert.include(ConvertInstanceMethods)
+        serializer_class::SeregaConvert.include(SeregaConvertInstanceMethods)
 
         require_relative "./meta_attribute"
         require_relative "./validations/check_block"
@@ -79,7 +79,7 @@ class Serega
         end
       end
 
-      module ConvertInstanceMethods
+      module SeregaConvertInstanceMethods
         def to_h
           hash = super
           add_metadata(hash)

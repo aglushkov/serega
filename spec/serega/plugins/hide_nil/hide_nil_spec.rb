@@ -2,7 +2,7 @@
 
 load_plugin_code :hide_nil
 
-RSpec.describe Serega::Plugins::HideNil do
+RSpec.describe Serega::SeregaPlugins::HideNil do
   let(:serializer_class) { Class.new(Serega) }
 
   it "adds allowed attribute options" do
@@ -28,7 +28,7 @@ RSpec.describe Serega::Plugins::HideNil do
 
       it "raises error when not boolean value provided" do
         expect { serializer_class.attribute :foo, hide_nil: 1 }
-          .to raise_error Serega::Error, "Invalid option :hide_nil => 1. Must have a boolean value"
+          .to raise_error Serega::SeregaError, "Invalid option :hide_nil => 1. Must have a boolean value"
       end
     end
   end

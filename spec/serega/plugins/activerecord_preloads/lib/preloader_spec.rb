@@ -4,9 +4,9 @@ require "support/activerecord"
 
 load_plugin_code :activerecord_preloads
 
-RSpec.describe Serega::Plugins::ActiverecordPreloads do
+RSpec.describe Serega::SeregaPlugins::ActiverecordPreloads do
   describe described_class::Preloader do
-    let(:plugin) { Serega::Plugins::ActiverecordPreloads }
+    let(:plugin) { Serega::SeregaPlugins::ActiverecordPreloads }
 
     describe ".handlers" do
       it "returns array of handlers" do
@@ -24,19 +24,19 @@ RSpec.describe Serega::Plugins::ActiverecordPreloads do
 
         object = nil
         expect { described_class.preload(object, {}) }
-          .to raise_error Serega::Error, "Can't preload #{preloads.inspect} to #{object.inspect}"
+          .to raise_error Serega::SeregaError, "Can't preload #{preloads.inspect} to #{object.inspect}"
 
         object = []
         expect { described_class.preload(object, {}) }
-          .to raise_error Serega::Error, "Can't preload #{preloads.inspect} to #{object.inspect}"
+          .to raise_error Serega::SeregaError, "Can't preload #{preloads.inspect} to #{object.inspect}"
 
         object = 123
         expect { described_class.preload(object, {}) }
-          .to raise_error Serega::Error, "Can't preload #{preloads.inspect} to #{object.inspect}"
+          .to raise_error Serega::SeregaError, "Can't preload #{preloads.inspect} to #{object.inspect}"
 
         object = [AR::User.create!, AR::Comment.create!]
         expect { described_class.preload(object, {}) }
-          .to raise_error Serega::Error, "Can't preload #{preloads.inspect} to #{object.inspect}"
+          .to raise_error Serega::SeregaError, "Can't preload #{preloads.inspect} to #{object.inspect}"
       end
 
       it "preloads data to activerecord object" do

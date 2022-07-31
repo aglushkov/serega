@@ -5,7 +5,7 @@ require_relative "serega/version"
 # Parent class for your serializers
 class Serega
   # A generic exception Serega uses.
-  class Error < StandardError; end
+  class SeregaError < StandardError; end
 
   # @return [Hash] frozen hash
   FROZEN_EMPTY_HASH = {}.freeze
@@ -44,55 +44,55 @@ require_relative "serega/map"
 require_relative "serega/plugins"
 
 class Serega
-  @config = Config.new(
+  @config = SeregaConfig.new(
     {
       plugins: [],
       initiate_keys: %i[only with except],
       attribute_keys: %i[key value serializer many hide const],
       serialize_keys: %i[context many],
       max_cached_map_per_serializer_count: 50,
-      to_json: ->(data) { Utils::ToJSON.call(data) }
+      to_json: ->(data) { SeregaUtils::ToJSON.call(data) }
     }
   )
 
-  check_attribute_params_class = Class.new(Validations::CheckAttributeParams)
+  check_attribute_params_class = Class.new(SeregaValidations::CheckAttributeParams)
   check_attribute_params_class.serializer_class = self
   const_set(:CheckAttributeParams, check_attribute_params_class)
 
-  check_initiate_params_class = Class.new(Validations::CheckInitiateParams)
+  check_initiate_params_class = Class.new(SeregaValidations::CheckInitiateParams)
   check_initiate_params_class.serializer_class = self
   const_set(:CheckInitiateParams, check_initiate_params_class)
 
-  check_serialize_params_class = Class.new(Validations::CheckSerializeParams)
+  check_serialize_params_class = Class.new(SeregaValidations::CheckSerializeParams)
   check_serialize_params_class.serializer_class = self
   const_set(:CheckSerializeParams, check_serialize_params_class)
 
   # Core serializer class methods
   module ClassMethods
-    # @return [Config] current serializer config
+    # @return [SeregaConfig] current serializer config
     attr_reader :config
 
     private def inherited(subclass)
-      config_class = Class.new(self::Config)
+      config_class = Class.new(self::SeregaConfig)
       config_class.serializer_class = subclass
-      subclass.const_set(:Config, config_class)
-      subclass.instance_variable_set(:@config, subclass::Config.new(config.opts))
+      subclass.const_set(:SeregaConfig, config_class)
+      subclass.instance_variable_set(:@config, subclass::SeregaConfig.new(config.opts))
 
-      attribute_class = Class.new(self::Attribute)
+      attribute_class = Class.new(self::SeregaAttribute)
       attribute_class.serializer_class = subclass
-      subclass.const_set(:Attribute, attribute_class)
+      subclass.const_set(:SeregaAttribute, attribute_class)
 
-      map_class = Class.new(self::Map)
+      map_class = Class.new(self::SeregaMap)
       map_class.serializer_class = subclass
-      subclass.const_set(:Map, map_class)
+      subclass.const_set(:SeregaMap, map_class)
 
-      convert_class = Class.new(self::Convert)
+      convert_class = Class.new(self::SeregaConvert)
       convert_class.serializer_class = subclass
-      subclass.const_set(:Convert, convert_class)
+      subclass.const_set(:SeregaConvert, convert_class)
 
-      convert_item_class = Class.new(self::ConvertItem)
+      convert_item_class = Class.new(self::SeregaConvertItem)
       convert_item_class.serializer_class = subclass
-      subclass.const_set(:ConvertItem, convert_item_class)
+      subclass.const_set(:SeregaConvertItem, convert_item_class)
 
       check_attribute_params_class = Class.new(self::CheckAttributeParams)
       check_attribute_params_class.serializer_class = subclass
@@ -123,9 +123,9 @@ class Serega
     # @return [class<Module>] Loaded plugin module
     #
     def plugin(name, **opts)
-      raise Error, "This plugin is already loaded" if plugin_used?(name)
+      raise SeregaError, "This plugin is already loaded" if plugin_used?(name)
 
-      plugin = Plugins.find_plugin(name)
+      plugin = SeregaPlugins.find_plugin(name)
 
       # We split loading of plugin to three parts - before_load, load, after_load:
       #
@@ -175,10 +175,10 @@ class Serega
     # @param opts [Hash] Options to serialize attribute
     # @param block [Proc] Custom block to find attribute value. Accepts object and context.
     #
-    # @return [Serega::Attribute] Added attribute
+    # @return [Serega::SeregaAttribute] Added attribute
     #
     def attribute(name, **opts, &block)
-      attribute = self::Attribute.new(name: name, opts: opts, block: block)
+      attribute = self::SeregaAttribute.new(name: name, opts: opts, block: block)
       attributes[attribute.name] = attribute
     end
 
@@ -190,7 +190,7 @@ class Serega
     # @param opts [Hash] Options for attribute serialization
     # @param block [Proc] Custom block to find attribute value. Accepts object and context.
     #
-    # @return [Serega::Attribute] Added attribute
+    # @return [Serega::SeregaAttribute] Added attribute
     #
     def relation(name, serializer:, **opts, &block)
       attribute(name, serializer: serializer, **opts, &block)
@@ -247,7 +247,7 @@ class Serega
       self.class::CheckSerializeParams.call(opts)
       opts[:context] ||= {}
 
-      self.class::Convert.call(object, **opts, map: map)
+      self.class::SeregaConvert.call(object, **opts, map: map)
     end
 
     # @see #call
@@ -278,20 +278,20 @@ class Serega
     #
     def as_json(object, opts = FROZEN_EMPTY_HASH)
       hash = to_h(object, opts)
-      Utils::AsJSON.call(hash, to_json: self.class.config[:to_json])
+      SeregaUtils::AsJSON.call(hash, to_json: self.class.config[:to_json])
     end
 
     private
 
     def map
-      @map ||= self.class::Map.call(opts)
+      @map ||= self.class::SeregaMap.call(opts)
     end
 
     def prepare_modifiers(opts)
       {
-        only: Utils::ToHash.call(opts[:only]),
-        except: Utils::ToHash.call(opts[:except]),
-        with: Utils::ToHash.call(opts[:with])
+        only: SeregaUtils::ToHash.call(opts[:only]),
+        except: SeregaUtils::ToHash.call(opts[:except]),
+        with: SeregaUtils::ToHash.call(opts[:with])
       }
     end
   end

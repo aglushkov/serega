@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
 class Serega
-  module Plugins
+  module SeregaPlugins
     module Formatters
       def self.plugin_name
         :formatters
       end
 
       def self.load_plugin(serializer_class, **_opts)
-        serializer_class::Attribute.include(AttributeInstanceMethods)
+        serializer_class::SeregaAttribute.include(AttributeInstanceMethods)
       end
 
       def self.after_load_plugin(serializer_class, **_opts)

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Serega
-  module Plugins
+  module SeregaPlugins
     module Preloads
       # Freezes nested enumerable data
       class EnumDeepFreeze

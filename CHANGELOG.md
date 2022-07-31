@@ -1,5 +1,16 @@
 ## [Unreleased]
 
+- Rename constants. Add prefix Serega for come classes. Previously in applications that use same class names this classes have to be defined with two colons "::".
+  - Serega::Attribute -> Serega::SeregaAttribute
+  - Serega::Convert -> Serega::SeregaConvert
+  - Serega::ConvertItem -> Serega::SeregaConvertItem
+  - Serega::Error -> Serega::SeregaError
+  - Serega::Helpers -> Serega::SeregaHelpers
+  - Serega::Map -> Serega::SeregaMap
+  - Serega::Utils -> Serega::SeregaUtils
+  - Serega::Validations -> Serega::SeregaValidations
+
+
 ## [0.1.5] - 2022-08-27
 
 - Added config option `config[:preloads][:auto_hide_attributes_with_preload]` to `preloads` plugin. By default it is `false`.

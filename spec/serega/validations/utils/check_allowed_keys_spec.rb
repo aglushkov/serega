@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Serega::Validations::Utils::CheckAllowedKeys do
+RSpec.describe Serega::SeregaValidations::SeregaUtils::CheckAllowedKeys do
   let(:opts) { {opt1: :foo, opt2: :bar} }
   let(:attribute_keys) { %i[opt1 opt2] }
 
@@ -12,6 +12,6 @@ RSpec.describe Serega::Validations::Utils::CheckAllowedKeys do
     expect { described_class.call(opts, attribute_keys) }.not_to raise_error
 
     expect { described_class.call(opts, %i[opt1]) }
-      .to raise_error Serega::Error, invalid_key_error(:opt2, %i[opt1])
+      .to raise_error Serega::SeregaError, invalid_key_error(:opt2, %i[opt1])
   end
 end

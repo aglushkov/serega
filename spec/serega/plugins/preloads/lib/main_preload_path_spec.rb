@@ -2,7 +2,7 @@
 
 load_plugin_code :preloads
 
-RSpec.describe Serega::Plugins::Preloads::MainPreloadPath do
+RSpec.describe Serega::SeregaPlugins::Preloads::MainPreloadPath do
   let(:main_path) { described_class }
 
   it "returns empty array when preloads are empty" do

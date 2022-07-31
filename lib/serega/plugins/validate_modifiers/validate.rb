@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 class Serega
-  class AttributeNotExist < Error
+  class AttributeNotExist < SeregaError
   end
 
-  module Plugins
+  module SeregaPlugins
     module ValidateModifiers
       class Validate
         class << self

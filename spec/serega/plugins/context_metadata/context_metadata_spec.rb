@@ -2,7 +2,7 @@
 
 load_plugin_code :context_metadata
 
-RSpec.describe Serega::Plugins::ContextMetadata do
+RSpec.describe Serega::SeregaPlugins::ContextMetadata do
   describe "loading" do
     it "loads additional :root plugin if was not loaded before" do
       serializer = Class.new(Serega) { plugin :context_metadata }
@@ -32,13 +32,13 @@ RSpec.describe Serega::Plugins::ContextMetadata do
     it "raises error when default context meta key is not a Hash" do
       ser = Class.new(Serega) { plugin :context_metadata }
       expect { ser.new.to_h(nil, meta: []) }
-        .to raise_error Serega::Error, "Invalid option :meta => []. Must have a Hash value"
+        .to raise_error Serega::SeregaError, "Invalid option :meta => []. Must have a Hash value"
     end
 
     it "raises error when configured context meta key is not a Hash" do
       ser = Class.new(Serega) { plugin :context_metadata, context_metadata_key: :foo }
       expect { ser.new.to_h(nil, foo: []) }
-        .to raise_error Serega::Error, "Invalid option :foo => []. Must have a Hash value"
+        .to raise_error Serega::SeregaError, "Invalid option :foo => []. Must have a Hash value"
     end
   end
 

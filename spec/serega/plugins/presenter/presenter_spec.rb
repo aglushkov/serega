@@ -2,7 +2,7 @@
 
 load_plugin_code :presenter
 
-RSpec.describe Serega::Plugins::Presenter do
+RSpec.describe Serega::SeregaPlugins::Presenter do
   let(:serializer) { Class.new(Serega) { plugin :presenter } }
 
   describe "loading" do

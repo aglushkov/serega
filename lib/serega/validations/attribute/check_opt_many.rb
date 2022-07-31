@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Serega
-  module Validations
+  module SeregaValidations
     module Attribute
       class CheckOptMany
         #
@@ -9,12 +9,12 @@ class Serega
         #
         # @param opts [Hash] Attribute options
         #
-        # @raise [Error] Error that option has invalid value
+        # @raise [SeregaError] SeregaError that option has invalid value
         #
         # @return [void]
         #
         def self.call(opts)
-          Utils::CheckOptIsBool.call(opts, :many)
+          SeregaUtils::CheckOptIsBool.call(opts, :many)
         end
       end
     end

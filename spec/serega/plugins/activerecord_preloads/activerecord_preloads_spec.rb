@@ -2,7 +2,7 @@
 
 load_plugin_code :activerecord_preloads
 
-RSpec.describe Serega::Plugins::ActiverecordPreloads do
+RSpec.describe Serega::SeregaPlugins::ActiverecordPreloads do
   it "loads preloads plugin" do
     new_class = Class.new(Serega)
     new_class.plugin :activerecord_preloads
@@ -25,7 +25,7 @@ RSpec.describe Serega::Plugins::ActiverecordPreloads do
       serializer = serializer_class.new
       allow(serializer).to receive(:preloads).and_return(preloads)
 
-      allow(Serega::Plugins::ActiverecordPreloads::Preloader)
+      allow(Serega::SeregaPlugins::ActiverecordPreloads::Preloader)
         .to receive(:preload)
         .with(object, preloads)
         .and_return("OBJ_WITH_PRELOADS")

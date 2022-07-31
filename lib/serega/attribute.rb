@@ -4,7 +4,7 @@ class Serega
   #
   # Stores Attribute data
   #
-  class Attribute
+  class SeregaAttribute
     #
     # Stores Attribute instance methods
     #
@@ -36,7 +36,7 @@ class Serega
         self.class.serializer_class::CheckAttributeParams.new(name, opts, block).validate
 
         @name = name.to_sym
-        @opts = Utils::EnumDeepDup.call(opts)
+        @opts = SeregaUtils::EnumDeepDup.call(opts)
         @block = block
       end
 
@@ -125,7 +125,7 @@ class Serega
       end
     end
 
-    extend Serega::Helpers::SerializerClassHelper
+    extend Serega::SeregaHelpers::SerializerClassHelper
     include AttributeInstanceMethods
   end
 end

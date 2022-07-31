@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Serega::Utils::ToHash do
+RSpec.describe Serega::SeregaUtils::ToHash do
   subject(:result) { described_class.call(val) }
 
   context "with nil value" do
@@ -71,7 +71,7 @@ RSpec.describe Serega::Utils::ToHash do
     let(:val) { true }
 
     it "returns nested hash with symbol keys with frozen empty hash final value" do
-      expect { result }.to raise_error Serega::Error, "Cant convert TrueClass class object to hash"
+      expect { result }.to raise_error Serega::SeregaError, "Cant convert TrueClass class object to hash"
     end
   end
 

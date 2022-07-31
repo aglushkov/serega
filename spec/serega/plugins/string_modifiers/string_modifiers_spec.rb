@@ -2,7 +2,7 @@
 
 load_plugin_code :string_modifiers
 
-RSpec.describe Serega::Plugins::StringModifiers do
+RSpec.describe Serega::SeregaPlugins::StringModifiers do
   describe "serialization" do
     let(:response) { user_serializer.new.to_h(user) }
 

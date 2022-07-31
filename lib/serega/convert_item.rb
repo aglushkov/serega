@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 class Serega
-  class ConvertItem
-    module ConvertItemClassMethods
+  class SeregaConvertItem
+    module SeregaConvertItemClassMethods
       def call(object, context, map)
         return unless object
 
@@ -31,7 +31,7 @@ class Serega
       end
     end
 
-    extend Serega::Helpers::SerializerClassHelper
-    extend ConvertItemClassMethods
+    extend Serega::SeregaHelpers::SerializerClassHelper
+    extend SeregaConvertItemClassMethods
   end
 end

@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
 class Serega
-  class Convert
-    module ConvertClassMethods
+  class SeregaConvert
+    module SeregaConvertClassMethods
       def call(object, **opts)
         new(object, **opts).to_h
       end
     end
 
-    module ConvertInstanceMethods
+    module SeregaConvertInstanceMethods
       attr_reader :object, :opts
 
       def initialize(object, **opts)
@@ -27,7 +27,7 @@ class Serega
       end
 
       def one(object)
-        self.class.serializer_class::ConvertItem.call(object, opts[:context], opts[:map])
+        self.class.serializer_class::SeregaConvertItem.call(object, opts[:context], opts[:map])
       end
 
       def many?
@@ -38,8 +38,8 @@ class Serega
       end
     end
 
-    extend Serega::Helpers::SerializerClassHelper
-    extend ConvertClassMethods
-    include ConvertInstanceMethods
+    extend Serega::SeregaHelpers::SerializerClassHelper
+    extend SeregaConvertClassMethods
+    include SeregaConvertInstanceMethods
   end
 end

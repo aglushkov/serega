@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Serega
-  module Plugins
+  module SeregaPlugins
     module Metadata
       #
       # Stores Attribute data
@@ -36,8 +36,8 @@ class Serega
             check(path, opts, block)
 
             @name = path.join(".").to_sym
-            @path = Utils::EnumDeepDup.call(path)
-            @opts = Utils::EnumDeepDup.call(opts)
+            @path = SeregaUtils::EnumDeepDup.call(path)
+            @opts = SeregaUtils::EnumDeepDup.call(opts)
             @block = block
           end
 
@@ -66,7 +66,7 @@ class Serega
           end
         end
 
-        extend Serega::Helpers::SerializerClassHelper
+        extend Serega::SeregaHelpers::SerializerClassHelper
         include InstanceMethods
       end
     end
