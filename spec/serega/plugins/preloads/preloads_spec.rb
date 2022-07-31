@@ -89,6 +89,16 @@ RSpec.describe Serega::SeregaPlugins::Preloads do
       end
     end
 
+    describe "checking preload option" do
+      let(:validator) { described_class::CheckOptPreload }
+
+      it "validates options with CheckOptPreload" do
+        allow(validator).to receive(:call).and_return(nil)
+        attribute = serializer_class.attribute :foo
+        expect(validator).to have_received(:call).with(attribute.opts)
+      end
+    end
+
     describe "checking preload_path option" do
       let(:validator) { described_class::CheckOptPreloadPath }
 
