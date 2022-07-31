@@ -106,7 +106,7 @@ RSpec.describe Serega do
 
     it "raises error if plugin is already loaded" do
       serializer_class.plugin(plugin)
-      expect { serializer_class.plugin(plugin) }.to raise_error Serega::Error, "This plugin is already loaded"
+      expect { serializer_class.plugin(plugin) }.to raise_error Serega::SeregaError, "This plugin is already loaded"
     end
   end
 

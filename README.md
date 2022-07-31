@@ -327,7 +327,7 @@
 
 ## Errors
 
-  - `Serega::Error` is a base error raised by this gem.
+  - `Serega::SeregaError` is a base error raised by this gem.
   - `Serega::AttributeNotExist` error is raised when validating attributes in `:only, :except, :with` modifiers with `:validate_modifiers` plugin
 
 ## Development

@@ -10,7 +10,7 @@ class Serega
           value = opts[key]
           return if value.is_a?(String) || value.is_a?(Symbol)
 
-          raise Error, "Invalid option #{key.inspect} => #{value.inspect}. Must be a String or a Symbol"
+          raise SeregaError, "Invalid option #{key.inspect} => #{value.inspect}. Must be a String or a Symbol"
         end
       end
     end

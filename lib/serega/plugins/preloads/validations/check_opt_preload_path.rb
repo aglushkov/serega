@@ -9,13 +9,13 @@ class Serega
             return unless opts.key?(:preload_path)
 
             value = opts[:preload_path]
-            raise Error, "Invalid option :preload_path => #{value.inspect}. Can be provided only when :preload option provided" unless opts[:preload]
-            raise Error, "Invalid option :preload_path => #{value.inspect}. Can be provided only when :serializer option provided" unless opts[:serializer]
+            raise SeregaError, "Invalid option :preload_path => #{value.inspect}. Can be provided only when :preload option provided" unless opts[:preload]
+            raise SeregaError, "Invalid option :preload_path => #{value.inspect}. Can be provided only when :serializer option provided" unless opts[:serializer]
 
             path = Array(value).map!(&:to_sym)
             preloads = FormatUserPreloads.call(opts[:preload])
             allowed_paths = paths(preloads)
-            raise Error, "Invalid option :preload_path => #{value.inspect}. Can be one of #{allowed_paths.inspect[1..-2]}" unless allowed_paths.include?(path)
+            raise SeregaError, "Invalid option :preload_path => #{value.inspect}. Can be one of #{allowed_paths.inspect[1..-2]}" unless allowed_paths.include?(path)
           end
 
           private

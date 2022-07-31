@@ -10,7 +10,7 @@ class Serega
           value = opts[key]
           return if value.is_a?(Hash)
 
-          raise Error, "Invalid option #{key.inspect} => #{value.inspect}. Must have a Hash value"
+          raise SeregaError, "Invalid option #{key.inspect} => #{value.inspect}. Must have a Hash value"
         end
       end
     end

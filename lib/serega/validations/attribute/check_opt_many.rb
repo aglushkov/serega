@@ -9,7 +9,7 @@ class Serega
         #
         # @param opts [Hash] Attribute options
         #
-        # @raise [Error] Error that option has invalid value
+        # @raise [SeregaError] SeregaError that option has invalid value
         #
         # @return [void]
         #

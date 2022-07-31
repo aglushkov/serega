@@ -22,7 +22,7 @@ class Serega
           # @param opts [Proc] Attribute opts, we will check :value option
           # @param block [Proc] Block that returns serialized attribute value
           #
-          # @raise [Error] Error that block has invalid arguments
+          # @raise [SeregaError] SeregaError that block has invalid arguments
           #
           # @return [void]
           #
@@ -38,7 +38,7 @@ class Serega
             params = block.parameters
             return if (params.count <= 2) && params.all? { |par| par[0] == :opt }
 
-            raise Error, block_error
+            raise SeregaError, block_error
           end
 
           def block_error

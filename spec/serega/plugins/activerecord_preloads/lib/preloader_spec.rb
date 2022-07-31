@@ -24,19 +24,19 @@ RSpec.describe Serega::SeregaPlugins::ActiverecordPreloads do
 
         object = nil
         expect { described_class.preload(object, {}) }
-          .to raise_error Serega::Error, "Can't preload #{preloads.inspect} to #{object.inspect}"
+          .to raise_error Serega::SeregaError, "Can't preload #{preloads.inspect} to #{object.inspect}"
 
         object = []
         expect { described_class.preload(object, {}) }
-          .to raise_error Serega::Error, "Can't preload #{preloads.inspect} to #{object.inspect}"
+          .to raise_error Serega::SeregaError, "Can't preload #{preloads.inspect} to #{object.inspect}"
 
         object = 123
         expect { described_class.preload(object, {}) }
-          .to raise_error Serega::Error, "Can't preload #{preloads.inspect} to #{object.inspect}"
+          .to raise_error Serega::SeregaError, "Can't preload #{preloads.inspect} to #{object.inspect}"
 
         object = [AR::User.create!, AR::Comment.create!]
         expect { described_class.preload(object, {}) }
-          .to raise_error Serega::Error, "Can't preload #{preloads.inspect} to #{object.inspect}"
+          .to raise_error Serega::SeregaError, "Can't preload #{preloads.inspect} to #{object.inspect}"
       end
 
       it "preloads data to activerecord object" do

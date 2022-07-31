@@ -10,7 +10,7 @@ class Serega
           #
           # @param opts [Hash] Attribute options
           #
-          # @raise [Error] Error that option has invalid value
+          # @raise [SeregaError] SeregaError that option has invalid value
           #
           # @return [void]
           #
@@ -20,7 +20,7 @@ class Serega
             value = opts[:serializer]
             return if valid_serializer?(value)
 
-            raise Error, "Invalid option :serializer => #{value.inspect}." \
+            raise SeregaError, "Invalid option :serializer => #{value.inspect}." \
               " Can be a Serega subclass, a String or a Proc without arguments"
           end
 

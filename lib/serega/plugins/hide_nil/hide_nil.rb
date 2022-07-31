@@ -52,7 +52,7 @@ class Serega
         #
         # @param opts [Hash] Attribute options
         #
-        # @raise [Serega::Error] Error that option has invalid value
+        # @raise [Serega::SeregaError] SeregaError that option has invalid value
         #
         # @return [void]
         #
@@ -62,7 +62,7 @@ class Serega
           value = opts[:hide_nil]
           return if (value == true) || (value == false)
 
-          raise Error, "Invalid option :hide_nil => #{value.inspect}. Must have a boolean value"
+          raise SeregaError, "Invalid option :hide_nil => #{value.inspect}. Must have a boolean value"
         end
       end
 

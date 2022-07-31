@@ -25,17 +25,17 @@ class Serega
             #
             # @param block [Proc] Block that returns serialized meta attribute value
             #
-            # @raise [Error] Error that block has invalid arguments
+            # @raise [SeregaError] SeregaError that block has invalid arguments
             #
             # @return [void]
             #
             def call(block)
-              raise Error, "Block must be provided when defining meta attribute" unless block
+              raise SeregaError, "Block must be provided when defining meta attribute" unless block
 
               params = block.parameters
               return if (params.count <= 2) && params.all? { |par| ALLOWED_PARAM_TYPES.include?(par[0]) }
 
-              raise Error, "Block can have maximum 2 regular parameters (no **keyword or *array args)"
+              raise SeregaError, "Block can have maximum 2 regular parameters (no **keyword or *array args)"
             end
           end
         end

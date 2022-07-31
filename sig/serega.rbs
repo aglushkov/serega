@@ -4,6 +4,6 @@
 module Serega
   VERSION: String
 
-  class Error < StandardError
+  class SeregaError < StandardSeregaError
   end
 end

@@ -8,7 +8,7 @@ class Serega
           opts.each_key do |key|
             next if allowed_keys.include?(key)
 
-            raise Error, "Invalid option #{key.inspect}. Allowed options are: #{allowed_keys.map(&:inspect).join(", ")}"
+            raise SeregaError, "Invalid option #{key.inspect}. Allowed options are: #{allowed_keys.map(&:inspect).join(", ")}"
           end
         end
       end

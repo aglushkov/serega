@@ -18,7 +18,7 @@ class Serega
             #
             # @param path [Array<String, Symbol>] Metadata attribute path names
             #
-            # @raise [Error] when metadata attribute name has invalid format
+            # @raise [SeregaError] when metadata attribute name has invalid format
             # @return [void]
             #
             def call(path)
@@ -39,7 +39,7 @@ class Serega
 
               return if valid
 
-              raise Error, message(name)
+              raise SeregaError, message(name)
             end
 
             def message(name)

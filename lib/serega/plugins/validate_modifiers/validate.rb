@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Serega
-  class AttributeNotExist < Error
+  class AttributeNotExist < SeregaError
   end
 
   module SeregaPlugins

@@ -10,7 +10,7 @@ class Serega
           value = opts[key]
           return if value.equal?(true) || value.equal?(false)
 
-          raise Error, "Invalid option #{key.inspect} => #{value.inspect}. Must have a boolean value"
+          raise SeregaError, "Invalid option #{key.inspect} => #{value.inspect}. Must have a boolean value"
         end
       end
     end

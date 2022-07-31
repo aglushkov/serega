@@ -63,7 +63,7 @@ RSpec.describe Serega::SeregaPlugins::ValidateModifiers do
     a.attribute :c, serializer: c
 
     expect { a.new(with: "a1,a2,c(c1,c2),b(b1,b2,c(c1,c2,c3)") }
-      .to raise_error Serega::Error, "Attribute 'c3' ('b.c.c3') not exists"
+      .to raise_error Serega::SeregaError, "Attribute 'c3' ('b.c.c3') not exists"
   end
 
   it "validates deeply nested fields about not existing relation" do

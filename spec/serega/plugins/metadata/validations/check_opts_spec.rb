@@ -19,7 +19,7 @@ RSpec.describe Serega::SeregaPlugins::Metadata::MetaAttribute::CheckOpts do
     expect { described_class.call(opts, attribute_keys) }.not_to raise_error
 
     expect { described_class.call(opts, %i[opt1]) }
-      .to raise_error Serega::Error, invalid_key_error(:opt2, %i[opt1])
+      .to raise_error Serega::SeregaError, invalid_key_error(:opt2, %i[opt1])
   end
 
   it "checks each option value" do

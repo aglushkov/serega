@@ -32,16 +32,16 @@ RSpec.describe Serega::SeregaPlugins::Metadata::MetaAttribute::CheckBlock do
 
   it "prohibits three parameters" do
     block = proc { |_obj, _ctx, _foo| }
-    expect { described_class.call(block) }.to raise_error Serega::Error, error
+    expect { described_class.call(block) }.to raise_error Serega::SeregaError, error
   end
 
   it "prohibits *rest parameters" do
     block = proc { |*_foo| }
-    expect { described_class.call(block) }.to raise_error Serega::Error, error
+    expect { described_class.call(block) }.to raise_error Serega::SeregaError, error
   end
 
   it "prohibits **keywords parameters" do
     block = proc { |**_foo| }
-    expect { described_class.call(block) }.to raise_error Serega::Error, error
+    expect { described_class.call(block) }.to raise_error Serega::SeregaError, error
   end
 end

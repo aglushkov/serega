@@ -5,7 +5,7 @@ require_relative "serega/version"
 # Parent class for your serializers
 class Serega
   # A generic exception Serega uses.
-  class Error < StandardError; end
+  class SeregaError < StandardError; end
 
   # @return [Hash] frozen hash
   FROZEN_EMPTY_HASH = {}.freeze
@@ -123,7 +123,7 @@ class Serega
     # @return [class<Module>] Loaded plugin module
     #
     def plugin(name, **opts)
-      raise Error, "This plugin is already loaded" if plugin_used?(name)
+      raise SeregaError, "This plugin is already loaded" if plugin_used?(name)
 
       plugin = SeregaPlugins.find_plugin(name)
 

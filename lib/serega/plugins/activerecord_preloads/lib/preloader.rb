@@ -7,7 +7,7 @@ class Serega
         module ClassMethods
           def preload(object, preloads)
             preload_handler = handlers.find { |handler| handler.fit?(object) }
-            raise Error, "Can't preload #{preloads.inspect} to #{object.inspect}" unless preload_handler
+            raise SeregaError, "Can't preload #{preloads.inspect} to #{object.inspect}" unless preload_handler
 
             preload_handler.preload(object, preloads)
           end
