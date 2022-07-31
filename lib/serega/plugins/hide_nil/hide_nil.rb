@@ -21,7 +21,7 @@ class Serega
       # @return [void]
       #
       def self.load_plugin(serializer_class, **_opts)
-        serializer_class::Attribute.include(AttributeMethods)
+        serializer_class::SeregaAttribute.include(AttributeMethods)
         serializer_class::CheckAttributeParams.include(CheckAttributeParamsInstanceMethods)
         serializer_class::ConvertItem.extend(ConvertItemClassMethods)
       end

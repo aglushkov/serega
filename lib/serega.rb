@@ -44,7 +44,7 @@ require_relative "serega/map"
 require_relative "serega/plugins"
 
 class Serega
-  @config = Config.new(
+  @config = SeregaConfig.new(
     {
       plugins: [],
       initiate_keys: %i[only with except],
@@ -69,18 +69,18 @@ class Serega
 
   # Core serializer class methods
   module ClassMethods
-    # @return [Config] current serializer config
+    # @return [SeregaConfig] current serializer config
     attr_reader :config
 
     private def inherited(subclass)
-      config_class = Class.new(self::Config)
+      config_class = Class.new(self::SeregaConfig)
       config_class.serializer_class = subclass
-      subclass.const_set(:Config, config_class)
-      subclass.instance_variable_set(:@config, subclass::Config.new(config.opts))
+      subclass.const_set(:SeregaConfig, config_class)
+      subclass.instance_variable_set(:@config, subclass::SeregaConfig.new(config.opts))
 
-      attribute_class = Class.new(self::Attribute)
+      attribute_class = Class.new(self::SeregaAttribute)
       attribute_class.serializer_class = subclass
-      subclass.const_set(:Attribute, attribute_class)
+      subclass.const_set(:SeregaAttribute, attribute_class)
 
       map_class = Class.new(self::Map)
       map_class.serializer_class = subclass
@@ -175,10 +175,10 @@ class Serega
     # @param opts [Hash] Options to serialize attribute
     # @param block [Proc] Custom block to find attribute value. Accepts object and context.
     #
-    # @return [Serega::Attribute] Added attribute
+    # @return [Serega::SeregaAttribute] Added attribute
     #
     def attribute(name, **opts, &block)
-      attribute = self::Attribute.new(name: name, opts: opts, block: block)
+      attribute = self::SeregaAttribute.new(name: name, opts: opts, block: block)
       attributes[attribute.name] = attribute
     end
 
@@ -190,7 +190,7 @@ class Serega
     # @param opts [Hash] Options for attribute serialization
     # @param block [Proc] Custom block to find attribute value. Accepts object and context.
     #
-    # @return [Serega::Attribute] Added attribute
+    # @return [Serega::SeregaAttribute] Added attribute
     #
     def relation(name, serializer:, **opts, &block)
       attribute(name, serializer: serializer, **opts, &block)

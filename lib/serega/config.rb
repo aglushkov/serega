@@ -6,8 +6,8 @@ class Serega
   #
   # Core class that stores serializer configuration
   #
-  class Config
-    module ConfigInstanceMethods
+  class SeregaConfig
+    module SeregaConfigInstanceMethods
       extend Forwardable
 
       # @return [Hash] Current config data
@@ -42,7 +42,7 @@ class Serega
       def_delegators :opts, :[], :[]=, :fetch, :keys, :has_key?
     end
 
-    include ConfigInstanceMethods
+    include SeregaConfigInstanceMethods
     extend Serega::SeregaHelpers::SerializerClassHelper
   end
 end

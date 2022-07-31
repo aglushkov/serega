@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-RSpec.describe Serega::Attribute do
+RSpec.describe Serega::SeregaAttribute do
   let(:serializer_class) { Class.new(Serega) }
-  let(:attribute_class) { serializer_class::Attribute }
+  let(:attribute_class) { serializer_class::SeregaAttribute }
 
   describe ".initialize" do
     it "validates provided params" do

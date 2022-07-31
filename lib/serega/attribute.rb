@@ -4,7 +4,7 @@ class Serega
   #
   # Stores Attribute data
   #
-  class Attribute
+  class SeregaAttribute
     #
     # Stores Attribute instance methods
     #
