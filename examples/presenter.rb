@@ -20,7 +20,7 @@ end
 class UserSerializer < AppSerializer
   attribute :id
   attribute :name
-  relation :profile, serializer: "ProfileSerializer"
+  attribute :profile, serializer: "ProfileSerializer"
 
   class Presenter
     def name

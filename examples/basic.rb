@@ -20,8 +20,8 @@ class UserSerializer < AppSerializer
   attribute :id
   attribute(:name) { |user| [user.first_name, user.last_name].join(" ") }
 
-  relation :profile, serializer: "ProfileSerializer"
-  relation :roles, serializer: "RoleSerializer"
+  attribute :profile, serializer: "ProfileSerializer"
+  attribute :roles, serializer: "RoleSerializer"
 end
 
 class ProfileSerializer < AppSerializer

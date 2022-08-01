@@ -1,5 +1,14 @@
 ## [Unreleased]
 
+- Remove `.relation` DSL method for simplicity. Just use `attribute :foo, serializer: Foo`. Method can be returned manually:
+  ```ruby
+  class Serega
+    def self.relation(name, serializer:, **opts, &block)
+      attribute(name, serializer: serializer, **opts, &block)
+    end
+  end
+```
+
 - Add config option for `:preload` plugin  - `:auto_preload_attributes_with_delegate`.
   ```ruby
     # Setup:

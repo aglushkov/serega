@@ -13,7 +13,7 @@ RSpec.describe Serega::SeregaPlugins::ValidateModifiers do
   let(:serializer) do
     serializer_class = Class.new(base_serializer)
     serializer_class.attribute :foo_bar
-    serializer_class.relation :foo_bazz, serializer: serializer_class
+    serializer_class.attribute :foo_bazz, serializer: serializer_class
     serializer_class
   end
 

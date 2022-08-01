@@ -183,20 +183,6 @@ class Serega
       attributes[attribute.name] = attribute
     end
 
-    #
-    # Adds attribute with forced :serializer option
-    #
-    # @param name [Symbol] Attribute name. Attribute value will be found by executing `object.<name>`
-    # @param serializer [Serega, Proc] Specifies nested serializer for relationship
-    # @param opts [Hash] Options for attribute serialization
-    # @param block [Proc] Custom block to find attribute value. Accepts object and context.
-    #
-    # @return [Serega::SeregaAttribute] Added attribute
-    #
-    def relation(name, serializer:, **opts, &block)
-      attribute(name, serializer: serializer, **opts, &block)
-    end
-
     def call(object, opts = FROZEN_EMPTY_HASH)
       initiate_keys = config[:initiate_keys]
       new(opts.slice(*initiate_keys)).to_h(object, opts.except(*initiate_keys))

@@ -153,17 +153,6 @@ RSpec.describe Serega do
     end
   end
 
-  describe ".relation" do
-    it "forces using of :serializer option" do
-      expect { serializer_class.relation :foo }.to raise_error ArgumentError, /serializer/
-    end
-
-    it "adds new attribute" do
-      attribute = serializer_class.relation(:foo, serializer: serializer_class)
-      expect(serializer_class.attributes[:foo]).to eq attribute
-    end
-  end
-
   describe "serialization methods" do
     let(:serializer_class) do
       Class.new(described_class) do
