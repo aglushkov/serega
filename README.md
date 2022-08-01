@@ -126,9 +126,6 @@
       attribute :posts, serializer: "PostSerializer"
       attribute :posts, serializer: -> { PostSerializer }
 
-      # We can use `relation` word to describe attributes with serializers
-      relation :posts, serializer: PostSerializer
-
       # Option `:many` specifies a has_many relationship
       # Usually it is defined automatically by checking `value.is_a?(Enumerable)`
       attribute :posts, serializer: PostSerializer, many: true

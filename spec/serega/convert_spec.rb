@@ -50,7 +50,7 @@ RSpec.describe Serega::SeregaConvert do
       Class.new(Serega) do
         attribute :first_name
         attribute :last_name
-        relation :comment, serializer: child_serializer
+        attribute :comment, serializer: child_serializer
       end
     end
 
@@ -73,7 +73,7 @@ RSpec.describe Serega::SeregaConvert do
       Class.new(Serega) do
         attribute :first_name
         attribute :last_name
-        relation :comments, serializer: child_serializer
+        attribute :comments, serializer: child_serializer
       end
     end
 
@@ -201,7 +201,7 @@ RSpec.describe Serega::SeregaConvert do
       Class.new(Serega) do
         attribute :first_name
         attribute :last_name, hide: true
-        relation :comment, serializer: child_serializer, hide: true
+        attribute :comment, serializer: child_serializer, hide: true
       end
     end
 
@@ -226,7 +226,7 @@ RSpec.describe Serega::SeregaConvert do
       Class.new(Serega) do
         attribute :first_name
         attribute :last_name
-        relation :comment, serializer: child_serializer
+        attribute :comment, serializer: child_serializer
       end
     end
 
@@ -251,7 +251,7 @@ RSpec.describe Serega::SeregaConvert do
       Class.new(Serega) do
         attribute :first_name
         attribute :last_name
-        relation :comment, serializer: child_serializer
+        attribute :comment, serializer: child_serializer
       end
     end
 
@@ -276,7 +276,7 @@ RSpec.describe Serega::SeregaConvert do
       Class.new(Serega) do
         attribute :first_name
         attribute :last_name
-        relation :comment, serializer: child_serializer
+        attribute :comment, serializer: child_serializer
       end
     end
 
@@ -301,7 +301,7 @@ RSpec.describe Serega::SeregaConvert do
       Class.new(Serega) do
         attribute :first_name
         attribute :last_name
-        relation :comment, serializer: child_serializer
+        attribute :comment, serializer: child_serializer
       end
     end
 

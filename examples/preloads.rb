@@ -80,17 +80,17 @@ end
 class UserSerializer < SimpleSerializer
   attribute :first_name
   attribute :last_name
-  relation :posts, serializer: -> { PostSerializer }
+  attribute :posts, serializer: -> { PostSerializer }
 end
 
 class PostSerializer < SimpleSerializer
   attribute :text
-  relation :comments, serializer: -> { CommentSerializer }
+  attribute :comments, serializer: -> { CommentSerializer }
 end
 
 class CommentSerializer < SimpleSerializer
   attribute :text
-  # relation :user, serializer: -> { UserSerializer }
+  # attribute :user, serializer: -> { UserSerializer }
 end
 
 # We need to show just DB queries in this examples to show we have no N+1
@@ -165,7 +165,7 @@ example("Relation included posts:") do
   UserSerializer.new.to_h(users)
 end
 
-example("Loaded relation included posts:") do
+example("Loaded attribute included posts:") do
   users = User.all.includes(:posts).load
   UserSerializer.new.to_h(users)
 end

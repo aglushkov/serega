@@ -20,8 +20,8 @@ class UserSerializer < AppSerializer
   attribute :name
   attribute :email, hide: true
 
-  relation :avatar, serializer: "AvatarSerializer"
-  relation :profile, serializer: "ProfileSerializer", hide: true
+  attribute :avatar, serializer: "AvatarSerializer"
+  attribute :profile, serializer: "ProfileSerializer", hide: true
 end
 
 class AvatarSerializer < AppSerializer

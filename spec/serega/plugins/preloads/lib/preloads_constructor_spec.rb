@@ -47,14 +47,14 @@ RSpec.describe Serega::SeregaPlugins::Preloads::PreloadsConstructor do
 
   it "returns preloads generated automatically for relations" do
     user_serializer.config[:preloads][:auto_preload_attributes_with_serializer] = true
-    user_serializer.relation :email, serializer: base
+    user_serializer.attribute :email, serializer: base
 
     result = described_class.call(map(user_ser))
     expect(result).to eq(email: {})
   end
 
   it "returns no preloads and no nested preloads for relations when specified preloads is nil" do
-    user_serializer.relation :profile, serializer: profile_serializer, preload: nil
+    user_serializer.attribute :profile, serializer: profile_serializer, preload: nil
     profile_serializer.attribute :email, preload: :email # should not be preloaded
 
     result = described_class.call(map(user_ser))
@@ -62,7 +62,7 @@ RSpec.describe Serega::SeregaPlugins::Preloads::PreloadsConstructor do
   end
 
   it "returns preloads for nested relations joined to root when specified preloads is empty hash" do
-    user_serializer.relation :profile, serializer: profile_serializer, preload: {}
+    user_serializer.attribute :profile, serializer: profile_serializer, preload: {}
     profile_serializer.attribute :email, preload: :email # should be preloaded to root
 
     result = described_class.call(map(user_ser))
@@ -70,7 +70,7 @@ RSpec.describe Serega::SeregaPlugins::Preloads::PreloadsConstructor do
   end
 
   it "returns preloads for nested relations joined to root when specified preloads is empty array" do
-    user_serializer.relation :profile, serializer: profile_serializer, preload: []
+    user_serializer.attribute :profile, serializer: profile_serializer, preload: []
     profile_serializer.attribute :email, preload: :email # should be preloaded to root
 
     result = described_class.call(map(user_ser))
@@ -78,7 +78,7 @@ RSpec.describe Serega::SeregaPlugins::Preloads::PreloadsConstructor do
   end
 
   it "returns nested preloads for relations" do
-    user_serializer.relation :profile, preload: :profile, serializer: profile_serializer
+    user_serializer.attribute :profile, preload: :profile, serializer: profile_serializer
     profile_serializer.attribute :email, preload: %i[confirmed_email unconfirmed_email]
 
     result = described_class.call(map(user_ser))
@@ -86,7 +86,7 @@ RSpec.describe Serega::SeregaPlugins::Preloads::PreloadsConstructor do
   end
 
   it "preloads nested relations for nested relation" do
-    user_serializer.relation :profile, serializer: profile_serializer, preload: {company: :profile}
+    user_serializer.attribute :profile, serializer: profile_serializer, preload: {company: :profile}
     profile_serializer.attribute :email, preload: %i[confirmed_email unconfirmed_email]
 
     result = described_class.call(map(user_ser))
@@ -94,7 +94,7 @@ RSpec.describe Serega::SeregaPlugins::Preloads::PreloadsConstructor do
   end
 
   it "preloads nested relations to main resource, specified by `preload_path`" do
-    user_serializer.relation :profile, serializer: profile_serializer,
+    user_serializer.attribute :profile, serializer: profile_serializer,
       preload: {company: :profile},
       preload_path: :company
 
