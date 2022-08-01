@@ -16,9 +16,20 @@
   ```
 
 3. Commit changes
-6. Update version number in VERSION file
-7. Make local gem release `gem build serega.gemspec`
-8. Repeat
+
+4. Update version number in VERSION file
+
+5. Checkout to new release branch
+  ```
+  git co -b "v$(cat "VERSION")"
+  ```
+
+6. Make local gem release
+  ```
+  gem build serega.gemspec
+  ```
+
+7. Repeat
   ```
   bundle update \
     && BUNDLE_GEMFILE=gemfiles/5.2.gemfile bundle update \
@@ -28,12 +39,27 @@
     && bundle exec rubocop -A \
     && bundle exec rake examples
   ```
-9. Add CHANGELOG, README notices.
-10. Commit all changes.
+
+8. Add CHANGELOG, README notices.
+
+9. Commit all changes.
   ```
   git add . && git commit -m "Release v$(cat "VERSION")"
+  git push origin "v$(cat "VERSION")"
   ```
-11. Add tag `git tag -a v$(cat "VERSION") -m v$(cat "VERSION")`
-12. Commit and push changes `git push origin master`
-13. Push tags `git push origin --tags`
-14. Push gem `gem push serega-$(cat "VERSION").gem`
+
+10. Merge PR when all checks pass.
+
+11. Add tag
+  ```
+  git checkout master
+  git pull --rebase origin master
+  git tag -a v$(cat "VERSION") -m v$(cat "VERSION")
+  git push origin master
+  git push origin --tags
+  ```
+
+12. Push new gem version
+  ```
+  gem push serega-$(cat "VERSION").gem
+  ```
