@@ -29,6 +29,7 @@ require_relative "serega/validations/attribute/check_block"
 require_relative "serega/validations/attribute/check_name"
 require_relative "serega/validations/attribute/check_opt_const"
 require_relative "serega/validations/attribute/check_opt_hide"
+require_relative "serega/validations/attribute/check_opt_delegate"
 require_relative "serega/validations/attribute/check_opt_key"
 require_relative "serega/validations/attribute/check_opt_many"
 require_relative "serega/validations/attribute/check_opt_serializer"
@@ -48,7 +49,7 @@ class Serega
     {
       plugins: [],
       initiate_keys: %i[only with except],
-      attribute_keys: %i[key value serializer many hide const],
+      attribute_keys: %i[key value serializer many hide const delegate],
       serialize_keys: %i[context many],
       max_cached_map_per_serializer_count: 50,
       to_json: ->(data) { SeregaUtils::ToJSON.call(data) }

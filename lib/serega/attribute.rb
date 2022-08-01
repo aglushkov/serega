@@ -77,7 +77,7 @@ class Serega
       def value_block
         return @value_block if instance_variable_defined?(:@value_block)
 
-        @value_block = block || opts[:value] || const_block || keyword_block
+        @value_block = block || opts[:value] || const_block || delegate_block || keyword_block
       end
 
       #
@@ -122,6 +122,19 @@ class Serega
       def keyword_block
         key_method_name = key
         proc { |object| object.public_send(key_method_name) }
+      end
+
+      def delegate_block
+        return unless opts.key?(:delegate)
+
+        key_method_name = key
+        delegate_to = opts[:delegate][:to]
+
+        if opts[:delegate][:allow_nil]
+          proc { |object| object.public_send(delegate_to)&.public_send(key_method_name) }
+        else
+          proc { |object| object.public_send(delegate_to).public_send(key_method_name) }
+        end
       end
     end
 

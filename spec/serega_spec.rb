@@ -23,7 +23,7 @@ RSpec.describe Serega do
       expect(config[:plugins]).to eq []
       expect(config[:serialize_keys]).to match_array(%i[context many])
       expect(config[:initiate_keys]).to match_array(%i[only except with])
-      expect(config[:attribute_keys]).to match_array(%i[key value serializer many hide const])
+      expect(config[:attribute_keys]).to match_array(%i[key value serializer many hide const delegate])
       expect(config[:max_cached_map_per_serializer_count]).to eq 50
       expect(config[:to_json].call({})).to eq "{}"
     end
