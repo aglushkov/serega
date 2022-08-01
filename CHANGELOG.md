@@ -1,8 +1,19 @@
 ## [Unreleased]
 
+- Add config option for `:preload` plugin  - `:auto_preload_attributes_with_delegate`.
+  ```ruby
+    # Setup:
+    class Serega
+      plugin :preload, auto_preload_attributes_with_delegate: true
+      # or
+      plugin :preload
+      config[:preload][:auto_preload_attributes_with_delegate] = true
+    end
+  ```
+
 - Add option :delegate when defining attributes.
   Examples:
-  ```
+  ```ruby
     attribute :comments_count, delegate: { to: :user_stat }
     attribute :address_line_1, key: :line_1, delegate: { to: :address, allow_nil: true }
   ```

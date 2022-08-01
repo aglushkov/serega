@@ -37,6 +37,7 @@ class Serega
         config = serializer_class.config
         config[:attribute_keys] += [:preload, :preload_path]
         config[:preloads] = {
+          auto_preload_attributes_with_delegate: opts.fetch(:auto_preload_attributes_with_delegate, false),
           auto_preload_attributes_with_serializer: opts.fetch(:auto_preload_attributes_with_serializer, false),
           auto_hide_attributes_with_preload: opts.fetch(:auto_hide_attributes_with_preload, false)
         }
@@ -87,6 +88,8 @@ class Serega
               opts[:preload]
             elsif relation? && self.class.serializer_class.config[:preloads][:auto_preload_attributes_with_serializer]
               key
+            elsif opts.key?(:delegate) && self.class.serializer_class.config[:preloads][:auto_preload_attributes_with_delegate]
+              opts[:delegate].fetch(:to)
             end
 
           # Nil and empty hash differs as we can preload nested results to
