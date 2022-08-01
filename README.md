@@ -108,15 +108,16 @@
       attribute :tags, hide: true
 
       # Option :delegate
+      # With plugin :preload and enabled :auto_preload_attributes_with_delegate option it also preloads delegated resource.
       #
       # Same as:
-      #     attribute(:posts_count) { |user| user.stat.posts_count }
+      #     attribute(:posts_count, preload: :stat) { |user| user.stat.posts_count }
       attribute :posts_count, delegate: { to: :stat }
 
       # Option :delegate with :allow_nil
       #
       # Same as:
-      #     attribute(:address_line_1, key: :line_1) { |user| user.address&.line1 }
+      #     attribute(:address_line_1, key: :line_1, preload: :address) { |user| user.address&.line1 }
       attribute :address_line_1, key: :line_1, delegate: { to: :address, allow_nil: true }
 
       # Option :serializer specifies nested serializer for attribute
@@ -162,14 +163,17 @@
 
   Config option `config[:preloads][:auto_preload_attributes_with_serializer] = true` can be specified to automatically add `preload: <attribute_key>` to all attributes with `:serializer` option.
 
+  Config option `config[:preloads][:auto_preload_attributes_with_delegate] = true` can be specified to automatically add `preload: <delegate_to>` to all attributes with `:delegate` option.
+
   Config option `config[:preloads][:auto_hide_attributes_with_preload] = true` can be specified to automatically add `hide: true` to all attributes with any `:preload`. It also works for automatically assigned preloads.
 
-  Preloads can be disabled with `preload: false` option. Or auto added preloads can be overwritten with `preload: <another_key>` option.
+  Preloads can be disabled with `preload: false` option. Also auto added preloads can be overwritten with `preload: <another_key>` option.
 
   ```ruby
     class AppSerializer < Serega
       plugin :preloads,
         auto_preload_attributes_with_serializer: true,
+        auto_preload_attributes_with_delegate: true,
         auto_hide_attributes_with_preload: true
     end
 
@@ -179,10 +183,10 @@
     end
 
     class UserSerializer  < AppSerializer
-      attribute :followers_count, preload: :user_stats, value: proc { |user| user.user_stats.followers_count  }
+      attribute :followers_count, delegate: {to: :user_stats}
     end
 
-    PostSerializer.preloads # => {:views_stats=>{}, :user=>{:user_stats=>{}}}
+    PostSerializer.new(only: [:views_count, user: :followers_count]).preloads # => {:views_stats=>{}, :user=>{:user_stats=>{}}}
   ```
 
 ### Plugin :activerecord_preloads

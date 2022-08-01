@@ -17,14 +17,24 @@ RSpec.describe Serega::SeregaPlugins::Preloads do
     expect(serializer_class.config[:preloads][:auto_preload_attributes_with_serializer]).to be false
   end
 
+  it "configures to not preload attributes with :delegate option by default" do
+    serializer_class.plugin :preloads
+    expect(serializer_class.config[:preloads][:auto_preload_attributes_with_delegate]).to be false
+  end
+
   it "configures to not hide attributes with preload option by default" do
     serializer_class.plugin :preloads
     expect(serializer_class.config[:preloads][:auto_hide_attributes_with_preload]).to be false
   end
 
-  it "allows to configure to preload relations by default" do
+  it "allows to configure to preload attributes with serializer by default" do
     serializer_class.plugin :preloads, auto_preload_attributes_with_serializer: true
     expect(serializer_class.config[:preloads][:auto_preload_attributes_with_serializer]).to be true
+  end
+
+  it "allows to configure to preload attributes with :delegate option by default" do
+    serializer_class.plugin :preloads, auto_preload_attributes_with_delegate: true
+    expect(serializer_class.config[:preloads][:auto_preload_attributes_with_delegate]).to be true
   end
 
   it "allows to configure to hide attributes with preloads by default" do
@@ -71,6 +81,17 @@ RSpec.describe Serega::SeregaPlugins::Preloads do
 
       it "returns no preloads for attributes with serializer by default" do
         attribute = serializer_class.attribute :foo, serializer: "bar"
+        expect(attribute.preloads).to eq({})
+      end
+
+      it "returns automatically found preloads when :delegate option provided" do
+        serializer_class.config[:preloads][:auto_preload_attributes_with_delegate] = true
+        attribute = serializer_class.attribute :foo, delegate: {to: :bar}
+        expect(attribute.preloads).to eq(bar: {})
+      end
+
+      it "returns no preloads for attributes with :delegate option by default" do
+        attribute = serializer_class.attribute :foo, delegate: {to: :bar}
         expect(attribute.preloads).to eq({})
       end
     end
