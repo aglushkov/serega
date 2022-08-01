@@ -1,5 +1,12 @@
 ## [Unreleased]
 
+- Add option :delegate when defining attributes.
+  Examples:
+  ```
+    attribute :comments_count, delegate: { to: :user_stat }
+    attribute :address_line_1, key: :line_1, delegate: { to: :address, allow_nil: true }
+  ```
+
 - Prohibit to use option :preload together with option :const (#23)
 
 - Rename constants. Add prefix Serega for come classes. Previously in applications that use same class names this classes have to be defined with two colons "::".

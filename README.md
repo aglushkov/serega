@@ -107,6 +107,18 @@
       # They can be serialized only when directly requested by modifiers :with or :only
       attribute :tags, hide: true
 
+      # Option :delegate
+      #
+      # Same as:
+      #     attribute(:posts_count) { |user| user.stat.posts_count }
+      attribute :posts_count, delegate: { to: :stat }
+
+      # Option :delegate with :allow_nil
+      #
+      # Same as:
+      #     attribute(:address_line_1, key: :line_1) { |user| user.address&.line1 }
+      attribute :address_line_1, key: :line_1, delegate: { to: :address, allow_nil: true }
+
       # Option :serializer specifies nested serializer for attribute
       # We can specify serializer as Class, String or Proc.
       attribute :posts, serializer: PostSerializer

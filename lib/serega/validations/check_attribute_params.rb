@@ -28,6 +28,7 @@ class Serega
           SeregaUtils::CheckAllowedKeys.call(opts, allowed_opts_keys)
 
           Attribute::CheckOptConst.call(opts, block)
+          Attribute::CheckOptDelegate.call(opts, block)
           Attribute::CheckOptHide.call(opts)
           Attribute::CheckOptKey.call(opts, block)
           Attribute::CheckOptMany.call(opts)
