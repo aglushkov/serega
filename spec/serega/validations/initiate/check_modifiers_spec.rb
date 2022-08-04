@@ -1,12 +1,9 @@
 # frozen_string_literal: true
 
-load_plugin_code :validate_modifiers
-
-RSpec.describe Serega::SeregaPlugins::ValidateModifiers do
+RSpec.describe Serega::SeregaValidations::Initiate::CheckModifiers do
   let(:base_serializer) do
     serializer_class = Class.new(Serega)
     serializer_class.plugin :string_modifiers
-    serializer_class.plugin :validate_modifiers
     serializer_class
   end
 
@@ -17,32 +14,12 @@ RSpec.describe Serega::SeregaPlugins::ValidateModifiers do
     serializer_class
   end
 
-  it "adds config option to auto validate by default" do
-    expect(base_serializer.config[:validate_modifiers]).to eq(auto: true)
-  end
-
-  it "allows to change config option to auto validate when adding plugin" do
-    serializer_class = Class.new(Serega)
-    serializer_class.plugin :validate_modifiers, auto: false
-
-    expect(serializer_class.config[:validate_modifiers]).to eq(auto: false)
-  end
-
   it "does not raise error when all provided fields present" do
     expect { serializer.new(only: "foo_bar,foo_bazz(foo_bar)") }.not_to raise_error
   end
 
   it "raises error when some provided field not exist" do
     expect { serializer.new(only: "foo_bar,extra") }
-      .to raise_error Serega::AttributeNotExist, "Attribute 'extra' not exists"
-  end
-
-  it "does not raise error when configured to not validate by default" do
-    serializer.config[:validate_modifiers][:auto] = false
-
-    ser = nil
-    expect { ser = serializer.new(only: "foo_bar,extra") }.not_to raise_error
-    expect { ser.validate_modifiers }
       .to raise_error Serega::AttributeNotExist, "Attribute 'extra' not exists"
   end
 

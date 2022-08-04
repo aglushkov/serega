@@ -50,39 +50,73 @@
 ```
 
 ### How to serialize
+  We can serialize **to_h**, **to_json**, **as_json**
   ```ruby
-    # Example:
-    UserSerializer.to_h(user)         # single object
-    UserSerializer.to_h([user, user]) # Array or some Enumerable object
+    user = OpenStruct.new(username:'serega')
 
-    # Serialize with context:
-    UserSerializer.to_h(user, context: { current_user: current_user })
+    class UserSerializer < Serega
+      attribute :username
+    end
 
-    # Select attributes to serialize
-    UserSerializer.new(only: %i[id username]).to_h(user)
-    UserSerializer.new(except: %i[email username]).to_h(user)
-    UserSerializer.new(with: %i[email]).to_h(user)
+    # #TO_H or #CALL
+    UserSerializer.(user) # => {username: "serega"}
 
-    # Select nested attributes to serialize
-    PostSerializer.new(only: { user: :username }).to_h(post)
-    PostSerializer.new(except: { user: %i[email username] }).to_h(post)
-    PostSerializer.new(with: {user: :email}).to_h(post)
+    # #TO_JSON
+    UserSerializer.to_json(user) # => '{"username":"serega"}'
 
-    # Select with :string_modifiers plugin
-    # Simplifies selecting attributes when modifiers are params of GET requests
+    # #AS_JSON
+    UserSerializer.as_json(user) # => {"username" => "serega"}
+  ```
+
+  By default all attributes and all nested attributes are serialized.
+
+  We can select needed attributes using modifiers: `with`, `only`, `except`.
+  ```ruby
+    # User has only `username` attribute
+    UserSerializer.(user, except: %i[username]) # => {}
+    # same
+    UserSerializer.new(except: %i[username]).(user) # => {}
+  ```
+
+  Validation of modifiers can be skipped with `check_initiate_params: false` option.
+  ```ruby
+    UserSerializer.new(only: %i[foo bar]).(user) # => raises Serega::AttributeNotExist, "Attribute 'foo' not exists"
+    UserSerializer.new(only: %i[foo bar], check_initiate_params: false).(user) # => {}
+  ```
+
+  Serializing Arrays or Enumerable objects.
+  ```ruby
+    UserSerializer.([user, user]) # => [{username: "serega"}, {username: "serega"}]
+  ```
+
+  Serializing with context
+  ```ruby
+    UserSerializer.attribute(:username) {|obj, ctx| ctx[:username] || obj.username }
+    UserSerializer.(user, context: {username: 'janedoe'}) # => {username: "janedoe"}
+  ```
+
+  Manually specifying that serializing one or many objects.
+  This is useful when serializing `<Struct>`, which is `<Enumerable>`, but still it is a single object.
+  Or some custom lists, which have no `<Enumerable>` ancestor.
+  ```ruby
+    struct_user = Struct.new(:username).new('bot')
+    UserSerializer.(struct_user, many: false) # => {username: "bot"}
+  ```
+
+  Select nested attributes to serialize
+  ```ruby
+    PostSerializer.new(only: { user: :username }).(post)
+    PostSerializer.new(except: { user: %i[email username] }).(post)
+    PostSerializer.new(with: {user: :email}).(post)
+  ```
+
+  Select nested attributes with :string_modifiers plugin. It allows to provide params as Strings.
+  Its handy to use this plugin with GET requests params.
+  ```ruby
     PostSerializer.plugin :string_modifiers
-    PostSerializer.new(only: "id,user(id,username)").to_h(post)
-    PostSerializer.new(except: "user(username,email)").to_h(post)
-    PostSerializer.new(with: "user(email)").to_h(post)
-
-    # Serialize to JSON string
-    # Configure adapter to serialize to JSON, default is JSON.dump
-    AppSerializer.config[:to_json] = ->(data) { Oj.dump(data, mode: :compat) }
-    UserSerializer.to_json(user)
-
-    # Serialize as JSON - keys becomes strings, values will be serialized as in JSON.
-    # For example, this can be useful to use result as sidekiq argument.
-    UserSerializer.as_json(user)
+    PostSerializer.new(only: "id,user(id,username)").(post)
+    PostSerializer.new(except: "user(username,email)").(post)
+    PostSerializer.new(with: "user(email)").(post)
   ```
 
 ### How to add attributes
@@ -148,6 +182,28 @@
 
       # Option `:format` also can be used as Proc
       attribute :created_at, format: proc { |time| time.strftime("%Y-%m-%d")}
+    end
+  ```
+
+## Configuration
+
+  ```ruby
+    class AppSerializer < Serega
+      # Configure adapter to serialize to JSON, default is JSON.dump
+      config[:to_json] = ->(data) { Oj.dump(data, mode: :compat) }
+
+      # Skip/enable validation of modifiers params `with`, `except`, `only`
+      # It can be useful to save some processing time.
+      config[:check_initiate_params] = false # default is true, enabled
+
+      # Store structs with lists of serialized attributes to not recalculate them for each serialization.
+      # This can slightly increase performance.
+      # We store 1 cached_map per serialization, cached_key is combined
+      # `with`, `except`, `only` serialization options.
+      # Better do benchmark first your serialization use case.
+      config[:max_cached_map_per_serializer_count] = 50 # default is 0, disabled
+
+      # See also plugins for more config options that added by plugins
     end
   ```
 
@@ -312,20 +368,6 @@
     PostSerializer.new(with: {user: %i[email, username]}).to_h(post)
   ```
 
-### Plugin :validate_modifiers
-
-  By default we will not raise any error if not existed attribute provided in modifiers (`:only, :except, :with` options provided to `Serializer#new` method).
-
-  We can enable this validation using `:validate_modifiers` plugin
-
-  ```ruby
-    UserSerializer.plugin(:validate_modifiers)
-    UserSerializer.new(only: [:foo, :bar]) # => raises Serega::AttributeNotExist
-  ```
-
-  Now we will raise `Serega::AttributeNotExist` error when not existing attribute provided to modifiers.
-
-
 ### Plugin :hide_nil
 
   Allows to hide attributes which values are nil
@@ -341,7 +383,7 @@
 ## Errors
 
   - `Serega::SeregaError` is a base error raised by this gem.
-  - `Serega::AttributeNotExist` error is raised when validating attributes in `:only, :except, :with` modifiers with `:validate_modifiers` plugin
+  - `Serega::AttributeNotExist` error is raised when validating attributes in `:only, :except, :with` modifiers
 
 ## Development
 

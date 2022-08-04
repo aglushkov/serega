@@ -18,7 +18,7 @@ class Serega
             return unless opts.key?(:key)
 
             check_usage_with_other_params(opts, block)
-            SeregaUtils::CheckOptIsStringOrSymbol.call(opts, :key)
+            Utils::CheckOptIsStringOrSymbol.call(opts, :key)
           end
 
           private

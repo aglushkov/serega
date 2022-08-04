@@ -2,7 +2,7 @@
 
 class Serega
   module SeregaValidations
-    module SeregaUtils
+    module Utils
       class CheckOptIsStringOrSymbol
         def self.call(opts, key)
           return unless opts.key?(key)

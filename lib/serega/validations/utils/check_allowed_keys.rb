@@ -2,7 +2,7 @@
 
 class Serega
   module SeregaValidations
-    module SeregaUtils
+    module Utils
       class CheckAllowedKeys
         def self.call(opts, allowed_keys)
           opts.each_key do |key|

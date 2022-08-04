@@ -4,23 +4,33 @@ class Serega
   class SeregaMap
     module ClassMethods
       def call(opts)
-        @cache ||= {}
-        cache_key = opts.to_s
+        max_cache_size = serializer_class.config[:max_cached_map_per_serializer_count]
+        return map_for(opts) if max_cache_size.zero?
 
-        @cache[cache_key] ||= begin
-          modifiers = {
-            only: opts&.[](:only) || FROZEN_EMPTY_HASH,
-            except: opts&.[](:except) || FROZEN_EMPTY_HASH,
-            with: opts&.[](:with) || FROZEN_EMPTY_HASH
-          }
-
-          construct_map(serializer_class, **modifiers).tap do
-            @cache.shift if @cache.length >= serializer_class.config[:max_cached_map_per_serializer_count]
-          end
-        end
+        cached_map_for(opts, max_cache_size)
       end
 
       private
+
+      def map_for(opts)
+        construct_map(serializer_class, **modifiers(opts))
+      end
+
+      def cached_map_for(opts, max_cache_size)
+        @cache ||= {}
+        cache_key = opts.to_s
+        map = @cache[cache_key] ||= map_for(opts)
+        @cache.shift if @cache.length > max_cache_size
+        map
+      end
+
+      def modifiers(opts)
+        {
+          only: opts&.[](:only) || FROZEN_EMPTY_HASH,
+          except: opts&.[](:except) || FROZEN_EMPTY_HASH,
+          with: opts&.[](:with) || FROZEN_EMPTY_HASH
+        }
+      end
 
       def construct_map(serializer_class, only:, except:, with:)
         serializer_class.attributes.each_with_object([]) do |(name, attribute), map|

@@ -2,7 +2,7 @@
 
 class Serega
   module SeregaValidations
-    module SeregaUtils
+    module Utils
       class CheckOptIsHash
         def self.call(opts, key)
           return unless opts.key?(key)
