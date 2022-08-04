@@ -2,7 +2,8 @@
 
 RSpec.describe Serega::SeregaMap do
   let(:base_class) { Class.new(Serega) }
-  let(:described_class) { a::SeregaMap }
+  let(:current_serializer) { a }
+  let(:described_class) { current_serializer::SeregaMap }
 
   let(:a) do
     ser = Class.new(base_class)
@@ -42,7 +43,7 @@ RSpec.describe Serega::SeregaMap do
   end
 
   def map(opts)
-    described_class.call(opts)
+    current_serializer::SeregaMap.call(opts)
   end
 
   describe ".call" do
@@ -106,6 +107,40 @@ RSpec.describe Serega::SeregaMap do
       ]
 
       expect(result).to eq expected_result
+    end
+  end
+
+  describe "saving maps to cache" do
+    it "does not save maps to cache when not configured to do so" do
+      result1 = map(only: {a1: {}})
+      result2 = map(only: {a1: {}})
+
+      expect(result1).to eq [[a.attributes[:a1], []]]
+      expect(result2).to eq [[a.attributes[:a1], []]]
+      expect(result1).not_to equal result2
+    end
+
+    it "saves maps to cache and uses them when configured to use cache" do
+      current_serializer.config[:max_cached_map_per_serializer_count] = 1
+      result1 = map(only: {a1: {}})
+      result2 = map(only: {a1: {}})
+
+      expect(result1).to eq [[a.attributes[:a1], []]]
+      expect(result2).to eq [[a.attributes[:a1], []]]
+      expect(result1).to equal result2
+    end
+
+    it "removes from cache oldest maps if cached keys count more than configured" do
+      current_serializer.config[:max_cached_map_per_serializer_count] = 1
+
+      result1 = map(only: {a1: {}})
+      map(only: {a2: {}}) # replace cached result1
+
+      result2 = map(only: {a1: {}})
+
+      expect(result1).to eq [[a.attributes[:a1], []]]
+      expect(result2).to eq [[a.attributes[:a1], []]]
+      expect(result1).not_to equal result2
     end
   end
 end

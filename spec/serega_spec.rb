@@ -16,15 +16,16 @@ RSpec.describe Serega do
         initiate_keys
         serialize_keys
         attribute_keys
+        check_initiate_params
         max_cached_map_per_serializer_count
         to_json
       ]
 
       expect(config[:plugins]).to eq []
       expect(config[:serialize_keys]).to match_array(%i[context many])
-      expect(config[:initiate_keys]).to match_array(%i[only except with])
+      expect(config[:initiate_keys]).to match_array(%i[only except with check_initiate_params])
       expect(config[:attribute_keys]).to match_array(%i[key value serializer many hide const delegate])
-      expect(config[:max_cached_map_per_serializer_count]).to eq 50
+      expect(config[:max_cached_map_per_serializer_count]).to eq 0
       expect(config[:to_json].call({})).to eq "{}"
     end
   end
@@ -219,6 +220,51 @@ RSpec.describe Serega do
         expect(serializer_class.as_json("foo", **opts, context: {data: "bar"}))
           .to eq({"obj" => "foo", "ctx" => "bar"})
       end
+    end
+  end
+
+  describe "validating initiate params" do
+    let(:validator) { instance_double(serializer_class::CheckInitiateParams, validate: nil) }
+    let(:modifiers) { {only: "foo"} }
+
+    before do
+      allow(serializer_class::CheckInitiateParams).to receive(:new).and_return(validator)
+    end
+
+    it "validates initiate params by default" do
+      serializer_class.to_h(nil, modifiers)
+
+      expect(serializer_class::CheckInitiateParams).to have_received(:new).with(only: {foo: {}})
+      expect(validator).to have_received(:validate)
+    end
+
+    it "allows to disable validation via config option" do
+      serializer_class.config[:check_initiate_params] = false
+      serializer_class.to_h(nil, modifiers)
+
+      expect(serializer_class::CheckInitiateParams).not_to have_received(:new)
+    end
+
+    it "allows to disable validation via check_initiate_params param" do
+      serializer_class.to_h(nil, **modifiers, check_initiate_params: false)
+
+      expect(serializer_class::CheckInitiateParams).not_to have_received(:new)
+    end
+  end
+
+  describe "validating serialize params" do
+    let(:validator) { instance_double(serializer_class::CheckSerializeParams, validate: nil) }
+    let(:params) { {only: {}, except: {}, with: {}, context: {foo: "bar"}, a: 1} }
+
+    before do
+      allow(serializer_class::CheckSerializeParams).to receive(:new).and_return(validator)
+    end
+
+    it "selects serialize params (not modifiers params) and validates them" do
+      serializer_class.to_h(nil, params)
+
+      expect(serializer_class::CheckSerializeParams).to have_received(:new).with(context: {foo: "bar"}, a: 1)
+      expect(validator).to have_received(:validate)
     end
   end
 end

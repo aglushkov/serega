@@ -6,7 +6,12 @@ RSpec.describe Serega::SeregaPlugins::StringModifiers do
   describe "serialization" do
     let(:response) { user_serializer.new.to_h(user) }
 
-    let(:base_serializer) { Class.new(Serega) { plugin :string_modifiers } }
+    let(:base_serializer) do
+      Class.new(Serega) do
+        plugin :string_modifiers
+      end
+    end
+
     let(:user) { double(first_name: "FIRST NAME", post: post) }
     let(:post) { double(title: "TITLE", text: "TEXT") }
     let(:user_serializer) do

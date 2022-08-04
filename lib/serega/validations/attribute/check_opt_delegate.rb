@@ -25,7 +25,7 @@ class Serega
           private
 
           def check_opt_delegate(opts)
-            SeregaUtils::CheckOptIsHash.call(opts, :delegate)
+            Utils::CheckOptIsHash.call(opts, :delegate)
 
             delegate_opts = opts[:delegate]
             check_opt_delegate_to(delegate_opts)
@@ -36,13 +36,13 @@ class Serega
             to_exist = delegate_opts.key?(:to)
             raise SeregaError, "Option :delegate must have a :to option" unless to_exist
 
-            SeregaUtils::CheckOptIsStringOrSymbol.call(delegate_opts, :to)
+            Utils::CheckOptIsStringOrSymbol.call(delegate_opts, :to)
           end
 
           def check_opt_delegate_allow_nil(delegate_opts)
             return unless delegate_opts.key?(:allow_nil)
 
-            SeregaUtils::CheckOptIsBool.call(delegate_opts, :allow_nil)
+            Utils::CheckOptIsBool.call(delegate_opts, :allow_nil)
           end
 
           def check_usage_with_other_params(opts, block)

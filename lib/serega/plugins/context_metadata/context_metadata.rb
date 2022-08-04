@@ -15,7 +15,7 @@ class Serega
 
       def self.load_plugin(serializer_class, **_opts)
         serializer_class::SeregaConvert.include(SeregaConvertInstanceMethods)
-        serializer_class::CheckSerializeParams.extend(CheckSerializeParamsClassMethods)
+        serializer_class::CheckSerializeParams.include(CheckSerializeParamsInstanceMethods)
       end
 
       def self.after_load_plugin(serializer_class, **opts)
@@ -25,12 +25,12 @@ class Serega
         config[:serialize_keys] << meta_key
       end
 
-      module CheckSerializeParamsClassMethods
-        def check_opts(opts)
+      module CheckSerializeParamsInstanceMethods
+        def check_opts
           super
 
-          meta_key = serializer_class.config[:context_metadata][:key]
-          SeregaValidations::SeregaUtils::CheckOptIsHash.call(opts, meta_key)
+          meta_key = self.class.serializer_class.config[:context_metadata][:key]
+          SeregaValidations::Utils::CheckOptIsHash.call(opts, meta_key)
         end
       end
 

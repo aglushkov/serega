@@ -14,7 +14,7 @@ class Serega
         # @return [void]
         #
         def self.call(opts)
-          SeregaUtils::CheckOptIsBool.call(opts, :hide)
+          Utils::CheckOptIsBool.call(opts, :hide)
         end
       end
     end

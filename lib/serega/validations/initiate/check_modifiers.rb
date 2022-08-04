@@ -1,12 +1,9 @@
 # frozen_string_literal: true
 
 class Serega
-  class AttributeNotExist < SeregaError
-  end
-
-  module SeregaPlugins
-    module ValidateModifiers
-      class Validate
+  module SeregaValidations
+    module Initiate
+      class CheckModifiers
         class << self
           def call(serializer_class, fields)
             return unless fields

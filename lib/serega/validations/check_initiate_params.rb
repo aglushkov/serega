@@ -3,23 +3,36 @@
 class Serega
   module SeregaValidations
     class CheckInitiateParams
-      module ClassMethods
-        def call(opts)
-          check_opts(opts)
+      module InstanceMethods
+        attr_reader :opts
+
+        def initialize(opts)
+          @opts = opts
+        end
+
+        def validate
+          check_allowed_keys
+          check_modifiers
         end
 
         private
 
-        def check_opts(opts)
-          SeregaUtils::CheckAllowedKeys.call(opts, allowed_opts_keys)
+        def check_allowed_keys
+          Utils::CheckAllowedKeys.call(opts, serializer_class.config[:initiate_keys])
         end
 
-        def allowed_opts_keys
-          serializer_class.config[:initiate_keys]
+        def check_modifiers
+          Initiate::CheckModifiers.call(serializer_class, opts[:only])
+          Initiate::CheckModifiers.call(serializer_class, opts[:except])
+          Initiate::CheckModifiers.call(serializer_class, opts[:with])
+        end
+
+        def serializer_class
+          self.class.serializer_class
         end
       end
 
-      extend ClassMethods
+      include InstanceMethods
       extend Serega::SeregaHelpers::SerializerClassHelper
     end
   end

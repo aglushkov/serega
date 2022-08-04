@@ -25,7 +25,7 @@ class Serega
         end
 
         def check_opts
-          SeregaUtils::CheckAllowedKeys.call(opts, allowed_opts_keys)
+          Utils::CheckAllowedKeys.call(opts, allowed_opts_keys)
 
           Attribute::CheckOptConst.call(opts, block)
           Attribute::CheckOptDelegate.call(opts, block)

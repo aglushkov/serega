@@ -16,13 +16,13 @@ class Serega
         private
 
         def prepare_modifiers(opts)
-          opts = {
-            only: ParseStringModifiers.call(opts[:only]),
-            except: ParseStringModifiers.call(opts[:except]),
-            with: ParseStringModifiers.call(opts[:with])
-          }
+          parsed_opts =
+            opts.each_with_object({}) do |(key, value), obj|
+              value = ParseStringModifiers.call(value) if (key == :only) || (key == :except) || (key == :with)
+              obj[key] = value
+            end
 
-          super
+          super(parsed_opts)
         end
       end
     end

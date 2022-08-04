@@ -1,5 +1,12 @@
 ## [Unreleased]
 
+- Disabling caching of serialized attributes maps by default. This can be reverted with `config[:max_cached_map_per_serializer_count] = 50`
+
+- Refactor validations. Remove `valdiate_modifiers` plugin. Modifiers are now validated by default. This can be changed globally with config option `config[:check_initiate_params] = false`. Or we can skip validation per serialization
+  ```ruby
+    SomeSerializer.(obj, only: ..., :with: ..., except: ..., check_initiate_params: false)
+  ```
+
 ## [0.2.0] - 2022-08-01
 
 - Remove `.relation` DSL method for simplicity. Just use `attribute :foo, serializer: Foo`. Method can be returned manually:

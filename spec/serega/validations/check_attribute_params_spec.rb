@@ -18,7 +18,7 @@ RSpec.describe Serega::SeregaValidations::CheckAttributeParams do
   let(:described_class) { serializer::CheckAttributeParams }
 
   before do
-    allow(Serega::SeregaValidations::SeregaUtils::CheckAllowedKeys).to receive(:call)
+    allow(Serega::SeregaValidations::Utils::CheckAllowedKeys).to receive(:call)
     allow(Serega::SeregaValidations::Attribute::CheckBlock).to receive(:call)
     allow(Serega::SeregaValidations::Attribute::CheckName).to receive(:call)
     allow(Serega::SeregaValidations::Attribute::CheckOptConst).to receive(:call)
@@ -31,7 +31,7 @@ RSpec.describe Serega::SeregaValidations::CheckAttributeParams do
 
   it "checks valid keys" do
     validate
-    expect(Serega::SeregaValidations::SeregaUtils::CheckAllowedKeys).to have_received(:call).with(opts, attribute_keys)
+    expect(Serega::SeregaValidations::Utils::CheckAllowedKeys).to have_received(:call).with(opts, attribute_keys)
   end
 
   it "checks each option value" do

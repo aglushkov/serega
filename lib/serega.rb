@@ -4,9 +4,6 @@ require_relative "serega/version"
 
 # Parent class for your serializers
 class Serega
-  # A generic exception Serega uses.
-  class SeregaError < StandardError; end
-
   # @return [Hash] frozen hash
   FROZEN_EMPTY_HASH = {}.freeze
 
@@ -14,6 +11,7 @@ class Serega
   FROZEN_EMPTY_ARRAY = [].freeze
 end
 
+require_relative "serega/errors"
 require_relative "serega/helpers/serializer_class_helper"
 require_relative "serega/utils/enum_deep_dup"
 require_relative "serega/utils/to_hash"
@@ -34,6 +32,7 @@ require_relative "serega/validations/attribute/check_opt_key"
 require_relative "serega/validations/attribute/check_opt_many"
 require_relative "serega/validations/attribute/check_opt_serializer"
 require_relative "serega/validations/attribute/check_opt_value"
+require_relative "serega/validations/initiate/check_modifiers"
 require_relative "serega/validations/check_attribute_params"
 require_relative "serega/validations/check_initiate_params"
 require_relative "serega/validations/check_serialize_params"
@@ -48,22 +47,26 @@ class Serega
   @config = SeregaConfig.new(
     {
       plugins: [],
-      initiate_keys: %i[only with except],
+      initiate_keys: %i[only with except check_initiate_params],
       attribute_keys: %i[key value serializer many hide const delegate],
       serialize_keys: %i[context many],
-      max_cached_map_per_serializer_count: 50,
+      check_initiate_params: true,
+      max_cached_map_per_serializer_count: 0,
       to_json: ->(data) { SeregaUtils::ToJSON.call(data) }
     }
   )
 
+  # Validates `Serializer.attribute` params
   check_attribute_params_class = Class.new(SeregaValidations::CheckAttributeParams)
   check_attribute_params_class.serializer_class = self
   const_set(:CheckAttributeParams, check_attribute_params_class)
 
+  # Validates `Serializer#new` params
   check_initiate_params_class = Class.new(SeregaValidations::CheckInitiateParams)
   check_initiate_params_class.serializer_class = self
   const_set(:CheckInitiateParams, check_initiate_params_class)
 
+  # Validates `serializer#call(obj, PARAMS)` params
   check_serialize_params_class = Class.new(SeregaValidations::CheckSerializeParams)
   check_serialize_params_class.serializer_class = self
   const_set(:CheckSerializeParams, check_serialize_params_class)
@@ -217,9 +220,8 @@ class Serega
     # @param with [Array, Hash, String, Symbol] Attributes (usually hidden) to serialize additionally
     #
     def initialize(opts = FROZEN_EMPTY_HASH)
-      self.class::CheckInitiateParams.call(opts)
-      opts = prepare_modifiers(opts) if opts && (opts != FROZEN_EMPTY_HASH)
-      @opts = opts
+      @opts = opts == FROZEN_EMPTY_HASH ? opts : prepare_modifiers(opts)
+      self.class::CheckInitiateParams.new(@opts).validate if opts.fetch(:check_initiate_params) { config[:check_initiate_params] }
     end
 
     #
@@ -231,7 +233,7 @@ class Serega
     # @return [Hash] Serialization result
     #
     def call(object, opts = {})
-      self.class::CheckSerializeParams.call(opts)
+      self.class::CheckSerializeParams.new(opts).validate
       opts[:context] ||= {}
 
       self.class::SeregaConvert.call(object, **opts, map: map)
@@ -249,9 +251,9 @@ class Serega
     #
     # @return [Hash] Serialization result
     #
-    def to_json(object, opts = FROZEN_EMPTY_HASH)
+    def to_json(object, opts = {})
       hash = to_h(object, opts)
-      self.class.config[:to_json].call(hash)
+      config[:to_json].call(hash)
     end
 
     #
@@ -263,23 +265,26 @@ class Serega
     #
     # @return [Hash] Serialization result
     #
-    def as_json(object, opts = FROZEN_EMPTY_HASH)
+    def as_json(object, opts = {})
       hash = to_h(object, opts)
-      SeregaUtils::AsJSON.call(hash, to_json: self.class.config[:to_json])
+      SeregaUtils::AsJSON.call(hash, to_json: config[:to_json])
     end
 
     private
+
+    def config
+      self.class.config
+    end
 
     def map
       @map ||= self.class::SeregaMap.call(opts)
     end
 
     def prepare_modifiers(opts)
-      {
-        only: SeregaUtils::ToHash.call(opts[:only]),
-        except: SeregaUtils::ToHash.call(opts[:except]),
-        with: SeregaUtils::ToHash.call(opts[:with])
-      }
+      opts.each_with_object({}) do |(key, value), obj|
+        value = SeregaUtils::ToHash.call(value) if (key == :only) || (key == :except) || (key == :with)
+        obj[key] = value
+      end
     end
   end
 
