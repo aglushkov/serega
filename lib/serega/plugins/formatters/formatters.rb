@@ -8,13 +8,34 @@ class Serega
       end
 
       def self.load_plugin(serializer_class, **_opts)
+        serializer_class::SeregaConfig.include(ConfigInstanceMethods)
         serializer_class::SeregaAttribute.include(AttributeInstanceMethods)
       end
 
       def self.after_load_plugin(serializer_class, **_opts)
         config = serializer_class.config
-        config[plugin_name] = {}
-        config[:attribute_keys] << :format
+        config.opts[:formatters] = {}
+        config.attribute_keys << :format
+      end
+
+      class FormattersConfig
+        attr_reader :opts
+
+        def initialize(opts)
+          @opts = opts
+        end
+
+        def add(formatters)
+          formatters.each_pair do |key, value|
+            opts[key] = value
+          end
+        end
+      end
+
+      module ConfigInstanceMethods
+        def formatters
+          FormattersConfig.new(opts.fetch(:formatters))
+        end
       end
 
       module AttributeInstanceMethods
@@ -43,7 +64,7 @@ class Serega
             value = original_block.call(object, context)
 
             if formatter.is_a?(Symbol)
-              self.class.serializer_class.config.fetch(:formatters).fetch(formatter).call(value)
+              self.class.serializer_class.config.formatters.opts.fetch(formatter).call(value)
             else
               formatter.call(value)
             end

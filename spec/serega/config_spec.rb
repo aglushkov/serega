@@ -18,32 +18,37 @@ RSpec.describe Serega::SeregaConfig do
     end
   end
 
-  describe "#initialize" do
-    it "deeply copies provided opts" do
-      opts = {foo: {bar: {bazz: :bazz2}}}
-
-      config = described_class.new(opts)
-      expect(config.opts).to eq opts
-      expect(config.opts[:foo]).not_to equal opts[:foo]
-      expect(config.opts[:foo][:bar]).not_to equal opts[:foo][:bar]
+  describe "#check_initiate_params=" do
+    it "validates value is boolean" do
+      expect { config.check_initiate_params = false }.not_to raise_error
+      expect { config.check_initiate_params = true }.not_to raise_error
+      expect { config.check_initiate_params = nil }
+        .to raise_error Serega::SeregaError, "Must have boolean value, #{nil.inspect} provided"
     end
   end
 
-  describe "#[]=" do
-    it "adds option" do
-      config = described_class.new
-      config[:foo] = :bar
-
-      expect(config.opts[:foo]).to eq :bar
+  describe "#max_cached_map_per_serializer_count=" do
+    it "validates value is boolean" do
+      expect { config.max_cached_map_per_serializer_count = 10 }.not_to raise_error
+      expect { config.max_cached_map_per_serializer_count = 0 }.not_to raise_error
+      expect { config.max_cached_map_per_serializer_count = nil }
+        .to raise_error Serega::SeregaError, "Must have Integer value, #{nil.inspect} provided"
     end
   end
 
-  describe "#[]" do
-    it "reads option" do
-      config = described_class.new
-      config[:foo] = :bar
+  describe "#to_json=" do
+    it "sets to_json option" do
+      value = proc {}
+      config.to_json = value
+      expect(config.to_json).to eq value
+    end
+  end
 
-      expect(config[:foo]).to eq :bar
+  describe "#from_json=" do
+    it "sets from_json option" do
+      value = proc {}
+      config.from_json = value
+      expect(config.from_json).to eq value
     end
   end
 end

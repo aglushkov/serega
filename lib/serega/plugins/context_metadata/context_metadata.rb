@@ -14,6 +14,7 @@ class Serega
       end
 
       def self.load_plugin(serializer_class, **_opts)
+        serializer_class::SeregaConfig.include(ConfigInstanceMethods)
         serializer_class::SeregaConvert.include(SeregaConvertInstanceMethods)
         serializer_class::CheckSerializeParams.include(CheckSerializeParamsInstanceMethods)
       end
@@ -21,15 +22,37 @@ class Serega
       def self.after_load_plugin(serializer_class, **opts)
         config = serializer_class.config
         meta_key = opts[:context_metadata_key] || DEFAULT_CONTEXT_METADATA_KEY
-        config[plugin_name] = {key: meta_key}
-        config[:serialize_keys] << meta_key
+        config.opts[:context_metadata] = {key: meta_key}
+        config.serialize_keys << meta_key
+      end
+
+      class ContextMetadataConfig
+        attr_reader :opts
+
+        def initialize(opts)
+          @opts = opts
+        end
+
+        def key
+          opts.fetch(:key)
+        end
+
+        def key=(value)
+          opts[:key] = value
+        end
+      end
+
+      module ConfigInstanceMethods
+        def context_metadata
+          ContextMetadataConfig.new(opts.fetch(:context_metadata))
+        end
       end
 
       module CheckSerializeParamsInstanceMethods
         def check_opts
           super
 
-          meta_key = self.class.serializer_class.config[:context_metadata][:key]
+          meta_key = self.class.serializer_class.config.context_metadata.key
           SeregaValidations::Utils::CheckOptIsHash.call(opts, meta_key)
         end
       end
@@ -44,7 +67,7 @@ class Serega
         private
 
         def add_context_metadata(hash)
-          context_metadata_key = self.class.serializer_class.config[:context_metadata][:key]
+          context_metadata_key = self.class.serializer_class.config.context_metadata.key
           return unless context_metadata_key
 
           metadata = opts[context_metadata_key]

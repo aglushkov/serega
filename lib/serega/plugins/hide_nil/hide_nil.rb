@@ -27,7 +27,7 @@ class Serega
       end
 
       def self.after_load_plugin(serializer_class, **opts)
-        serializer_class.config[:attribute_keys] << :hide_nil
+        serializer_class.config.attribute_keys << :hide_nil
       end
 
       # Adds #hide_nil? Attribute instance method

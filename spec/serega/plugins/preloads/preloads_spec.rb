@@ -7,39 +7,54 @@ RSpec.describe Serega::SeregaPlugins::Preloads do
 
   it "adds allowed attribute options" do
     serializer_class.plugin :preloads
-    attribute_keys = serializer_class.config[:attribute_keys]
+    attribute_keys = serializer_class.config.attribute_keys
     expect(attribute_keys).to include :preload
     expect(attribute_keys).to include :preload_path
   end
 
   it "configures to not preload attributes with serializer by default" do
     serializer_class.plugin :preloads
-    expect(serializer_class.config[:preloads][:auto_preload_attributes_with_serializer]).to be false
+    expect(serializer_class.config.preloads.auto_preload_attributes_with_serializer).to be false
   end
 
   it "configures to not preload attributes with :delegate option by default" do
     serializer_class.plugin :preloads
-    expect(serializer_class.config[:preloads][:auto_preload_attributes_with_delegate]).to be false
+    expect(serializer_class.config.preloads.auto_preload_attributes_with_delegate).to be false
   end
 
   it "configures to not hide attributes with preload option by default" do
     serializer_class.plugin :preloads
-    expect(serializer_class.config[:preloads][:auto_hide_attributes_with_preload]).to be false
+    expect(serializer_class.config.preloads.auto_hide_attributes_with_preload).to be false
   end
 
   it "allows to configure to preload attributes with serializer by default" do
     serializer_class.plugin :preloads, auto_preload_attributes_with_serializer: true
-    expect(serializer_class.config[:preloads][:auto_preload_attributes_with_serializer]).to be true
+    expect(serializer_class.config.preloads.auto_preload_attributes_with_serializer).to be true
   end
 
   it "allows to configure to preload attributes with :delegate option by default" do
     serializer_class.plugin :preloads, auto_preload_attributes_with_delegate: true
-    expect(serializer_class.config[:preloads][:auto_preload_attributes_with_delegate]).to be true
+    expect(serializer_class.config.preloads.auto_preload_attributes_with_delegate).to be true
   end
 
   it "allows to configure to hide attributes with preloads by default" do
     serializer_class.plugin :preloads, auto_hide_attributes_with_preload: true
-    expect(serializer_class.config[:preloads][:auto_hide_attributes_with_preload]).to be true
+    expect(serializer_class.config.preloads.auto_hide_attributes_with_preload).to be true
+  end
+
+  it "raises error when not boolean value provided to auto_preload_attributes_with_serializer" do
+    expect { serializer_class.plugin :preloads, auto_preload_attributes_with_serializer: nil }
+      .to raise_error Serega::SeregaError, "Must have boolean value, #{nil.inspect} provided"
+  end
+
+  it "raises error when not boolean value provided to auto_preload_attributes_with_delegate" do
+    expect { serializer_class.plugin :preloads, auto_preload_attributes_with_delegate: nil }
+      .to raise_error Serega::SeregaError, "Must have boolean value, #{nil.inspect} provided"
+  end
+
+  it "raises error when not boolean value provided to auto_hide_attributes_with_preload" do
+    expect { serializer_class.plugin :preloads, auto_hide_attributes_with_preload: nil }
+      .to raise_error Serega::SeregaError, "Must have boolean value, #{nil.inspect} provided"
   end
 
   describe "InstanceMethods" do
@@ -74,7 +89,7 @@ RSpec.describe Serega::SeregaPlugins::Preloads do
       end
 
       it "returns automatically found preloads when serializer provided" do
-        serializer_class.config[:preloads][:auto_preload_attributes_with_serializer] = true
+        serializer_class.config.preloads.auto_preload_attributes_with_serializer = true
         attribute = serializer_class.attribute :foo, serializer: "bar"
         expect(attribute.preloads).to eq(foo: {})
       end
@@ -85,7 +100,7 @@ RSpec.describe Serega::SeregaPlugins::Preloads do
       end
 
       it "returns automatically found preloads when :delegate option provided" do
-        serializer_class.config[:preloads][:auto_preload_attributes_with_delegate] = true
+        serializer_class.config.preloads.auto_preload_attributes_with_delegate = true
         attribute = serializer_class.attribute :foo, delegate: {to: :bar}
         expect(attribute.preloads).to eq(bar: {})
       end
@@ -147,7 +162,7 @@ RSpec.describe Serega::SeregaPlugins::Preloads do
 
       context "with auto_hide config" do
         before do
-          serializer_class.config[:preloads][:auto_hide_attributes_with_preload] = true
+          serializer_class.config.preloads.auto_hide_attributes_with_preload = true
         end
 
         it "returns opt :hide => true when preload is not blank" do

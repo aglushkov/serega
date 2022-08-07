@@ -2,10 +2,14 @@
 
 class Serega
   module SeregaUtils
-    class ToJSON
+    class JSON
       class << self
-        def call(data)
+        def dump(data)
           json_adapter.dump(data)
+        end
+
+        def load(data)
+          json_adapter.load(data)
         end
 
         private

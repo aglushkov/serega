@@ -57,6 +57,11 @@ RSpec.describe Serega::SeregaConvert do
     it "returns hash with relations" do
       expect(result).to eq({first_name: "FIRST_NAME", last_name: "LAST_NAME", comment: {text: "TEXT"}})
     end
+
+    it "returns hash with relations when manually specifying :many option" do
+      user_serializer.attribute :comment, serializer: comment_serializer, many: false
+      expect(result).to eq({first_name: "FIRST_NAME", last_name: "LAST_NAME", comment: {text: "TEXT"}})
+    end
   end
 
   context "with object with array relation" do
@@ -78,6 +83,11 @@ RSpec.describe Serega::SeregaConvert do
     end
 
     it "returns hash with relations" do
+      expect(result).to eq({first_name: "FIRST_NAME", last_name: "LAST_NAME", comments: [{text: "TEXT"}]})
+    end
+
+    it "returns hash with relations when manually specifying :many option" do
+      user_serializer.attribute :comments, serializer: comment_serializer, many: true
       expect(result).to eq({first_name: "FIRST_NAME", last_name: "LAST_NAME", comments: [{text: "TEXT"}]})
     end
   end

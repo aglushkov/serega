@@ -6,6 +6,12 @@ load_plugin_code(:metadata)
 RSpec.describe Serega::SeregaPlugins::Metadata::MetaAttribute::CheckBlock do
   let(:error) { "Block can have maximum 2 regular parameters (no **keyword or *array args)" }
 
+  it "does not allow no block" do
+    block = nil
+    expect { described_class.call(block) }
+      .to raise_error Serega::SeregaError, "Block must be provided when defining meta attribute"
+  end
+
   it "allows no params" do
     block = proc {}
     expect { described_class.call(block) }.not_to raise_error

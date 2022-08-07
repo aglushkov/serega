@@ -3,11 +3,20 @@
 load_plugin_code :activerecord_preloads
 
 RSpec.describe Serega::SeregaPlugins::ActiverecordPreloads do
-  it "loads preloads plugin" do
+  it "loads additionally preloads plugin" do
     new_class = Class.new(Serega)
     new_class.plugin :activerecord_preloads
 
     expect(new_class.plugin_used?(:preloads)).to be true
+  end
+
+  it "loads activerecord_preloads successfully after preloads plugin" do
+    new_class = Class.new(Serega)
+    new_class.plugin :preloads
+    new_class.plugin :activerecord_preloads
+
+    expect(new_class.plugin_used?(:preloads)).to be true
+    expect(new_class.plugin_used?(:activerecord_preloads)).to be true
   end
 
   describe "InstanceMethods" do

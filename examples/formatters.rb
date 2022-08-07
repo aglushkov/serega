@@ -16,8 +16,10 @@ end
 class AppSerializer < Serega
   plugin :formatters
 
-  config[:formatters][:day] = ->(value) { value.strftime("%Y-%m") }
-  config[:formatters][:bool] = ->(value) { ![0, "", nil, "false"].include?(value) }
+  config.formatters.add(
+    day: ->(value) { value.strftime("%Y-%m") },
+    bool: ->(value) { ![0, "", nil, "false"].include?(value) }
+  )
 end
 
 class Serializer < AppSerializer

@@ -11,7 +11,7 @@ RSpec.describe Serega do
     subject(:config) { serializer_class.config }
 
     it "generates default config" do
-      expect(config.keys).to match_array %i[
+      expect(config.__send__(:opts).keys).to match_array %i[
         plugins
         initiate_keys
         serialize_keys
@@ -19,36 +19,40 @@ RSpec.describe Serega do
         check_initiate_params
         max_cached_map_per_serializer_count
         to_json
+        from_json
       ]
 
-      expect(config[:plugins]).to eq []
-      expect(config[:serialize_keys]).to match_array(%i[context many])
-      expect(config[:initiate_keys]).to match_array(%i[only except with check_initiate_params])
-      expect(config[:attribute_keys]).to match_array(%i[key value serializer many hide const delegate])
-      expect(config[:max_cached_map_per_serializer_count]).to eq 0
-      expect(config[:to_json].call({})).to eq "{}"
+      expect(config.plugins).to eq []
+      expect(config.serialize_keys).to match_array(%i[context many])
+      expect(config.initiate_keys).to match_array(%i[only except with check_initiate_params])
+      expect(config.attribute_keys).to match_array(%i[key value serializer many hide const delegate])
+      expect(config.check_initiate_params).to be true
+      expect(config.max_cached_map_per_serializer_count).to eq 0
+      expect(config.to_json.call({})).to eq "{}"
     end
   end
 
   describe ".inherited" do
     it "inherits config" do
-      parent = Class.new(described_class)
-      parent.config[:foo] = :bar
+      parent_ser = Class.new(described_class)
+      child_ser = Class.new(parent_ser)
+      parent = parent_ser.config
+      child = child_ser.config
 
       # Check config values are inherited
-      child = Class.new(parent)
-      expect(child.config[:foo]).to eq :bar
+      expect(child.__send__(:opts)).to eq parent.__send__(:opts)
+      expect(child.__send__(:opts)).not_to equal parent.__send__(:opts)
 
       # Check child config does not overwrite parent config values
-      child.config[:foo] = 123
-      expect(parent.config[:foo]).to eq :bar
+      child.attribute_keys << :foo
+      expect(parent.attribute_keys).not_to include :foo
 
       # Check child config does not adds new keys to parent config
-      child.config[:bar] = 123
-      expect(parent.config).not_to have_key(:bar)
+      child.__send__(:opts)[:foo] = 123
+      expect(parent.__send__(:opts)).not_to have_key(:foo)
 
       # Check child config is a subclass of parent config
-      expect(child.config.class.superclass).to eq parent.config.class
+      expect(child.class.superclass).to eq parent.class
     end
 
     it "inherits attributes" do
@@ -89,7 +93,7 @@ RSpec.describe Serega do
 
     it "loads not registered plugins modules" do
       serializer_class.plugin plugin
-      expect(serializer_class.config[:plugins]).to eq [plugin]
+      expect(serializer_class.config.plugins).to eq [plugin]
     end
 
     it "loads registered plugins using plugin_name" do
@@ -102,7 +106,7 @@ RSpec.describe Serega do
       Serega::SeregaPlugins.register_plugin(plugin.plugin_name, plugin)
 
       serializer_class.plugin(:test)
-      expect(serializer_class.config[:plugins]).to eq [:test]
+      expect(serializer_class.config.plugins).to eq [:test]
     end
 
     it "raises error if plugin is already loaded" do
@@ -112,14 +116,25 @@ RSpec.describe Serega do
   end
 
   describe ".plugin_used?" do
-    it "tells if plugin has been already used in current serializer" do
+    it "tells if plugin has been already loaded" do
       plugin = Module.new
       expect(serializer_class.plugin_used?(plugin)).to be false
       serializer_class.plugin(plugin)
       expect(serializer_class.plugin_used?(plugin)).to be true
     end
 
-    it "tells if plugin has been already used in current serializer when given plugin name" do
+    it "tells if plugin has been already loaded when plugin has name" do
+      plugin = Module.new do
+        def self.plugin_name
+          :test
+        end
+      end
+      expect(serializer_class.plugin_used?(plugin)).to be false
+      serializer_class.plugin(plugin)
+      expect(serializer_class.plugin_used?(plugin)).to be true
+    end
+
+    it "tells if plugin has been already loaded when given plugin name" do
       plugin = Module.new do
         def self.plugin_name
           :test
@@ -239,7 +254,7 @@ RSpec.describe Serega do
     end
 
     it "allows to disable validation via config option" do
-      serializer_class.config[:check_initiate_params] = false
+      serializer_class.config.check_initiate_params = false
       serializer_class.to_h(nil, modifiers)
 
       expect(serializer_class::CheckInitiateParams).not_to have_received(:new)

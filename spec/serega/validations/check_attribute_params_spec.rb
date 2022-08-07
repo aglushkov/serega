@@ -3,18 +3,11 @@
 RSpec.describe Serega::SeregaValidations::CheckAttributeParams do
   subject(:validate) { described_class.new(*params).validate }
 
-  let(:serializer) do
-    keys = attribute_keys
-    Class.new(Serega) do
-      config[:attribute_keys] = keys
-    end
-  end
+  let(:serializer) { Class.new(Serega) }
   let(:name) { :name }
   let(:opts) { {opt1: :foo, opt2: :bar} }
   let(:block) { proc {} }
   let(:params) { [name, opts, block] }
-  let(:attribute_keys) { %i[opt1 opt2] }
-
   let(:described_class) { serializer::CheckAttributeParams }
 
   before do
@@ -31,7 +24,7 @@ RSpec.describe Serega::SeregaValidations::CheckAttributeParams do
 
   it "checks valid keys" do
     validate
-    expect(Serega::SeregaValidations::Utils::CheckAllowedKeys).to have_received(:call).with(opts, attribute_keys)
+    expect(Serega::SeregaValidations::Utils::CheckAllowedKeys).to have_received(:call).with(opts, serializer.config.attribute_keys)
   end
 
   it "checks each option value" do

@@ -6,12 +6,12 @@ RSpec.describe Serega::SeregaPlugins::Formatters do
   describe "loading" do
     it "adds empty :formatters config option" do
       serializer = Class.new(Serega) { plugin :formatters }
-      expect(serializer.config[:formatters]).to eq({})
+      expect(serializer.config.formatters.opts).to eq({})
     end
 
     it "adds allowed :format attribute option" do
       serializer = Class.new(Serega) { plugin :formatters }
-      expect(serializer.config[:attribute_keys]).to include(:format)
+      expect(serializer.config.attribute_keys).to include(:format)
     end
   end
 
@@ -21,7 +21,7 @@ RSpec.describe Serega::SeregaPlugins::Formatters do
 
     context "with configured formatter" do
       before do
-        serializer.config[:formatters][:reverse] = reverse
+        serializer.config.formatters.add(reverse: reverse)
       end
 
       it "formats result of attribute value" do
@@ -38,6 +38,11 @@ RSpec.describe Serega::SeregaPlugins::Formatters do
         allow(reverse).to receive(:call)
         expect(attribute.value_block.call).to eq "321"
         expect(reverse).not_to have_received(:call)
+      end
+
+      it "returns regular block when no format option specified" do
+        attribute = serializer.attribute(:a) { |obj| obj }
+        expect(attribute.value("123", nil)).to eq "123"
       end
     end
 
