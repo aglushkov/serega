@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [0.3.0] - 2022-08-10
+
 - Use Oj JSON adapter by default if Oj is loaded. We use `mode: :compat` when   serializing objects. Config can still be overwritten:
   ```ruby
    config.to_json = proc { |data| Oj.dump(mode: :strict) }
