@@ -31,6 +31,14 @@ RSpec.describe Serega::SeregaUtils::ToHash do
     end
   end
 
+  context "with empty array value" do
+    let(:val) { [] }
+
+    it "returns frozen empty Hash" do
+      expect(result).to equal(Serega::FROZEN_EMPTY_HASH)
+    end
+  end
+
   context "with symbol value" do
     let(:val) { :foo }
 

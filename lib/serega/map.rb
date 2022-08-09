@@ -4,7 +4,7 @@ class Serega
   class SeregaMap
     module ClassMethods
       def call(opts)
-        max_cache_size = serializer_class.config[:max_cached_map_per_serializer_count]
+        max_cache_size = serializer_class.config.max_cached_map_per_serializer_count
         return map_for(opts) if max_cache_size.zero?
 
         cached_map_for(opts, max_cache_size)
@@ -26,9 +26,9 @@ class Serega
 
       def modifiers(opts)
         {
-          only: opts&.[](:only) || FROZEN_EMPTY_HASH,
-          except: opts&.[](:except) || FROZEN_EMPTY_HASH,
-          with: opts&.[](:with) || FROZEN_EMPTY_HASH
+          only: opts[:only] || FROZEN_EMPTY_HASH,
+          except: opts[:except] || FROZEN_EMPTY_HASH,
+          with: opts[:with] || FROZEN_EMPTY_HASH
         }
       end
 

@@ -11,18 +11,27 @@ RSpec.describe Serega::SeregaPlugins::ContextMetadata do
 
     it "loads additional :root plugin with custom root config" do
       serializer = Class.new(Serega) { plugin :context_metadata, root_one: :user, root_many: :users }
-      expect(serializer.config[:root][:one]).to eq :user
-      expect(serializer.config[:root][:many]).to eq :users
+      expect(serializer.config.root.one).to eq :user
+      expect(serializer.config.root.many).to eq :users
     end
 
     it "adds default :context_metadata_key config option" do
       serializer = Class.new(Serega) { plugin :context_metadata }
-      expect(serializer.config[:context_metadata][:key]).to eq :meta
+      expect(serializer.config.context_metadata.key).to eq :meta
     end
 
     it "adds specified :context_metadata_key config option" do
       serializer = Class.new(Serega) { plugin :context_metadata, context_metadata_key: :metadata }
-      expect(serializer.config[:context_metadata][:key]).to eq :metadata
+      expect(serializer.config.context_metadata.key).to eq :metadata
+    end
+  end
+
+  describe "configuration" do
+    it "allows to change context_metadata key config option" do
+      serializer = Class.new(Serega) { plugin :context_metadata }
+
+      serializer.config.context_metadata.key = :foo
+      expect(serializer.config.context_metadata.key).to eq :foo
     end
   end
 
@@ -65,6 +74,24 @@ RSpec.describe Serega::SeregaPlugins::ContextMetadata do
 
       it "appends metadata attributes to response" do
         expect(response).to eq(data: [{first_name: "FIRST_NAME"}], version: "1.2.3")
+      end
+    end
+
+    context "when setting metadata key to nil" do
+      before do
+        user_serializer.config.context_metadata.key = nil
+      end
+
+      it "skips adding metadata to response" do
+        expect(response).to eq(data: {first_name: "FIRST_NAME"})
+      end
+    end
+
+    context "when metadata is not added" do
+      let(:opts) { {} }
+
+      it "skips adding any metadata to response" do
+        expect(response).to eq(data: {first_name: "FIRST_NAME"})
       end
     end
 

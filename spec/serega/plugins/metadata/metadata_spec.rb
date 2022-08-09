@@ -11,8 +11,23 @@ RSpec.describe Serega::SeregaPlugins::Metadata do
 
     it "loads additional :root plugin with custom root config" do
       serializer = Class.new(Serega) { plugin :metadata, root_one: :user, root_many: :users }
-      expect(serializer.config[:root][:one]).to eq :user
-      expect(serializer.config[:root][:many]).to eq :users
+      expect(serializer.config.root.one).to eq :user
+      expect(serializer.config.root.many).to eq :users
+    end
+
+    it "works when :root plugin it was loaded before" do
+      serializer = Class.new(Serega)
+      serializer.plugin :root
+      expect { serializer.plugin :metadata }.not_to raise_error
+    end
+
+    it "configures :root plugin even when it was loaded before" do
+      serializer = Class.new(Serega)
+      serializer.plugin :root
+      serializer.plugin :metadata, root_one: :one, root_many: :many
+      root = serializer.config.root
+      expect(root.one).to eq :one
+      expect(root.many).to eq :many
     end
   end
 

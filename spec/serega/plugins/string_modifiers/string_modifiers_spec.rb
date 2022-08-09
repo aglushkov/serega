@@ -54,5 +54,11 @@ RSpec.describe Serega::SeregaPlugins::StringModifiers do
       response = user_serializer.new(only: only).to_h(user)
       expect(response).to eq(first_name: "FIRST NAME")
     end
+
+    it "allows to provide modifiers with :check_initiate_params option" do
+      only = [:first_name]
+      response = user_serializer.new(only: only, check_initiate_params: false).to_h(user)
+      expect(response).to eq(first_name: "FIRST NAME")
+    end
   end
 end

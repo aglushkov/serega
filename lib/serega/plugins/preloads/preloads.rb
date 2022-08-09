@@ -6,6 +6,12 @@ class Serega
     # Plugin adds `.preloads` method to find relations that must be preloaded
     #
     module Preloads
+      DEFAULT_CONFIG = {
+        auto_preload_attributes_with_delegate: false,
+        auto_preload_attributes_with_serializer: false,
+        auto_hide_attributes_with_preload: false
+      }.freeze
+
       # @return [Symbol] plugin name
       def self.plugin_name
         :preloads
@@ -22,6 +28,7 @@ class Serega
       def self.load_plugin(serializer_class, **_opts)
         serializer_class.include(InstanceMethods)
         serializer_class::SeregaAttribute.include(AttributeMethods)
+        serializer_class::SeregaConfig.include(ConfigInstanceMethods)
 
         serializer_class::CheckAttributeParams.include(CheckAttributeParamsInstanceMethods)
 
@@ -35,12 +42,14 @@ class Serega
 
       def self.after_load_plugin(serializer_class, **opts)
         config = serializer_class.config
-        config[:attribute_keys] += [:preload, :preload_path]
-        config[:preloads] = {
-          auto_preload_attributes_with_delegate: opts.fetch(:auto_preload_attributes_with_delegate, false),
-          auto_preload_attributes_with_serializer: opts.fetch(:auto_preload_attributes_with_serializer, false),
-          auto_hide_attributes_with_preload: opts.fetch(:auto_hide_attributes_with_preload, false)
-        }
+        config.attribute_keys << :preload << :preload_path
+
+        preloads_opts = DEFAULT_CONFIG.merge(opts.slice(*DEFAULT_CONFIG.keys))
+        config.opts[:preloads] = {}
+        preloads_config = config.preloads
+        preloads_config.auto_preload_attributes_with_delegate = preloads_opts[:auto_preload_attributes_with_delegate]
+        preloads_config.auto_preload_attributes_with_serializer = preloads_opts[:auto_preload_attributes_with_serializer]
+        preloads_config.auto_hide_attributes_with_preload = preloads_opts[:auto_hide_attributes_with_preload]
       end
 
       # Adds #preloads instance method
@@ -48,6 +57,35 @@ class Serega
         # @return [Hash] relations that can be preloaded to omit N+1
         def preloads
           @preloads ||= PreloadsConstructor.call(map)
+        end
+      end
+
+      class PreloadsConfig
+        attr_reader :opts
+
+        def initialize(opts)
+          @opts = opts
+        end
+
+        %i[
+          auto_preload_attributes_with_delegate
+          auto_preload_attributes_with_serializer
+          auto_hide_attributes_with_preload
+        ].each do |method_name|
+          define_method(method_name) do
+            opts.fetch(method_name)
+          end
+
+          define_method("#{method_name}=") do |value|
+            raise SeregaError, "Must have boolean value, #{value.inspect} provided" if (value != true) && (value != false)
+            opts[method_name] = value
+          end
+        end
+      end
+
+      module ConfigInstanceMethods
+        def preloads
+          PreloadsConfig.new(opts.fetch(:preloads))
         end
       end
 
@@ -75,9 +113,7 @@ class Serega
         private
 
         def auto_hide_attribute_with_preloads?
-          return @auto_hide_attribute_with_preloads if defined?(@auto_hide_attribute_with_preloads)
-
-          auto = self.class.serializer_class.config[:preloads][:auto_hide_attributes_with_preload]
+          auto = self.class.serializer_class.config.preloads.auto_hide_attributes_with_preload
           @auto_hide_attribute_with_preloads = auto && !preloads.nil? && (preloads != false) && (preloads != {})
         end
 
@@ -86,9 +122,9 @@ class Serega
           preloads =
             if preloads_provided
               opts[:preload]
-            elsif relation? && self.class.serializer_class.config[:preloads][:auto_preload_attributes_with_serializer]
+            elsif relation? && self.class.serializer_class.config.preloads.auto_preload_attributes_with_serializer
               key
-            elsif opts.key?(:delegate) && self.class.serializer_class.config[:preloads][:auto_preload_attributes_with_delegate]
+            elsif opts.key?(:delegate) && self.class.serializer_class.config.preloads.auto_preload_attributes_with_delegate
               opts[:delegate].fetch(:to)
             end
 

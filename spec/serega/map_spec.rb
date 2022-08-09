@@ -121,7 +121,7 @@ RSpec.describe Serega::SeregaMap do
     end
 
     it "saves maps to cache and uses them when configured to use cache" do
-      current_serializer.config[:max_cached_map_per_serializer_count] = 1
+      current_serializer.config.max_cached_map_per_serializer_count = 1
       result1 = map(only: {a1: {}})
       result2 = map(only: {a1: {}})
 
@@ -131,7 +131,7 @@ RSpec.describe Serega::SeregaMap do
     end
 
     it "removes from cache oldest maps if cached keys count more than configured" do
-      current_serializer.config[:max_cached_map_per_serializer_count] = 1
+      current_serializer.config.max_cached_map_per_serializer_count = 1
 
       result1 = map(only: {a1: {}})
       map(only: {a2: {}}) # replace cached result1

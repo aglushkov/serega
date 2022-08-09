@@ -15,8 +15,7 @@ require_relative "serega/errors"
 require_relative "serega/helpers/serializer_class_helper"
 require_relative "serega/utils/enum_deep_dup"
 require_relative "serega/utils/to_hash"
-require_relative "serega/utils/to_json"
-require_relative "serega/utils/as_json"
+require_relative "serega/utils/json"
 
 require_relative "serega/attribute"
 require_relative "serega/validations/utils/check_allowed_keys"
@@ -44,17 +43,7 @@ require_relative "serega/map"
 require_relative "serega/plugins"
 
 class Serega
-  @config = SeregaConfig.new(
-    {
-      plugins: [],
-      initiate_keys: %i[only with except check_initiate_params],
-      attribute_keys: %i[key value serializer many hide const delegate],
-      serialize_keys: %i[context many],
-      check_initiate_params: true,
-      max_cached_map_per_serializer_count: 0,
-      to_json: ->(data) { SeregaUtils::ToJSON.call(data) }
-    }
-  )
+  @config = SeregaConfig.new
 
   # Validates `Serializer.attribute` params
   check_attribute_params_class = Class.new(SeregaValidations::CheckAttributeParams)
@@ -141,7 +130,7 @@ class Serega
       plugin.after_load_plugin(self, **opts) if plugin.respond_to?(:after_load_plugin)
 
       # Store attached plugins, so we can check it is loaded later
-      config[:plugins] << (plugin.respond_to?(:plugin_name) ? plugin.plugin_name : plugin)
+      config.plugins << (plugin.respond_to?(:plugin_name) ? plugin.plugin_name : plugin)
 
       plugin
     end
@@ -160,7 +149,7 @@ class Serega
         else name
         end
 
-      config[:plugins].include?(plugin_name)
+      config.plugins.include?(plugin_name)
     end
 
     #
@@ -187,7 +176,7 @@ class Serega
     end
 
     def call(object, opts = FROZEN_EMPTY_HASH)
-      initiate_keys = config[:initiate_keys]
+      initiate_keys = config.initiate_keys
       new(opts.slice(*initiate_keys)).to_h(object, opts.except(*initiate_keys))
     end
 
@@ -196,13 +185,12 @@ class Serega
     end
 
     def to_json(object, opts = FROZEN_EMPTY_HASH)
-      initiate_keys = config[:initiate_keys]
+      initiate_keys = config.initiate_keys
       new(opts.slice(*initiate_keys)).to_json(object, opts.except(*initiate_keys))
     end
 
     def as_json(object, opts = FROZEN_EMPTY_HASH)
-      initiate_keys = config[:initiate_keys]
-      new(opts.slice(*initiate_keys)).as_json(object, opts.except(*initiate_keys))
+      config.from_json.call(to_json(object, opts))
     end
   end
 
@@ -221,7 +209,7 @@ class Serega
     #
     def initialize(opts = FROZEN_EMPTY_HASH)
       @opts = opts == FROZEN_EMPTY_HASH ? opts : prepare_modifiers(opts)
-      self.class::CheckInitiateParams.new(@opts).validate if opts.fetch(:check_initiate_params) { config[:check_initiate_params] }
+      self.class::CheckInitiateParams.new(@opts).validate if opts.fetch(:check_initiate_params) { config.check_initiate_params }
     end
 
     #
@@ -253,12 +241,12 @@ class Serega
     #
     def to_json(object, opts = {})
       hash = to_h(object, opts)
-      config[:to_json].call(hash)
+      config.to_json.call(hash)
     end
 
     #
     # Serializes provided object as json (uses only JSON-compatible types)
-    # When you later serialize/deserialize it from JSON you should receive
+    # When you later serialize/de-serialize it from JSON you should receive
     # equal object
     #
     # @param object [Object] Serialized object
@@ -266,8 +254,8 @@ class Serega
     # @return [Hash] Serialization result
     #
     def as_json(object, opts = {})
-      hash = to_h(object, opts)
-      SeregaUtils::AsJSON.call(hash, to_json: config[:to_json])
+      json = to_json(object, opts)
+      config.from_json.call(json)
     end
 
     private

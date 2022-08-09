@@ -41,7 +41,7 @@ class Serega
         end
 
         def allowed_opts_keys
-          self.class.serializer_class.config[:attribute_keys]
+          self.class.serializer_class.config.attribute_keys
         end
       end
 

@@ -3,13 +3,7 @@
 RSpec.describe Serega::SeregaValidations::CheckInitiateParams do
   subject(:validate) { described_class.new(opts).validate }
 
-  let(:serializer) do
-    keys = initiate_keys
-    Class.new(Serega) do
-      config[:initiate_keys] = keys
-    end
-  end
-  let(:initiate_keys) { %i[opt1 opt2] }
+  let(:serializer) { Class.new(Serega) }
   let(:opts) { {only: :foo, except: :bar, with: :bazz} }
   let(:described_class) { serializer::CheckInitiateParams }
   let(:check_modifiers_class) { Serega::SeregaValidations::Initiate::CheckModifiers }
@@ -21,7 +15,7 @@ RSpec.describe Serega::SeregaValidations::CheckInitiateParams do
 
   it "checks valid keys" do
     validate
-    expect(Serega::SeregaValidations::Utils::CheckAllowedKeys).to have_received(:call).with(opts, initiate_keys)
+    expect(Serega::SeregaValidations::Utils::CheckAllowedKeys).to have_received(:call).with(opts, serializer.config.initiate_keys)
   end
 
   it "checks provided :only, :except, :with modifiers" do

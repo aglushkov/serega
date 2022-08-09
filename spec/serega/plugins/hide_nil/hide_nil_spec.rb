@@ -7,7 +7,7 @@ RSpec.describe Serega::SeregaPlugins::HideNil do
 
   it "adds allowed attribute options" do
     serializer_class.plugin :hide_nil
-    attribute_keys = serializer_class.config[:attribute_keys]
+    attribute_keys = serializer_class.config.attribute_keys
     expect(attribute_keys).to include :hide_nil
   end
 

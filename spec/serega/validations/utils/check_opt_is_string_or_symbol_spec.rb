@@ -14,4 +14,8 @@ RSpec.describe Serega::SeregaValidations::Utils::CheckOptIsStringOrSymbol do
     expect { described_class.call({foo: {}}, :foo) }.to raise_error error(:foo, {})
     expect { described_class.call({foo: []}, :foo) }.to raise_error error(:foo, [])
   end
+
+  it "allows no key in options" do
+    expect { described_class.call({foo: 123}, :abc) }.not_to raise_error
+  end
 end

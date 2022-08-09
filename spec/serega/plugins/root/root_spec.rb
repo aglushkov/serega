@@ -46,6 +46,28 @@ RSpec.describe Serega::SeregaPlugins::Root do
       end
     end
 
+    context "with root provided as DSL method" do
+      let(:user) { double(first_name: "FIRST_NAME") }
+      let(:user_serializer) do
+        Class.new(Serega) do
+          plugin :root
+          attribute :first_name
+        end
+      end
+
+      it "adds root key to single object response" do
+        user_serializer.root one: :customer
+        response = user_serializer.new.to_h(user)
+        expect(response).to eq(customer: {first_name: "FIRST_NAME"})
+      end
+
+      it "adds root key to multiple objects response" do
+        user_serializer.root many: :customers
+        response = user_serializer.new.to_h([user])
+        expect(response).to eq(customers: [{first_name: "FIRST_NAME"}])
+      end
+    end
+
     context "with root provided as serialization option" do
       let(:user) { double(first_name: "FIRST_NAME") }
       let(:user_serializer) do
@@ -63,6 +85,11 @@ RSpec.describe Serega::SeregaPlugins::Root do
       it "adds root key to multiple objects response" do
         response = user_serializer.new.to_h([user], root: :customers)
         expect(response).to eq(customers: [{first_name: "FIRST_NAME"}])
+      end
+
+      it "removes root key when nil provided" do
+        response = user_serializer.new.to_h([user], root: nil)
+        expect(response).to eq([{first_name: "FIRST_NAME"}])
       end
     end
   end

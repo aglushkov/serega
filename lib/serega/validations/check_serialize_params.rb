@@ -17,7 +17,7 @@ class Serega
         private
 
         def check_opts
-          Utils::CheckAllowedKeys.call(opts, serializer_class.config[:serialize_keys])
+          Utils::CheckAllowedKeys.call(opts, serializer_class.config.serialize_keys)
 
           Utils::CheckOptIsHash.call(opts, :context)
           Utils::CheckOptIsBool.call(opts, :many)

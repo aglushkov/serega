@@ -1,8 +1,50 @@
 ## [Unreleased]
 
-- Disabling caching of serialized attributes maps by default. This can be reverted with `config[:max_cached_map_per_serializer_count] = 50`
+Refactor config
 
-- Refactor validations. Remove `valdiate_modifiers` plugin. Modifiers are now validated by default. This can be changed globally with config option `config[:check_initiate_params] = false`. Or we can skip validation per serialization
+1. We can now access config options through methods instead of hash keys
+  ```ruby
+    config.plugins
+    config.initiate_keys
+    config.attribute_keys
+    config.serialize_keys
+    config.check_initiate_params
+    config.check_initiate_params=
+    config.max_cached_map_per_serializer_count
+    config.max_cached_map_per_serializer_count=
+    config.to_json
+    config.to_json=
+    config.from_json
+    config.from_json=
+    config.context_metadata.key
+    config.context_metadata.key=
+    config.formatters.add(key => proc_value)
+    config.metadata.attribute_keys
+    config.preload.auto_preload_attributes_with_delegate
+    config.preload.auto_preload_attributes_with_serializer
+    config.preload.auto_hide_attributes_with_preload
+    config.preload.auto_preload_attributes_with_delegate=
+    config.preload.auto_preload_attributes_with_serializer=
+    config.preload.auto_hide_attributes_with_preload=
+    config.root
+    config.root=(one:, many:)
+    config.root.one
+    config.root.one=
+    config.root.many
+    config.root.many=
+  ```
+
+- Added `from_json` config method that is used in `#as_json` result.
+  It can be overwritten this way:
+  ```ruby
+    config.from_json = proc {...}
+  ```
+
+- Configured branch coverage checking
+
+- Disabling caching of serialized attributes maps by default. This can be reverted with `config.max_cached_map_per_serializer_count = 50`
+
+- Refactor validations. Remove `valdiate_modifiers` plugin. Modifiers are now validated by default. This can be changed globally with config option `config.check_initiate_params = false`. Or we can skip validation per serialization
   ```ruby
     SomeSerializer.(obj, only: ..., :with: ..., except: ..., check_initiate_params: false)
   ```

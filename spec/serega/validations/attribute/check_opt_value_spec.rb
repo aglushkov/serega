@@ -24,6 +24,11 @@ RSpec.describe Serega::SeregaValidations::Attribute::CheckOptValue do
     expect { described_class.call(opts) }.not_to raise_error
   end
 
+  it "prohibits non-proc value" do
+    opts[:value] = :foo
+    expect { described_class.call(opts) }.to raise_error Serega::SeregaError, value_error
+  end
+
   it "prohibits value defined as lambda without params" do
     opts[:value] = -> {}
     expect { described_class.call(opts) }.to raise_error Serega::SeregaError, value_error

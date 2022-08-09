@@ -8,11 +8,18 @@ class Serega
       end
 
       def self.before_load_plugin(serializer_class, **opts)
-        serializer_class.plugin(:root, **opts) unless serializer_class.plugin_used?(:root)
+        if serializer_class.plugin_used?(:root)
+          root = serializer_class.config.root
+          root.one = opts[:root_one] if opts.key?(:root_one)
+          root.many = opts[:root_many] if opts.key?(:root_many)
+        else
+          serializer_class.plugin(:root, **opts)
+        end
       end
 
       def self.load_plugin(serializer_class, **_opts)
         serializer_class.extend(ClassMethods)
+        serializer_class::SeregaConfig.include(ConfigInstanceMethods)
         serializer_class::SeregaConvert.include(SeregaConvertInstanceMethods)
 
         require_relative "./meta_attribute"
@@ -28,7 +35,25 @@ class Serega
       end
 
       def self.after_load_plugin(serializer_class, **_opts)
-        serializer_class.config[plugin_name] = {attribute_keys: %i[path hide_nil hide_empty]}
+        serializer_class.config.opts[:metadata] = {attribute_keys: %i[path hide_nil hide_empty]}
+      end
+
+      class MetadataConfig
+        attr_reader :opts
+
+        def initialize(opts)
+          @opts = opts
+        end
+
+        def attribute_keys
+          opts.fetch(:attribute_keys)
+        end
+      end
+
+      module ConfigInstanceMethods
+        def metadata
+          MetadataConfig.new(opts.fetch(:metadata))
+        end
       end
 
       module ClassMethods

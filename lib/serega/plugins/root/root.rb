@@ -12,12 +12,17 @@ class Serega
 
       def self.load_plugin(serializer_class, **_opts)
         serializer_class.extend(ClassMethods)
+        serializer_class::SeregaConfig.include(SeregaConfigInstanceMethods)
         serializer_class::SeregaConvert.include(SeregaConvertInstanceMethods)
       end
 
       def self.after_load_plugin(serializer_class, **opts)
-        serializer_class.root(opts[:root] || ROOT_DEFAULT, one: opts[:root_one], many: opts[:root_many])
-        serializer_class.config[:serialize_keys] << :root
+        config = serializer_class.config
+        default = opts[:root] || ROOT_DEFAULT
+        one = (opts[:root_one] || default).to_sym
+        many = (opts[:root_many] || default).to_sym
+        config.opts[:root] = {one: one, many: many}
+        config.serialize_keys << :root
       end
 
       module ClassMethods
@@ -37,7 +42,42 @@ class Serega
           one = one.to_sym if one
           many = many.to_sym if many
 
-          config[:root] = {one: one, many: many}
+          config.root = {one: one, many: many}
+        end
+      end
+
+      class RootConfig
+        attr_reader :opts
+
+        def initialize(opts)
+          @opts = opts
+        end
+
+        def one
+          opts.fetch(:one)
+        end
+
+        def many
+          opts.fetch(:many)
+        end
+
+        def one=(value)
+          opts[:one] = value
+        end
+
+        def many=(value)
+          opts[:many] = value
+        end
+      end
+
+      module SeregaConfigInstanceMethods
+        def root
+          RootConfig.new(opts.fetch(:root))
+        end
+
+        def root=(value)
+          root.one = value.fetch(:one)
+          root.many = value.fetch(:many)
         end
       end
 
@@ -54,8 +94,8 @@ class Serega
         def build_root(opts)
           return opts[:root] if opts.key?(:root)
 
-          root_config = self.class.serializer_class.config[:root]
-          many? ? root_config[:many] : root_config[:one]
+          root = self.class.serializer_class.config.root
+          many? ? root.many : root.one
         end
       end
     end
