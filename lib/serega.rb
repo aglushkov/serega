@@ -15,7 +15,7 @@ require_relative "serega/errors"
 require_relative "serega/helpers/serializer_class_helper"
 require_relative "serega/utils/enum_deep_dup"
 require_relative "serega/utils/to_hash"
-require_relative "serega/utils/json"
+require_relative "serega/json/adapter"
 
 require_relative "serega/attribute"
 require_relative "serega/validations/utils/check_allowed_keys"
