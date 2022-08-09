@@ -50,7 +50,7 @@
 ```
 
 ### How to serialize
-  We can serialize **to_h**, **to_json**, **as_json**
+  We can serialize objects using `call (aliased as to_h)`, `to_json`, `as_json` methods:
   ```ruby
     user = OpenStruct.new(username:'serega')
 
@@ -189,8 +189,13 @@
 
   ```ruby
     class AppSerializer < Serega
-      # Configure adapter to serialize to JSON, default is JSON.dump
+      # Configure adapter to serialize to JSON,
+      # if Oj gem loaded default is `Oj.dump(data, mode: :compat)` otherwise it is `JSON.dump`
       config.to_json = ->(data) { Oj.dump(data, mode: :compat) }
+
+      # Configure adapter to de-serialize JSON,
+      # if Oj gem loaded default is `Oj.load(data)` otherwise it is `JSON.parse`
+      config.from_json = ->(data) { Oj.load(data) }
 
       # Skip/enable validation of modifiers params `with`, `except`, `only`
       # It can be useful to save some processing time.
@@ -203,44 +208,23 @@
       # Better do benchmark first your serialization use case.
       config.max_cached_map_per_serializer_count = 50 # default is 0, disabled
 
-      # See also plugins for more config options that added by plugins
-
-      config.plugins # Shows enabled plugins
-      config.initiate_keys # Shows allowed options keys when initiating serializer
-      config.attribute_keys # Shows allowed options keys when adding new attribute
-      config.serialize_keys # Shows allowed options keys when serializing object with #call, #to_h, #to_json, #as_json methods
-      config.check_initiate_params # Shows value of check_initiate_params option. Default is true
-      config.check_initiate_params=(bool_value) # Changes check_initiate_params option. When value is false - it skips invalid initiate options and values
-      config.max_cached_map_per_serializer_count # Shows count of cached maps per serializer. Default is 0
-      config.max_cached_map_per_serializer_count=(int_value) # Changes count of cached maps
-      config.to_json # Returns Proc that is used to generate JSON. By default uses `JSON.dump` method
-      config.to_json=(proc_value) # Changes proc to generate JSON.
-      config.from_json # Returns Proc that is used to parse JSON. By default uses `JSON.load` method
-      config.from_json=(proc_value) # Changes proc to parse JSON.
-
       # With context_metadata plugin:
-      config.context_metadata.key # Key used to add metadata. By default it is :meta
-      config.context_metadata.key=(value) # Changes key used to add context_metadata
+      config.context_metadata.key=(value) # Changes key used to add context_metadata. By default it is :meta
 
       # With formatters plugin:
+      # Add new formatters
       config.formatters.add(key => proc_value)
 
       # With metadata plugin:
-      config.metadata.attribute_keys # Shows allowed attributes keys when adding meta_attribute
-      config.preload.auto_preload_attributes_with_delegate # Shows this config value. Default is false
-      config.preload.auto_preload_attributes_with_serializer # Shows this config value. Default is false
-      config.preload.auto_hide_attributes_with_preload # Shows this config value. Default is false
-      config.preload.auto_preload_attributes_with_delegate=(bool) # Changes value
-      config.preload.auto_preload_attributes_with_serializer=(bool) # Changes value
-      config.preload.auto_hide_attributes_with_preload=(bool) # Changes value
+      # We can configure to automatically hide some attributes or automatically add preloads
+      config.preload.auto_preload_attributes_with_delegate = bool # Default is false
+      config.preload.auto_preload_attributes_with_serializer = bool # Default is false
+      config.preload.auto_hide_attributes_with_preload = bool # Default is false
 
       # With root plugin
-      config.root # Shows current root config value. By default it is `{one: "data", many: "data"}`
-      config.root=(one:, many:) # Changes root values.
-      config.root.one # Shows root value used when serializing single object
-      config.root.many # Shows root value used when serializing multiple objects
-      config.root.one=(value) # Changes root value for serializing single object
-      config.root.many=(value) # Changes root value for serializing multiple objects
+      config.root = { one: 'data', many: 'data' } # Changes root values. Default is `data`
+      config.root.one = 'user' # Changes specific root value
+      config.root.many = 'users' # Changes specific root value
     end
   ```
 

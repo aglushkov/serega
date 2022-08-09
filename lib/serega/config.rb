@@ -7,6 +7,7 @@ class Serega
   # Core class that stores serializer configuration
   #
   class SeregaConfig
+    # :nocov: We can't use both :oj and :json adapters together
     DEFAULTS = {
       plugins: [],
       initiate_keys: %i[only with except check_initiate_params].freeze,
@@ -14,9 +15,10 @@ class Serega
       serialize_keys: %i[context many].freeze,
       check_initiate_params: true,
       max_cached_map_per_serializer_count: 0,
-      to_json: ->(data) { SeregaUtils::JSON.dump(data) },
-      from_json: ->(data) { SeregaUtils::JSON.load(data) }
+      to_json: SeregaJSON.adapter == :oj ? SeregaJSON::OjDump : SeregaJSON::JSONDump,
+      from_json: SeregaJSON.adapter == :oj ? SeregaJSON::OjLoad : SeregaJSON::JSONLoad
     }.freeze
+    # :nocov:
 
     module SeregaConfigInstanceMethods
       attr_reader :opts

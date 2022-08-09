@@ -1,37 +1,50 @@
 ## [Unreleased]
 
-Refactor config
-
-1. We can now access config options through methods instead of hash keys
+- Use Oj JSON adapter by default if Oj is loaded. We use `mode: :compat` when   serializing objects. Config can still be overwritten:
   ```ruby
-    config.plugins
-    config.initiate_keys
-    config.attribute_keys
-    config.serialize_keys
-    config.check_initiate_params
-    config.check_initiate_params=
-    config.max_cached_map_per_serializer_count
-    config.max_cached_map_per_serializer_count=
-    config.to_json
-    config.to_json=
-    config.from_json
-    config.from_json=
-    config.context_metadata.key
-    config.context_metadata.key=
-    config.formatters.add(key => proc_value)
-    config.metadata.attribute_keys
-    config.preload.auto_preload_attributes_with_delegate
-    config.preload.auto_preload_attributes_with_serializer
-    config.preload.auto_hide_attributes_with_preload
-    config.preload.auto_preload_attributes_with_delegate=
-    config.preload.auto_preload_attributes_with_serializer=
-    config.preload.auto_hide_attributes_with_preload=
-    config.root
-    config.root=(one:, many:)
-    config.root.one
-    config.root.one=
-    config.root.many
-    config.root.many=
+   config.to_json = proc { |data| Oj.dump(mode: :strict) }
+   config.from_json = proc { |json| Oj.load(json) }
+  ```
+
+- We can now access config options through methods instead of hash keys
+  ```ruby
+
+      config.plugins # Shows enabled plugins
+      config.initiate_keys # Shows allowed options keys when initiating serializer
+      config.attribute_keys # Shows allowed options keys when adding new attribute
+      config.serialize_keys # Shows allowed options keys when serializing object with #call, #to_h, #to_json, #as_json methods
+      config.check_initiate_params # Shows value of check_initiate_params option. Default is true
+      config.check_initiate_params=(bool_value) # Changes check_initiate_params option. When value is false - it skips invalid initiate options and values
+      config.max_cached_map_per_serializer_count # Shows count of cached maps per serializer. Default is 0
+      config.max_cached_map_per_serializer_count=(int_value) # Changes count of cached maps
+      config.to_json # Returns Proc that is used to generate JSON. By default uses `JSON.dump` method
+      config.to_json=(proc_value) # Changes proc to generate JSON.
+      config.from_json # Returns Proc that is used to parse JSON. By default uses `JSON.load` method
+      config.from_json=(proc_value) # Changes proc to parse JSON.
+
+      # With context_metadata plugin:
+      config.context_metadata.key # Key used to add metadata. By default it is :meta
+      config.context_metadata.key=(value) # Changes key used to add context_metadata
+
+      # With formatters plugin:
+      config.formatters.add(key => proc_value)
+
+      # With metadata plugin:
+      config.metadata.attribute_keys # Shows allowed attributes keys when adding meta_attribute
+      config.preload.auto_preload_attributes_with_delegate # Shows this config value. Default is false
+      config.preload.auto_preload_attributes_with_serializer # Shows this config value. Default is false
+      config.preload.auto_hide_attributes_with_preload # Shows this config value. Default is false
+      config.preload.auto_preload_attributes_with_delegate=(bool) # Changes value
+      config.preload.auto_preload_attributes_with_serializer=(bool) # Changes value
+      config.preload.auto_hide_attributes_with_preload=(bool) # Changes value
+
+      # With root plugin
+      config.root # Shows current root config value. By default it is `{one: "data", many: "data"}`
+      config.root=(one:, many:) # Changes root values.
+      config.root.one # Shows root value used when serializing single object
+      config.root.many # Shows root value used when serializing multiple objects
+      config.root.one=(value) # Changes root value for serializing single object
+      config.root.many=(value) # Changes root value for serializing multiple objects
   ```
 
 - Added `from_json` config method that is used in `#as_json` result.
