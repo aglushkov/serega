@@ -1,7 +1,7 @@
 PATH
   remote: ..
   specs:
-    serega (0.2.0)
+    serega (0.3.0)
 
 GEM
   remote: https://rubygems.org/
@@ -33,7 +33,7 @@ GEM
     json (2.6.2-java)
     minitest (5.16.2)
     parallel (1.22.1)
-    parser (3.1.2.0)
+    parser (3.1.2.1)
       ast (~> 2.4.1)
     rainbow (3.1.1)
     rake (13.0.6)
@@ -52,7 +52,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.11.0)
     rspec-support (3.11.0)
-    rubocop (1.32.0)
+    rubocop (1.33.0)
       json (~> 2.3)
       parallel (~> 1.10)
       parser (>= 3.1.0.0)
@@ -62,7 +62,7 @@ GEM
       rubocop-ast (>= 1.19.1, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 1.4.0, < 3.0)
-    rubocop-ast (1.19.1)
+    rubocop-ast (1.21.0)
       parser (>= 3.1.1.0)
     rubocop-performance (1.14.3)
       rubocop (>= 1.7.0, < 2.0)
@@ -79,8 +79,8 @@ GEM
     simplecov-html (0.12.3)
     simplecov_json_formatter (0.1.4)
     sqlite3 (1.4.4)
-    standard (1.14.0)
-      rubocop (= 1.32.0)
+    standard (1.15.0)
+      rubocop (= 1.33.0)
       rubocop-performance (= 1.14.3)
     tzinfo (2.0.5)
       concurrent-ruby (~> 1.0)
