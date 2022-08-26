@@ -217,9 +217,9 @@
 
       # With metadata plugin:
       # We can configure to automatically hide some attributes or automatically add preloads
-      config.preload.auto_preload_attributes_with_delegate = bool # Default is false
-      config.preload.auto_preload_attributes_with_serializer = bool # Default is false
-      config.preload.auto_hide_attributes_with_preload = bool # Default is false
+      config.preloads.auto_preload_attributes_with_delegate = bool # Default is false
+      config.preloads.auto_preload_attributes_with_serializer = bool # Default is false
+      config.preloads.auto_hide_attributes_with_preload = bool # Default is false
 
       # With root plugin
       config.root = { one: 'data', many: 'data' } # Changes root values. Default is `data`
@@ -270,7 +270,10 @@
 
   ```ruby
     class AppSerializer < Serega
-      plugin :activerecord_preloads # also adds :preloads plugin automatically
+      plugin :activerecord_preloads, # also adds :preloads plugin automatically
+        auto_preload_attributes_with_delegate: true,
+        auto_preload_attributes_with_serializer: true,
+        auto_hide_attributes_with_preload: true
     end
   ```
 
