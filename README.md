@@ -344,8 +344,13 @@
 
   ```ruby
   class UserSerializer < Serega
-    plugin :formatters
+    plugin :formatters, formatters: {
+      iso8601: ->(value) { time.iso8601.round(6) },
+      on_off: ->(value) { value ? 'ON' : 'OFF' },
+      money: ->(value) { value.round(2) }
+    }
 
+    # We can add formatters via config later or in subclasses
     config.formatters.add(
       iso8601: ->(value) { time.iso8601.round(6) },
       on_off: ->(value) { value ? 'ON' : 'OFF' },

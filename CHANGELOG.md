@@ -1,5 +1,14 @@
 ## [Unreleased]
 
+- Allow to provide formatters config when adding `formatters` plugin
+  ```ruby
+    plugin :formatters, formatters: {
+      iso8601: ->(value) { time.iso8601.round(6) },
+      on_off: ->(value) { value ? 'ON' : 'OFF' },
+      money: ->(value) { value.round(2) }
+    }
+  ```
+
 ## [0.3.0] - 2022-08-10
 
 - Use Oj JSON adapter by default if Oj is loaded. We use `mode: :compat` when   serializing objects. Config can still be overwritten:

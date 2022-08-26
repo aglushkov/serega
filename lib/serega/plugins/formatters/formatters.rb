@@ -12,9 +12,10 @@ class Serega
         serializer_class::SeregaAttribute.include(AttributeInstanceMethods)
       end
 
-      def self.after_load_plugin(serializer_class, **_opts)
+      def self.after_load_plugin(serializer_class, **opts)
         config = serializer_class.config
         config.opts[:formatters] = {}
+        config.formatters.add(opts[:formatters] || {})
         config.attribute_keys << :format
       end
 
