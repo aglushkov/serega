@@ -1,5 +1,14 @@
 ## [Unreleased]
 
+- Allow to provide formatters config when adding `formatters` plugin
+  ```ruby
+    plugin :formatters, formatters: {
+      iso8601: ->(value) { time.iso8601.round(6) },
+      on_off: ->(value) { value ? 'ON' : 'OFF' },
+      money: ->(value) { value.round(2) }
+    }
+  ```
+
 ## [0.3.0] - 2022-08-10
 
 - Use Oj JSON adapter by default if Oj is loaded. We use `mode: :compat` when   serializing objects. Config can still be overwritten:
@@ -33,12 +42,12 @@
 
       # With metadata plugin:
       config.metadata.attribute_keys # Shows allowed attributes keys when adding meta_attribute
-      config.preload.auto_preload_attributes_with_delegate # Shows this config value. Default is false
-      config.preload.auto_preload_attributes_with_serializer # Shows this config value. Default is false
-      config.preload.auto_hide_attributes_with_preload # Shows this config value. Default is false
-      config.preload.auto_preload_attributes_with_delegate=(bool) # Changes value
-      config.preload.auto_preload_attributes_with_serializer=(bool) # Changes value
-      config.preload.auto_hide_attributes_with_preload=(bool) # Changes value
+      config.preloads.auto_preload_attributes_with_delegate # Shows this config value. Default is false
+      config.preloads.auto_preload_attributes_with_serializer # Shows this config value. Default is false
+      config.preloads.auto_hide_attributes_with_preload # Shows this config value. Default is false
+      config.preloads.auto_preload_attributes_with_delegate=(bool) # Changes value
+      config.preloads.auto_preload_attributes_with_serializer=(bool) # Changes value
+      config.preloads.auto_hide_attributes_with_preload=(bool) # Changes value
 
       # With root plugin
       config.root # Shows current root config value. By default it is `{one: "data", many: "data"}`
@@ -59,7 +68,7 @@
 
 - Disabling caching of serialized attributes maps by default. This can be reverted with `config.max_cached_map_per_serializer_count = 50`
 
-- Refactor validations. Remove `valdiate_modifiers` plugin. Modifiers are now validated by default. This can be changed globally with config option `config.check_initiate_params = false`. Or we can skip validation per serialization
+- Refactor validations. Remove `validate_modifiers` plugin. Modifiers are now validated by default. This can be changed globally with config option `config.check_initiate_params = false`. Or we can skip validation per serialization
   ```ruby
     SomeSerializer.(obj, only: ..., :with: ..., except: ..., check_initiate_params: false)
   ```

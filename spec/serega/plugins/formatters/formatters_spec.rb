@@ -13,6 +13,13 @@ RSpec.describe Serega::SeregaPlugins::Formatters do
       serializer = Class.new(Serega) { plugin :formatters }
       expect(serializer.config.attribute_keys).to include(:format)
     end
+
+    it "allows to provide formatters when loading plugin" do
+      serializer = Class.new(Serega) do
+        plugin :formatters, formatters: {foo: :bar}
+      end
+      expect(serializer.config.formatters.opts).to eq({foo: :bar})
+    end
   end
 
   describe "Attribute methods" do
