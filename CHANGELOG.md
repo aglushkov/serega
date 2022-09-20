@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [0.4.0] - 2022-09-20
+
 - Allow to provide formatters config when adding `formatters` plugin
   ```ruby
     plugin :formatters, formatters: {
