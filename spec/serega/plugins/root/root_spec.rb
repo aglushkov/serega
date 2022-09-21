@@ -24,6 +24,12 @@ RSpec.describe Serega::SeregaPlugins::Root do
         response = user_serializer.new.to_h([user])
         expect(response).to eq(data: [{first_name: "FIRST_NAME"}])
       end
+
+      it "adds root key as first element to context[:_path]" do
+        user_serializer.attribute :path, value: proc { |_obj, ctx| ctx[:_path].dup }
+        response = user_serializer.to_h(user)
+        expect(response).to eq(data: {first_name: "FIRST_NAME", path: [:data]})
+      end
     end
 
     context "with different root key for one or many serialized resources" do

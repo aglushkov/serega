@@ -123,7 +123,11 @@ class Serega
         end
 
         def meta_attribute_value(meta_attribute)
-          value = meta_attribute.value(object, opts[:context])
+          value =
+            with_context_metadata_path(meta_attribute) do
+              meta_attribute.value(object, context)
+            end
+
           return if meta_attribute.hide?(value)
 
           # Example:
@@ -139,6 +143,15 @@ class Serega
               other_val
             end
           end
+        end
+
+        def with_context_metadata_path(meta_attribute)
+          paths = context[:_path] ||= []
+          path = meta_attribute.path
+          paths.concat(path)
+          result = yield
+          paths.pop(path.size)
+          result
         end
       end
     end

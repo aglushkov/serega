@@ -9,11 +9,12 @@ class Serega
     end
 
     module SeregaConvertInstanceMethods
-      attr_reader :object, :opts
+      attr_reader :object, :context, :opts
 
       def initialize(object, **opts)
         @object = object
         @opts = opts
+        @context = opts[:context] ||= {}
       end
 
       def to_h
@@ -23,11 +24,13 @@ class Serega
       private
 
       def many(objects)
-        objects.map { |obj| one(obj) }
+        objects.map.with_index do |obj, index|
+          with_context_path(index) { one(obj) }
+        end
       end
 
       def one(object)
-        self.class.serializer_class::SeregaConvertItem.call(object, opts[:context], opts[:map])
+        self.class.serializer_class::SeregaConvertItem.call(object, context, opts[:map])
       end
 
       def many?
@@ -35,6 +38,14 @@ class Serega
         return many unless many.nil?
 
         object.is_a?(Enumerable)
+      end
+
+      def with_context_path(path)
+        paths = context[:_path] ||= []
+        paths << path
+        result = yield
+        paths.pop
+        result
       end
     end
 

@@ -166,5 +166,27 @@ RSpec.describe Serega::SeregaPlugins::Metadata do
         )
       end
     end
+
+    describe "attaching context[:_path]" do
+      let(:context) { {page: 2, per_page: 3} }
+
+      before do
+        block = proc { |_, ctx| ctx[:_path].dup }
+        user_serializer.meta_attribute(:meta, :foo, &block)
+        user_serializer.meta_attribute(:meta, :bar, :bazz, &block)
+        user_serializer.meta_attribute(:bazz, &block)
+      end
+
+      it "returns correct paths" do
+        expect(response).to eq(
+          data: {first_name: "FIRST_NAME"},
+          meta: {
+            foo: %i[meta foo],
+            bar: {bazz: %i[meta bar bazz]}
+          },
+          bazz: %i[bazz]
+        )
+      end
+    end
   end
 end

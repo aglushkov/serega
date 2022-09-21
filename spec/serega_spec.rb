@@ -278,7 +278,10 @@ RSpec.describe Serega do
     it "selects serialize params (not modifiers params) and validates them" do
       serializer_class.to_h(nil, params)
 
-      expect(serializer_class::CheckSerializeParams).to have_received(:new).with(context: {foo: "bar"}, a: 1)
+      expect(serializer_class::CheckSerializeParams)
+        .to have_received(:new)
+        .with(params.except(*serializer_class.config.initiate_keys))
+
       expect(validator).to have_received(:validate)
     end
   end

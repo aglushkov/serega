@@ -83,10 +83,13 @@ class Serega
 
       module SeregaConvertInstanceMethods
         def to_h
-          hash = super
           root = build_root(opts)
-          hash = {root => hash} if root
-          hash
+
+          if root
+            with_context_path(root) { {root => super} }
+          else
+            super
+          end
         end
 
         private

@@ -15,19 +15,32 @@ class Serega
       private
 
       def attach_value(value, hash, attribute, nested_attributes, context)
-        hash[attribute.name] =
-          if nested_attributes.empty?
-            attribute.relation? ? FROZEN_EMPTY_HASH : value
-          elsif many?(attribute, value)
-            value.map { |val| call(val, context, nested_attributes) }
-          else
-            call(value, context, nested_attributes)
-          end
+        attribute_name = attribute.name
+        with_context_path(context, attribute_name) do
+          hash[attribute_name] =
+            if nested_attributes.empty?
+              attribute.relation? ? FROZEN_EMPTY_HASH : value
+            elsif many?(attribute, value)
+              value.map.with_index do |val, index|
+                with_context_path(context, index) { call(val, context, nested_attributes) }
+              end
+            else
+              call(value, context, nested_attributes)
+            end
+        end
       end
 
       def many?(attribute, object)
         is_many = attribute.many
         is_many.nil? ? object.is_a?(Enumerable) : is_many
+      end
+
+      def with_context_path(context, path)
+        paths = context[:_path] ||= []
+        paths << path
+        result = yield
+        paths.pop
+        result
       end
     end
 
