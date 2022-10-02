@@ -45,7 +45,7 @@
       attribute :id
       attribute :text
 
-      relation :user, serializer: UserSerializer
+      attribute :user, serializer: UserSerializer
     end
 ```
 
