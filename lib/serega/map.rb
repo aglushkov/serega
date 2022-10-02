@@ -36,7 +36,7 @@ class Serega
         serializer_class.attributes.each_with_object([]) do |(name, attribute), map|
           next unless attribute.visible?(only: only, except: except, with: with)
 
-          nested_map =
+          nested_points =
             if attribute.relation?
               construct_map(
                 attribute.serializer,
@@ -44,11 +44,9 @@ class Serega
                 with: with[name] || FROZEN_EMPTY_HASH,
                 except: except[name] || FROZEN_EMPTY_HASH
               )
-            else
-              FROZEN_EMPTY_ARRAY
             end
 
-          map << [attribute, nested_map]
+          map << serializer_class::SeregaMapPoint.new(attribute, nested_points)
         end
       end
     end

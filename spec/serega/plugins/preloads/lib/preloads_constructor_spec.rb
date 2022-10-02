@@ -112,8 +112,8 @@ RSpec.describe Serega::SeregaPlugins::Preloads::PreloadsConstructor do
     a1 = a.allocate
     a2 = a.allocate
 
-    a1.instance_variable_set(:@map, [[attr1, []], [attr2, []]])
-    a2.instance_variable_set(:@map, [[attr2, []], [attr1, []]])
+    a1.instance_variable_set(:@map, [a::SeregaMapPoint.new(attr1, nil), a::SeregaMapPoint.new(attr2, nil)])
+    a2.instance_variable_set(:@map, [a::SeregaMapPoint.new(attr2, nil), a::SeregaMapPoint.new(attr1, nil)])
 
     result1 = described_class.call(map(a1))
     result2 = described_class.call(map(a2))

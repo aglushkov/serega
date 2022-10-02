@@ -4,20 +4,41 @@ load_plugin_code :formatters
 
 RSpec.describe Serega::SeregaPlugins::Formatters do
   describe "loading" do
+    let(:serializer) { Class.new(Serega) }
+
     it "adds empty :formatters config option" do
-      serializer = Class.new(Serega) { plugin :formatters }
+      serializer.plugin :formatters
       expect(serializer.config.formatters.opts).to eq({})
     end
 
     it "adds allowed :format attribute option" do
-      serializer = Class.new(Serega) { plugin :formatters }
+      serializer.plugin :formatters
       expect(serializer.config.attribute_keys).to include(:format)
     end
 
     it "allows to provide formatters when loading plugin" do
-      serializer = Class.new(Serega) do
-        plugin :formatters, formatters: {foo: :bar}
-      end
+      serializer.plugin :formatters, formatters: {foo: :bar}
+      expect(serializer.config.formatters.opts).to eq({foo: :bar})
+    end
+
+    it "raises error if loaded after :batch plugin" do
+      error = "Plugin `formatters` must be loaded before `batch`"
+      serializer.plugin :batch
+      expect { serializer.plugin(:formatters) }.to raise_error Serega::SeregaError, error
+    end
+  end
+
+  describe "configuration" do
+    let(:serializer) { Class.new(Serega) { plugin :formatters } }
+
+    it "preserves formatters" do
+      formatters1 = serializer.config.formatters
+      formatters2 = serializer.config.formatters
+      expect(formatters1).to be formatters2
+    end
+
+    it "allows to add formatters" do
+      serializer.config.formatters.add({foo: :bar})
       expect(serializer.config.formatters.opts).to eq({foo: :bar})
     end
   end

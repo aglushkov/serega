@@ -12,8 +12,8 @@ class Serega
 
       def self.load_plugin(serializer_class, **_opts)
         serializer_class.extend(ClassMethods)
-        serializer_class::SeregaConfig.include(SeregaConfigInstanceMethods)
-        serializer_class::SeregaConvert.include(SeregaConvertInstanceMethods)
+        serializer_class::SeregaConfig.include(ConfigInstanceMethods)
+        serializer_class::SeregaSerializer.include(SerializerInstanceMethods)
       end
 
       def self.after_load_plugin(serializer_class, **opts)
@@ -70,9 +70,9 @@ class Serega
         end
       end
 
-      module SeregaConfigInstanceMethods
+      module ConfigInstanceMethods
         def root
-          RootConfig.new(opts.fetch(:root))
+          @root ||= RootConfig.new(opts.fetch(:root))
         end
 
         def root=(value)
@@ -81,21 +81,21 @@ class Serega
         end
       end
 
-      module SeregaConvertInstanceMethods
-        def to_h
-          hash = super
-          root = build_root(opts)
-          hash = {root => hash} if root
-          hash
+      module SerializerInstanceMethods
+        def serialize(_object)
+          result = super
+          root = build_root(result, opts)
+          result = {root => result} if root
+          result
         end
 
         private
 
-        def build_root(opts)
+        def build_root(result, opts)
           return opts[:root] if opts.key?(:root)
 
           root = self.class.serializer_class.config.root
-          many? ? root.many : root.one
+          result.is_a?(Array) ? root.many : root.one
         end
       end
     end

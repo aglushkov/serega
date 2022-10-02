@@ -34,7 +34,7 @@ RSpec.describe Serega::SeregaPlugins::HideNil do
   end
 
   describe "serializing" do
-    it "hides hide_niled attributes when value is nil" do
+    it "hides attributes when value is nil" do
       serializer_class.plugin :hide_nil
 
       another_serializer = Class.new(Serega)

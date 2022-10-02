@@ -29,6 +29,7 @@ class Serega
         serializer_class.include(InstanceMethods)
         serializer_class::SeregaAttribute.include(AttributeMethods)
         serializer_class::SeregaConfig.include(ConfigInstanceMethods)
+        serializer_class::SeregaMapPoint.include(MapPointMethods)
 
         serializer_class::CheckAttributeParams.include(CheckAttributeParamsInstanceMethods)
 
@@ -85,7 +86,7 @@ class Serega
 
       module ConfigInstanceMethods
         def preloads
-          PreloadsConfig.new(opts.fetch(:preloads))
+          @preloads ||= PreloadsConfig.new(opts.fetch(:preloads))
         end
       end
 
@@ -139,6 +140,16 @@ class Serega
           path = Array(opts[:preload_path]).map!(&:to_sym)
           path = MainPreloadPath.call(preloads) if path.empty?
           EnumDeepFreeze.call(path)
+        end
+      end
+
+      module MapPointMethods
+        def preloads
+          @preloads ||= PreloadsConstructor.call(nested_points)
+        end
+
+        def preloads_path
+          attribute.preloads_path
         end
       end
 

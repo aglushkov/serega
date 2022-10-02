@@ -9,9 +9,9 @@
 
   It has also some great features:
   
-    * Configurable serialized fields. No more multiple serializers for same resource. Yay!
+    * Manually select serialized fields
     * Built-in object presenter ([presenter] plugin)
-    * Solution for N+1 problem (via [preloads] or [activerecord_preloads] plugins)
+    * Solution for N+1 problem (via [batch], [preloads] or [activerecord_preloads] plugins)
     * Custom metadata (via [metadata] or [context_metadata] plugins)
     * Custom attribute formatters ([formatters] plugin)
 
@@ -45,7 +45,7 @@
       attribute :id
       attribute :text
 
-      relation :user, serializer: UserSerializer
+      attribute :user, serializer: UserSerializer
     end
 ```
 
@@ -274,6 +274,48 @@
         auto_preload_attributes_with_delegate: true,
         auto_preload_attributes_with_serializer: true,
         auto_hide_attributes_with_preload: true
+    end
+  ```
+
+### Plugin :batch
+  Adds ability to load attributes values in batches.
+
+  It can be used to omit N+1, to calculate counters for different objects in single query, to request any data from external storage.
+
+  Added new attribute option :batch, ex: `attribute :name, batch: { keys: ..., loader: ..., default: ...}`.
+
+  `:batch` option must be a hash with this keys:
+  - :key (required) [Symbol, Proc, callable] - Defines identifier of current object
+  - :loader (required) [Symbol, Proc, callable] - Defines how to fetch values for batch of keys.
+  - :default (optional) - Default value used when loader does not return value for current key. By default it is `nil` or `[]` when attribute has additional option `many: true` (`attribute :name, many: true, batch: { ... }`).
+
+  If `:loader` was defined via Symbol then batch loader must be defined using `config.batch_loaders.define(:loader_name) { ... }` method.
+  Result of this block must be a Hash with provided keys.
+
+  ```ruby
+    class PostSerializer < Serega
+      plugin :batch
+
+      # Define batch loader via callable class, it must accept three args (keys, context, nested_attributes)
+      attribute :comments_count, batch: { key: :id, loader: PostCommentsCountBatchLoader, default: 0}
+
+      # Define batch loader via Symbol, later we should define this loader via config.batch_loaders.define(:posts_comments_counter) { ... }
+      attribute :comments_count, batch: { key: :id, loader: :posts_comments_counter, default: 0}
+
+      # Define batch loader with serializer
+      attribute :comments, serializer: CommentSerializer, batch: { key: :id, loader: :posts_comments, default: []}
+
+      # Resulted block must return hash like { key => value(s) }
+      config.batch_loaders.define(:posts_comments_counter) do |keys|
+        Comment.group(:post_id).where(post_id: keys).count
+      end
+
+      # We can return objects that will be automatically serialized if attribute defined with :serializer
+      # Parameter `context` can be used when loading batch
+      # Parameter `points` can be used to find nested attributes that will be serialized
+      config.batch_loaders.define(:posts_comments) do |keys, context, points|
+        Comment.where(post_id: keys).where(is_spam: false).group_by(&:post_id)
+      end
     end
   ```
 

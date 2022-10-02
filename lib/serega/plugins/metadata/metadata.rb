@@ -20,7 +20,7 @@ class Serega
       def self.load_plugin(serializer_class, **_opts)
         serializer_class.extend(ClassMethods)
         serializer_class::SeregaConfig.include(ConfigInstanceMethods)
-        serializer_class::SeregaConvert.include(SeregaConvertInstanceMethods)
+        serializer_class::SeregaSerializer.include(SeregaSerializerInstanceMethods)
 
         require_relative "./meta_attribute"
         require_relative "./validations/check_block"
@@ -52,7 +52,7 @@ class Serega
 
       module ConfigInstanceMethods
         def metadata
-          MetadataConfig.new(opts.fetch(:metadata))
+          @metadata ||= MetadataConfig.new(opts.fetch(:metadata))
         end
       end
 
@@ -104,26 +104,26 @@ class Serega
         end
       end
 
-      module SeregaConvertInstanceMethods
-        def to_h
-          hash = super
-          add_metadata(hash)
-          hash
+      module SeregaSerializerInstanceMethods
+        def serialize(object)
+          super.tap do |hash|
+            add_metadata(object, hash)
+          end
         end
 
         private
 
-        def add_metadata(hash)
+        def add_metadata(object, hash)
           self.class.serializer_class.meta_attributes.each_value do |meta_attribute|
-            metadata = meta_attribute_value(meta_attribute)
+            metadata = meta_attribute_value(object, meta_attribute)
             next unless metadata
 
             deep_merge_metadata(hash, metadata)
           end
         end
 
-        def meta_attribute_value(meta_attribute)
-          value = meta_attribute.value(object, opts[:context])
+        def meta_attribute_value(object, meta_attribute)
+          value = meta_attribute.value(object, context)
           return if meta_attribute.hide?(value)
 
           # Example:

@@ -37,8 +37,9 @@ require_relative "serega/validations/check_initiate_params"
 require_relative "serega/validations/check_serialize_params"
 
 require_relative "serega/config"
-require_relative "serega/convert"
-require_relative "serega/convert_item"
+require_relative "serega/object_serializer"
+require_relative "serega/serializer"
+require_relative "serega/map_point"
 require_relative "serega/map"
 require_relative "serega/plugins"
 
@@ -79,13 +80,17 @@ class Serega
       map_class.serializer_class = subclass
       subclass.const_set(:SeregaMap, map_class)
 
-      convert_class = Class.new(self::SeregaConvert)
-      convert_class.serializer_class = subclass
-      subclass.const_set(:SeregaConvert, convert_class)
+      map_point_class = Class.new(self::SeregaMapPoint)
+      map_point_class.serializer_class = subclass
+      subclass.const_set(:SeregaMapPoint, map_point_class)
 
-      convert_item_class = Class.new(self::SeregaConvertItem)
-      convert_item_class.serializer_class = subclass
-      subclass.const_set(:SeregaConvertItem, convert_item_class)
+      serega_serializer_class = Class.new(self::SeregaSerializer)
+      serega_serializer_class.serializer_class = subclass
+      subclass.const_set(:SeregaSerializer, serega_serializer_class)
+
+      object_serializer_class = Class.new(self::SeregaObjectSerializer)
+      object_serializer_class.serializer_class = subclass
+      subclass.const_set(:SeregaObjectSerializer, object_serializer_class)
 
       check_attribute_params_class = Class.new(self::CheckAttributeParams)
       check_attribute_params_class.serializer_class = subclass
@@ -208,7 +213,7 @@ class Serega
     # @param with [Array, Hash, String, Symbol] Attributes (usually hidden) to serialize additionally
     #
     def initialize(opts = FROZEN_EMPTY_HASH)
-      @opts = opts == FROZEN_EMPTY_HASH ? opts : prepare_modifiers(opts)
+      @opts = (opts == FROZEN_EMPTY_HASH) ? opts : prepare_modifiers(opts)
       self.class::CheckInitiateParams.new(@opts).validate if opts.fetch(:check_initiate_params) { config.check_initiate_params }
     end
 
@@ -224,7 +229,7 @@ class Serega
       self.class::CheckSerializeParams.new(opts).validate
       opts[:context] ||= {}
 
-      self.class::SeregaConvert.call(object, **opts, map: map)
+      self.class::SeregaSerializer.new(points: map, **opts).serialize(object)
     end
 
     # @see #call
