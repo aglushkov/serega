@@ -1,5 +1,10 @@
 ## [Unreleased]
 
+## [0.5.1] - 2022-11-21
+
+- Change gem summary, description, changelog link
+- Fix README links
+
 ## [0.5.0] - 2022-11-21
 
 - Add plugin :batch for batch loading

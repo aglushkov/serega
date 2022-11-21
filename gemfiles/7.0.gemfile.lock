@@ -1,7 +1,7 @@
 PATH
   remote: ..
   specs:
-    serega (0.5.0)
+    serega (0.5.1)
 
 GEM
   remote: https://rubygems.org/
@@ -63,7 +63,7 @@ GEM
       unicode-display_width (>= 1.4.0, < 3.0)
     rubocop-ast (1.23.0)
       parser (>= 3.1.1.0)
-    rubocop-performance (1.15.0)
+    rubocop-performance (1.15.1)
       rubocop (>= 1.7.0, < 2.0)
       rubocop-ast (>= 0.4.0)
     rubocop-rake (0.6.0)
@@ -78,9 +78,9 @@ GEM
     simplecov-html (0.12.3)
     simplecov_json_formatter (0.1.4)
     sqlite3 (1.4.4)
-    standard (1.18.0)
+    standard (1.18.1)
       rubocop (= 1.39.0)
-      rubocop-performance (= 1.15.0)
+      rubocop-performance (= 1.15.1)
     tzinfo (2.0.5)
       concurrent-ruby (~> 1.0)
     unicode-display_width (2.3.0)

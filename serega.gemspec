@@ -8,7 +8,15 @@ Gem::Specification.new do |spec|
   spec.authors = ["Andrey Glushkov"]
   spec.email = ["aglushkov@shakuro.com"]
 
-  spec.summary = "Serializes objects to hash"
+  spec.summary = "JSON Serializer for REST API"
+  spec.description = <<~DESC
+    - Simple and clear DSL
+    - Ability to manually select serialized fields
+    - Multiple ways to solve N+1 problems
+    - Built-in presenter
+    - No dependencies
+    - Plugin system as in Roda or Shrine
+  DESC
   spec.homepage = "https://github.com/aglushkov/serega"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 2.6.0"
