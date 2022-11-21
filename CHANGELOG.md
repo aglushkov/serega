@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+## [0.5.2] - 2022-11-21
+
+- Change gem description again
+
 ## [0.5.1] - 2022-11-21
 
 - Change gem summary, description, changelog link

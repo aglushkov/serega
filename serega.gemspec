@@ -8,8 +8,10 @@ Gem::Specification.new do |spec|
   spec.authors = ["Andrey Glushkov"]
   spec.email = ["aglushkov@shakuro.com"]
 
-  spec.summary = "JSON Serializer for REST API"
+  spec.summary = "JSON Serializer"
   spec.description = <<~DESC
+    JSON Serializer
+
     - Simple and clear DSL
     - Ability to manually select serialized fields
     - Multiple ways to solve N+1 problems
