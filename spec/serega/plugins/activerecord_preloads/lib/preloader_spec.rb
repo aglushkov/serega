@@ -13,67 +13,91 @@ RSpec.describe Serega::SeregaPlugins::ActiverecordPreloads do
         expect(described_class.handlers).to eq [
           plugin::ActiverecordRelation,
           plugin::ActiverecordObject,
-          plugin::ActiverecordArray
+          plugin::ActiverecordArray,
+          plugin::ActiverecordEnumerator
         ]
       end
     end
 
     describe ".preload" do
-      it "raises error when can't find appropriate handler" do
-        preloads = {}
-
+      it "does nothing when object is nil" do
+        preloads = {foo: {}}
         object = nil
-        expect { described_class.preload(object, {}) }
-          .to raise_error Serega::SeregaError, "Can't preload #{preloads.inspect} to #{object.inspect}"
+        expect { described_class.preload(object, preloads) }.not_to raise_error
+      end
 
+      it "does nothing when object is empty array" do
+        preloads = {foo: {}}
         object = []
-        expect { described_class.preload(object, {}) }
-          .to raise_error Serega::SeregaError, "Can't preload #{preloads.inspect} to #{object.inspect}"
+        expect { described_class.preload(object, preloads) }.not_to raise_error
+      end
+
+      it "does nothing when preloads are empty" do
+        preloads = {}
+        object = 123
+        expect { described_class.preload(object, preloads) }.not_to raise_error
+      end
+
+      it "raises error when provided object does not support preloading" do
+        preloads = {foo: {}}
 
         object = 123
-        expect { described_class.preload(object, {}) }
-          .to raise_error Serega::SeregaError, "Can't preload #{preloads.inspect} to #{object.inspect}"
-
-        object = [AR::User.create!, AR::Comment.create!]
-        expect { described_class.preload(object, {}) }
+        expect { described_class.preload(object, preloads) }
           .to raise_error Serega::SeregaError, "Can't preload #{preloads.inspect} to #{object.inspect}"
       end
 
-      it "preloads data to activerecord object" do
+      it "raises error when providing different types of objects", :with_rollback do
+        preloads = {posts: {}}
+
+        object = [AR::User.create!, AR::Post.create!]
+        expect { described_class.preload(object, preloads) }
+          .to raise_error Serega::SeregaError, "Can't preload #{preloads.inspect} to #{object.inspect}"
+      end
+
+      it "preloads data to activerecord object", :with_rollback do
         user = AR::User.create!
 
-        result = described_class.preload(user, {comments: {}})
+        result = described_class.preload(user, {posts: {}})
 
         expect(result).to be user
-        expect(user.association(:comments).loaded?).to be true
+        expect(user.association(:posts).loaded?).to be true
       end
 
-      it "preloads data to activerecord array" do
+      it "preloads data to activerecord array", :with_rollback do
         user = AR::User.create!
 
         users = [user]
-        result = described_class.preload(users, {comments: {}})
+        result = described_class.preload(users, {posts: {}})
 
         expect(result).to be users
-        expect(result[0].association(:comments).loaded?).to be true
+        expect(result[0].association(:posts).loaded?).to be true
       end
 
-      it "preloads data to activerecord relation" do
+      it "preloads data to activerecord relation", :with_rollback do
         user = AR::User.create!
 
-        result = described_class.preload(AR::User.where(id: user.id), {comments: {}})
+        result = described_class.preload(AR::User.where(id: user.id), {posts: {}})
 
         expect(result).to eq [user]
-        expect(result[0].association(:comments).loaded?).to be true
+        expect(result[0].association(:posts).loaded?).to be true
       end
 
-      it "preloads data to loaded activerecord relation" do
+      it "preloads data to loaded activerecord relation", :with_rollback do
         user = AR::User.create!
 
-        result = described_class.preload(AR::User.where(id: user.id).load, {comments: {}})
+        result = described_class.preload(AR::User.where(id: user.id).load, {posts: {}})
 
         expect(result).to eq [user]
-        expect(result[0].association(:comments).loaded?).to be true
+        expect(result[0].association(:posts).loaded?).to be true
+      end
+
+      it "preloads data to enumerator", :with_rollback do
+        users = [AR::User.create!, AR::User.create!].each
+
+        result = described_class.preload(users, {posts: {}})
+
+        expect(result).to be users
+        expect(result.first.association(:posts).loaded?).to be true
       end
     end
   end

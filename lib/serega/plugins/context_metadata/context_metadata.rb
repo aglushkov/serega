@@ -15,7 +15,7 @@ class Serega
 
       def self.load_plugin(serializer_class, **_opts)
         serializer_class::SeregaConfig.include(ConfigInstanceMethods)
-        serializer_class::SeregaConvert.include(SeregaConvertInstanceMethods)
+        serializer_class::SeregaSerializer.include(SeregaSerializerInstanceMethods)
         serializer_class::CheckSerializeParams.include(CheckSerializeParamsInstanceMethods)
       end
 
@@ -44,7 +44,7 @@ class Serega
 
       module ConfigInstanceMethods
         def context_metadata
-          ContextMetadataConfig.new(opts.fetch(:context_metadata))
+          @context_metadata ||= ContextMetadataConfig.new(opts.fetch(:context_metadata))
         end
       end
 
@@ -57,8 +57,8 @@ class Serega
         end
       end
 
-      module SeregaConvertInstanceMethods
-        def to_h
+      module SeregaSerializerInstanceMethods
+        def serialize(object)
           super.tap do |hash|
             add_context_metadata(hash)
           end

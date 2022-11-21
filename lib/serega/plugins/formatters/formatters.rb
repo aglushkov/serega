@@ -7,6 +7,12 @@ class Serega
         :formatters
       end
 
+      def self.before_load_plugin(serializer_class, **opts)
+        if serializer_class.plugin_used?(:batch)
+          raise SeregaError, "Plugin `formatters` must be loaded before `batch`"
+        end
+      end
+
       def self.load_plugin(serializer_class, **_opts)
         serializer_class::SeregaConfig.include(ConfigInstanceMethods)
         serializer_class::SeregaAttribute.include(AttributeInstanceMethods)
@@ -35,21 +41,32 @@ class Serega
 
       module ConfigInstanceMethods
         def formatters
-          FormattersConfig.new(opts.fetch(:formatters))
+          @formatters ||= FormattersConfig.new(opts.fetch(:formatters))
         end
       end
 
       module AttributeInstanceMethods
+        def formatter
+          return @formatter if instance_variable_defined?(:@formatter)
+
+          @formatter = formatter_resolved
+        end
+
+        def formatter_resolved
+          formatter = opts[:format]
+          return unless formatter
+
+          formatter = self.class.serializer_class.config.formatters.opts.fetch(formatter) if formatter.is_a?(Symbol)
+          formatter
+        end
+
         def value_block
           return @value_block if instance_variable_defined?(:@value_block)
+          return @value_block = super unless formatter
 
-          original_block = super
-          formatter = opts[:format]
-          return original_block unless formatter
+          new_value_block = formatted_block(formatter, super)
 
-          new_value_block = formatted_block(formatter, original_block)
-
-          # Detect formatted :const value in advance
+          # Format :const value in advance
           if opts.key?(:const)
             const_value = new_value_block.call
             new_value_block = proc { const_value }
@@ -63,12 +80,7 @@ class Serega
         def formatted_block(formatter, original_block)
           proc do |object, context|
             value = original_block.call(object, context)
-
-            if formatter.is_a?(Symbol)
-              self.class.serializer_class.config.formatters.opts.fetch(formatter).call(value)
-            else
-              formatter.call(value)
-            end
+            formatter.call(value)
           end
         end
       end

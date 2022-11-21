@@ -69,6 +69,39 @@ RSpec.describe Serega::SeregaPlugins::Preloads do
     end
   end
 
+  describe "MapPointMethods" do
+    before { serializer_class.plugin :preloads }
+
+    def point(attribute, nested_points)
+      attribute.class.serializer_class::SeregaMapPoint.new(attribute, nested_points)
+    end
+
+    it "delegates #preloads_path to attribute" do
+      attribute = serializer_class.attribute :foo, preload: :bar
+      expect(attribute.preloads).to eq(bar: {})
+
+      point = serializer_class::SeregaMapPoint.new(attribute, nil)
+      expect(point.preloads_path).to eq([:bar])
+    end
+
+    it "constructs #preloads for all nested preloads" do
+      foo = serializer_class.attribute :foo, preload: :foo, serializer: serializer_class
+      bar = serializer_class.attribute :bar, preload: :bar, serializer: serializer_class
+
+      p = point(foo, nil)
+      expect(p.preloads).to eq({})
+
+      p = point(foo, [point(foo, nil)])
+      expect(p.preloads).to eq({foo: {}})
+
+      p = point(foo, [point(foo, nil), point(bar, nil)])
+      expect(p.preloads).to eq({foo: {}, bar: {}})
+
+      p = point(foo, [point(foo, nil), point(bar, [point(foo, nil)])])
+      expect(p.preloads).to eq({foo: {}, bar: {foo: {}}})
+    end
+  end
+
   describe "AttributeMethods" do
     before { serializer_class.plugin :preloads }
 

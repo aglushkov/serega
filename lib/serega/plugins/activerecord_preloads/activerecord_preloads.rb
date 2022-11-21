@@ -14,6 +14,10 @@ class Serega
       end
 
       def self.before_load_plugin(serializer_class, **opts)
+        if serializer_class.plugin_used?(:batch)
+          raise SeregaError, "Plugin `activerecord_preloads` must be loaded before `batch`"
+        end
+
         serializer_class.plugin(:preloads, **opts) unless serializer_class.plugin_used?(:preloads)
       end
 

@@ -77,7 +77,12 @@ class Serega
       def value_block
         return @value_block if instance_variable_defined?(:@value_block)
 
-        @value_block = block || opts[:value] || const_block || delegate_block || keyword_block
+        @value_block =
+          block ||
+          opts[:value] ||
+          const_block ||
+          delegate_block ||
+          keyword_block
       end
 
       #

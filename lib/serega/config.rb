@@ -15,8 +15,8 @@ class Serega
       serialize_keys: %i[context many].freeze,
       check_initiate_params: true,
       max_cached_map_per_serializer_count: 0,
-      to_json: SeregaJSON.adapter == :oj ? SeregaJSON::OjDump : SeregaJSON::JSONDump,
-      from_json: SeregaJSON.adapter == :oj ? SeregaJSON::OjLoad : SeregaJSON::JSONLoad
+      to_json: (SeregaJSON.adapter == :oj) ? SeregaJSON::OjDump : SeregaJSON::JSONDump,
+      from_json: (SeregaJSON.adapter == :oj) ? SeregaJSON::OjLoad : SeregaJSON::JSONLoad
     }.freeze
     # :nocov:
 

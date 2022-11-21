@@ -35,7 +35,7 @@ class Serega
       #
       def self.load_plugin(serializer_class, **_opts)
         serializer_class.extend(ClassMethods)
-        serializer_class::SeregaConvertItem.extend(SeregaConvertItemClassMethods)
+        serializer_class::SeregaSerializer.include(SeregaSerializerInstanceMethods)
       end
 
       #
@@ -94,13 +94,14 @@ class Serega
         end
       end
 
-      # Includes methods to override SeregaConvertItem class
-      module SeregaConvertItemClassMethods
+      # Includes methods to override SeregaSerializer class
+      module SeregaSerializerInstanceMethods
         #
         # Replaces serialized object with Presenter.new(object)
         #
-        def call(object, *)
-          object = serializer_class::Presenter.new(object)
+        def serialize(object)
+          presenter_class = points.first.class.serializer_class::Presenter
+          object = presenter_class.new(object)
           super
         end
       end

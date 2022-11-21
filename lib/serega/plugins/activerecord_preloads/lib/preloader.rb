@@ -6,6 +6,8 @@ class Serega
       class Preloader
         module ClassMethods
           def preload(object, preloads)
+            return object if object.nil? || (object.is_a?(Array) && object.empty?) || preloads.empty?
+
             preload_handler = handlers.find { |handler| handler.fit?(object) }
             raise SeregaError, "Can't preload #{preloads.inspect} to #{object.inspect}" unless preload_handler
 
@@ -13,7 +15,12 @@ class Serega
           end
 
           def handlers
-            @handlers ||= [ActiverecordRelation, ActiverecordObject, ActiverecordArray].freeze
+            @handlers ||= [
+              ActiverecordRelation,
+              ActiverecordObject,
+              ActiverecordArray,
+              ActiverecordEnumerator
+            ].freeze
           end
         end
 
@@ -54,13 +61,9 @@ class Serega
           end
 
           def preload(objects, preloads)
-            if objects.loaded?
-              array_objects = objects.to_a
-              Loader.call(array_objects, preloads)
-              objects
-            else
-              objects.preload(preloads).load
-            end
+            objects.load
+            Loader.call(objects.to_a, preloads)
+            objects
           end
         end
 
@@ -85,6 +88,22 @@ class Serega
           def same_kind?(objects)
             first_object_class = objects.first.class
             objects.all? { |object| object.instance_of?(first_object_class) }
+          end
+        end
+
+        extend ClassMethods
+      end
+
+      class ActiverecordEnumerator
+        module ClassMethods
+          def fit?(objects)
+            objects.is_a?(Enumerator) &&
+              ActiverecordArray.fit?(objects.to_a)
+          end
+
+          def preload(objects, preloads)
+            ActiverecordArray.preload(objects.to_a, preloads)
+            objects
           end
         end
 

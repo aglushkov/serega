@@ -3,6 +3,25 @@
 load_plugin_code :root
 
 RSpec.describe Serega::SeregaPlugins::Root do
+  describe "configuration" do
+    let(:serializer) { Class.new(Serega) { plugin :root } }
+
+    it "preserves root config" do
+      root1 = serializer.config.root
+      root2 = serializer.config.root
+      expect(root1).to be root2
+    end
+
+    it "allows to change root via #one= and #many= methods" do
+      root = serializer.config.root
+      root.one = :new_one
+      root.many = :new_many
+
+      expect(root.one).to eq :new_one
+      expect(root.many).to eq :new_many
+    end
+  end
+
   describe "serialization" do
     let(:response) { user_serializer.new.to_h(user) }
 

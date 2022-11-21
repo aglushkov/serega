@@ -53,7 +53,7 @@ class Serega
           name = attribute.to_sym
           attribute.clear
 
-          current_attrs = !path_stack || path_stack.empty? ? res : res.dig(*path_stack)
+          current_attrs = (!path_stack || path_stack.empty?) ? res : res.dig(*path_stack)
           current_attrs[name] = nested_attributes
 
           name

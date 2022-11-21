@@ -46,16 +46,17 @@ RSpec.describe Serega::SeregaMap do
     current_serializer::SeregaMap.call(opts)
   end
 
+  def point(attribute, nested_points)
+    attribute.class.serializer_class::SeregaMapPoint.new(attribute, nested_points)
+  end
+
   describe ".call" do
     it "returns all not hidden attributes by default" do
       result = map({})
       expected_result = [
-        [a.attributes[:a1], []],
-        [a.attributes[:a2], []],
-        [a.attributes[:d], [
-          [d.attributes[:d1], []],
-          [d.attributes[:d2], []]
-        ]]
+        point(a.attributes[:a1], nil),
+        point(a.attributes[:a2], nil),
+        point(a.attributes[:d], [point(d.attributes[:d1], nil), point(d.attributes[:d2], nil)])
       ]
 
       expect(result).to eq expected_result
@@ -64,10 +65,8 @@ RSpec.describe Serega::SeregaMap do
     it "returns only attributes from :only option" do
       result = map(only: {a2: {}, d: {d1: {}}}, except: {}, with: {})
       expected_result = [
-        [a.attributes[:a2], []],
-        [a.attributes[:d], [
-          [d.attributes[:d1], []]
-        ]]
+        point(a.attributes[:a2], nil),
+        point(a.attributes[:d], [point(d.attributes[:d1], nil)])
       ]
 
       expect(result).to eq expected_result
@@ -76,10 +75,8 @@ RSpec.describe Serega::SeregaMap do
     it "returns all not hidden attributes except provided in :except option" do
       result = map(only: {}, except: {a2: {}, d: {d1: {}}}, with: {})
       expected_result = [
-        [a.attributes[:a1], []],
-        [a.attributes[:d], [
-          [d.attributes[:d2], []]
-        ]]
+        point(a.attributes[:a1], nil),
+        point(a.attributes[:d], [point(d.attributes[:d2], nil)])
       ]
 
       expect(result).to eq expected_result
@@ -88,22 +85,12 @@ RSpec.describe Serega::SeregaMap do
     it "returns all not hidden attributes and attributes defined in :with option" do
       result = map(only: {}, except: {}, with: {a3: {}, b: {}, c: {c3: {}}})
       expected_result = [
-        [a.attributes[:a1], []],
-        [a.attributes[:a2], []],
-        [a.attributes[:a3], []],
-        [a.attributes[:b], [
-          [b.attributes[:b1], []],
-          [b.attributes[:b2], []]
-        ]],
-        [a.attributes[:c], [
-          [c.attributes[:c1], []],
-          [c.attributes[:c2], []],
-          [c.attributes[:c3], []]
-        ]],
-        [a.attributes[:d], [
-          [d.attributes[:d1], []],
-          [d.attributes[:d2], []]
-        ]]
+        point(a.attributes[:a1], nil),
+        point(a.attributes[:a2], nil),
+        point(a.attributes[:a3], nil),
+        point(a.attributes[:b], [point(b.attributes[:b1], nil), point(b.attributes[:b2], nil)]),
+        point(a.attributes[:c], [point(c.attributes[:c1], nil), point(c.attributes[:c2], nil), point(c.attributes[:c3], nil)]),
+        point(a.attributes[:d], [point(d.attributes[:d1], nil), point(d.attributes[:d2], nil)])
       ]
 
       expect(result).to eq expected_result
@@ -115,8 +102,8 @@ RSpec.describe Serega::SeregaMap do
       result1 = map(only: {a1: {}})
       result2 = map(only: {a1: {}})
 
-      expect(result1).to eq [[a.attributes[:a1], []]]
-      expect(result2).to eq [[a.attributes[:a1], []]]
+      expect(result1).to eq [point(a.attributes[:a1], nil)]
+      expect(result2).to eq [point(a.attributes[:a1], nil)]
       expect(result1).not_to equal result2
     end
 
@@ -125,8 +112,8 @@ RSpec.describe Serega::SeregaMap do
       result1 = map(only: {a1: {}})
       result2 = map(only: {a1: {}})
 
-      expect(result1).to eq [[a.attributes[:a1], []]]
-      expect(result2).to eq [[a.attributes[:a1], []]]
+      expect(result1).to eq [point(a.attributes[:a1], nil)]
+      expect(result2).to eq [point(a.attributes[:a1], nil)]
       expect(result1).to equal result2
     end
 
@@ -138,8 +125,8 @@ RSpec.describe Serega::SeregaMap do
 
       result2 = map(only: {a1: {}})
 
-      expect(result1).to eq [[a.attributes[:a1], []]]
-      expect(result2).to eq [[a.attributes[:a1], []]]
+      expect(result1).to eq [point(a.attributes[:a1], nil)]
+      expect(result2).to eq [point(a.attributes[:a1], nil)]
       expect(result1).not_to equal result2
     end
   end

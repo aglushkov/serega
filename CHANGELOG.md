@@ -1,5 +1,33 @@
 ## [Unreleased]
 
+- Add plugin :batch for batch loading
+  ```ruby
+    class PostSerializer < Serega
+      plugin :batch
+
+      # Define batch loader via callable class, it must accept three args (keys, context, nested_attributes)
+      attribute :comments_count, batch: { key: :id, loader: PostCommentsCountBatchLoader, default: 0}
+
+      # Define batch loader via Symbol, later we should define this loader via config.batch_loaders.define(:posts_comments_counter) { ... }
+      attribute :comments_count, batch: { key: :id, loader: :posts_comments_counter, default: 0}
+
+      # Define batch loader with serializer
+      attribute :comments, serializer: CommentSerializer, batch: { key: :id, loader: :posts_comments, default: []}
+
+      # Resulted block must return hash like { key => value(s) }
+      config.batch_loaders.define(:posts_comments_counter) do |keys|
+        Comment.group(:post_id).where(post_id: keys).count
+      end
+
+      # We can return objects that will be automatically serialized if attribute defined with :serializer
+      # Parameter `context` can be used when loading batch
+      # Parameter `points` can be used to find nested attributes that will be serialized
+      config.batch_loaders.define(:posts_comments) do |keys, context, points|
+        Comment.where(post_id: keys).where(is_spam: false).group_by(&:post_id)
+      end
+    end
+  ```
+
 ## [0.4.0] - 2022-09-20
 
 - Allow to provide formatters config when adding `formatters` plugin

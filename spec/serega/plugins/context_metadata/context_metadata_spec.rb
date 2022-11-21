@@ -30,8 +30,16 @@ RSpec.describe Serega::SeregaPlugins::ContextMetadata do
     it "allows to change context_metadata key config option" do
       serializer = Class.new(Serega) { plugin :context_metadata }
 
-      serializer.config.context_metadata.key = :foo
+      context_metadata = serializer.config.context_metadata
+      context_metadata.key = :foo
       expect(serializer.config.context_metadata.key).to eq :foo
+    end
+
+    it "preserves context_metadata" do
+      serializer = Class.new(Serega) { plugin :context_metadata }
+      context_metadata1 = serializer.config.context_metadata
+      context_metadata2 = serializer.config.context_metadata
+      expect(context_metadata1).to be context_metadata2
     end
   end
 
@@ -108,9 +116,9 @@ RSpec.describe Serega::SeregaPlugins::ContextMetadata do
 
       it "merges metadata" do
         opts = {meta: {foo: {two: "two", three: "three"}}}
-        response = serializer.new.to_h(nil, **opts)
+        response = serializer.new.to_h([], **opts)
         expect(response).to eq(
-          data: {},
+          data: [],
           foo: {one: 1, two: "two", three: "three"}
         )
       end

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Serega::SeregaConvert do
+RSpec.describe Serega::SeregaSerializer do
   subject(:result) { user_serializer.new(**modifiers).to_h(user, context: context) }
 
   let(:user_serializer) do
@@ -11,14 +11,6 @@ RSpec.describe Serega::SeregaConvert do
   end
   let(:context) { {} }
   let(:modifiers) { {} }
-
-  context "with nil object" do
-    let(:user) { nil }
-
-    it "returns empty hash" do
-      expect(result).to eq({})
-    end
-  end
 
   context "with empty array" do
     let(:user) { [] }
