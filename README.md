@@ -9,11 +9,11 @@
 
   It has also some great features:
   
-    * Manually select serialized fields
-    * Built-in object presenter ([presenter] plugin)
-    * Solution for N+1 problem (via [batch], [preloads] or [activerecord_preloads] plugins)
-    * Custom metadata (via [metadata] or [context_metadata] plugins)
-    * Custom attribute formatters ([formatters] plugin)
+  - Manually select serialized fields
+  - Built-in object presenter ([presenter][presenter] plugin)
+  - Solution for N+1 problem (via [batch][batch], [preloads][preloads] or [activerecord_preloads][activerecord_preloads] plugins)
+  - Custom metadata (via [metadata][metadata] or [context_metadata][context_metadata] plugins)
+  - Custom attribute formatters ([formatters][formatters] plugin)
 
 ## Installation
   ```
@@ -139,6 +139,8 @@
 
       # Option :hide specifies attributes that should not be serialized by default
       # They can be serialized only when directly requested by modifiers :with or :only
+      #
+      #    UserSerializer.to_h(users, with: :tags)
       attribute :tags, hide: true
 
       # Option :delegate
@@ -198,14 +200,14 @@
       config.from_json = ->(data) { Oj.load(data) }
 
       # Skip/enable validation of modifiers params `with`, `except`, `only`
-      # It can be useful to save some processing time.
+      # It can be useful to save some small amount of processing time if you know attributes are correct.
       config.check_initiate_params = false # default is true, enabled
 
       # Store structs with lists of serialized attributes to not recalculate them for each serialization.
       # This can slightly increase performance.
       # We store 1 cached_map per serialization, cached_key is combined
       # `with`, `except`, `only` serialization options.
-      # Better do benchmark first your serialization use case.
+      # Better do benchmark for your serialization use case.
       config.max_cached_map_per_serializer_count = 50 # default is 0, disabled
 
       # With context_metadata plugin:
@@ -291,6 +293,8 @@
 
   If `:loader` was defined via Symbol then batch loader must be defined using `config.batch_loaders.define(:loader_name) { ... }` method.
   Result of this block must be a Hash with provided keys.
+
+  Batch loader works well with [`activerecord_preloads`][plugin-activerecord_preloads] plugin
 
   ```ruby
     class PostSerializer < Serega
@@ -462,7 +466,9 @@
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rspec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `VERSION` file, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+To install this gem onto your local machine, run `bundle install`.
+
+To release a new version, read [RELEASE.md](https://github.com/aglushkov/serega/blob/master/RELEASE.md).
 
 ## Contributing
 
@@ -471,3 +477,15 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/aglush
 ## License
 
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+
+
+Links
+-----
+
+[activerecord_preloads]: #plugin-activerecord_preloads
+[batch]: #plugin-batch
+[context_metadata]: #plugin-context_metadata
+[formatters]: #plugin-formatters
+[metadata]: #plugin-metadata
+[preloads]: #plugin-preloads
+[presenter]: #plugin-presenter
