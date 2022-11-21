@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [0.5.0] - 2022-11-21
+
 - Add plugin :batch for batch loading
   ```ruby
     class PostSerializer < Serega
