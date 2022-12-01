@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+- Make batch loader to accept current point instead of nested points as 3rd parameter.
+
+  It becomes easier to find preloads by asking `point.preloads`
+
 ## [0.5.2] - 2022-11-21
 
 - Change gem description again

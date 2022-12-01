@@ -4,11 +4,11 @@ load_plugin_code :batch
 
 RSpec.describe Serega::SeregaPlugins::Batch::CheckBatchOptLoader do
   let(:block_parameters_error) do
-    "Invalid :batch option :loader. When it is a Proc it can have maximum three regular parameters (keys, context, points)"
+    "Invalid :batch option :loader. When it is a Proc it can have maximum three regular parameters (keys, context, point)"
   end
 
   let(:callable_parameters_error) do
-    "Invalid :batch option :loader. When it is a callable object it must have three regular parameters (keys, context, points)"
+    "Invalid :batch option :loader. When it is a callable object it must have three regular parameters (keys, context, point)"
   end
 
   let(:must_be_callable) do

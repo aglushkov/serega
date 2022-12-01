@@ -2,6 +2,39 @@
 
 RSpec.describe Serega::SeregaMap do
   let(:base_class) { Class.new(Serega) }
+  let(:a) do
+    ser = Class.new(base_class)
+
+    ser.attribute :a1
+    ser.attribute :a2
+    ser.attribute :a3, hide: true
+
+    ser.attribute :b, serializer: b, hide: true
+    ser.attribute :c, serializer: c, hide: true
+    ser.attribute :d, serializer: d
+    ser
+  end
+  let(:b) do
+    ser = Class.new(base_class)
+    ser.attribute :b1
+    ser.attribute :b2
+    ser.attribute :b3, hide: true
+    ser
+  end
+  let(:c) do
+    ser = Class.new(base_class)
+    ser.attribute :c1
+    ser.attribute :c2
+    ser.attribute :c3, hide: true
+    ser
+  end
+  let(:d) do
+    ser = Class.new(base_class)
+    ser.attribute :d1
+    ser.attribute :d2
+    ser.attribute :d3, hide: true
+    ser
+  end
   let(:current_serializer) { a }
   let(:described_class) { current_serializer::SeregaMap }
 
@@ -15,43 +48,6 @@ RSpec.describe Serega::SeregaMap do
       end
 
     Serega::SeregaMapPoint.include(comparable)
-  end
-
-  let(:a) do
-    ser = Class.new(base_class)
-
-    ser.attribute :a1
-    ser.attribute :a2
-    ser.attribute :a3, hide: true
-
-    ser.attribute :b, serializer: b, hide: true
-    ser.attribute :c, serializer: c, hide: true
-    ser.attribute :d, serializer: d
-    ser
-  end
-
-  let(:b) do
-    ser = Class.new(base_class)
-    ser.attribute :b1
-    ser.attribute :b2
-    ser.attribute :b3, hide: true
-    ser
-  end
-
-  let(:c) do
-    ser = Class.new(base_class)
-    ser.attribute :c1
-    ser.attribute :c2
-    ser.attribute :c3, hide: true
-    ser
-  end
-
-  let(:d) do
-    ser = Class.new(base_class)
-    ser.attribute :d1
-    ser.attribute :d2
-    ser.attribute :d3, hide: true
-    ser
   end
 
   def map(opts)

@@ -44,11 +44,11 @@ class Serega
           end
 
           def block_parameters_error
-            "Invalid :batch option :loader. When it is a Proc it can have maximum three regular parameters (keys, context, points)"
+            "Invalid :batch option :loader. When it is a Proc it can have maximum three regular parameters (keys, context, point)"
           end
 
           def callable_parameters_error
-            "Invalid :batch option :loader. When it is a callable object it must have three regular parameters (keys, context, points)"
+            "Invalid :batch option :loader. When it is a callable object it must have three regular parameters (keys, context, point)"
           end
 
           def must_be_callable
