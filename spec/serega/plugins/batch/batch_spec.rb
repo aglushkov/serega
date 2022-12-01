@@ -207,6 +207,14 @@ RSpec.describe Serega::SeregaPlugins::Batch do
           ]
         )
       end
+
+      it "works when caching enabled" do
+        user_serializer.config.max_cached_map_per_serializer_count = 10
+
+        first_result = user_serializer.to_h(users)
+        second_result = user_serializer.to_h(users)
+        expect(first_result).to eq second_result
+      end
     end
 
     context "with not a resulted Hash batch loaded value" do
@@ -265,6 +273,14 @@ RSpec.describe Serega::SeregaPlugins::Batch do
             {first_name: "USER2", status: {text: "TEXT2"}}
           ]
         )
+      end
+
+      it "works when caching enabled" do
+        user_serializer.config.max_cached_map_per_serializer_count = 10
+
+        first_result = user_serializer.to_h(users)
+        second_result = user_serializer.to_h(users)
+        expect(first_result).to eq second_result
       end
     end
 
