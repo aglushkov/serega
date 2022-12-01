@@ -21,11 +21,6 @@ class Serega
       def nested_object_serializer
         attribute.serializer::SeregaObjectSerializer
       end
-
-      # TODO: remove, we use this method in tests only
-      def ==(other)
-        (other.attribute == attribute) && (other.nested_points == nested_points)
-      end
     end
 
     extend Serega::SeregaHelpers::SerializerClassHelper
