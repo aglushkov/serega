@@ -2,9 +2,6 @@
 
 RSpec.describe Serega::SeregaMap do
   let(:base_class) { Class.new(Serega) }
-  let(:current_serializer) { a }
-  let(:described_class) { current_serializer::SeregaMap }
-
   let(:a) do
     ser = Class.new(base_class)
 
@@ -17,7 +14,6 @@ RSpec.describe Serega::SeregaMap do
     ser.attribute :d, serializer: d
     ser
   end
-
   let(:b) do
     ser = Class.new(base_class)
     ser.attribute :b1
@@ -25,7 +21,6 @@ RSpec.describe Serega::SeregaMap do
     ser.attribute :b3, hide: true
     ser
   end
-
   let(:c) do
     ser = Class.new(base_class)
     ser.attribute :c1
@@ -33,13 +28,26 @@ RSpec.describe Serega::SeregaMap do
     ser.attribute :c3, hide: true
     ser
   end
-
   let(:d) do
     ser = Class.new(base_class)
     ser.attribute :d1
     ser.attribute :d2
     ser.attribute :d3, hide: true
     ser
+  end
+  let(:current_serializer) { a }
+  let(:described_class) { current_serializer::SeregaMap }
+
+  # Allow to compare map points
+  before do
+    comparable =
+      Module.new do
+        def ==(other)
+          (other.attribute == attribute) && (other.nested_points == nested_points)
+        end
+      end
+
+    Serega::SeregaMapPoint.include(comparable)
   end
 
   def map(opts)

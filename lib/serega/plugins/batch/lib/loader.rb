@@ -39,7 +39,7 @@ class Serega
           def keys_values
             ids = keys.keys
 
-            point.batch.loader.call(ids, object_serializer.context, point.nested_points).tap do |vals|
+            point.batch.loader.call(ids, object_serializer.context, point).tap do |vals|
               next if vals.is_a?(Hash)
 
               attribute_name = "#{point.class.serializer_class}.#{point.name}"

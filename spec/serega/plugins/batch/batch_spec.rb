@@ -185,8 +185,8 @@ RSpec.describe Serega::SeregaPlugins::Batch do
           plugin :batch
 
           attribute :first_name
-          attribute :online_time, batch: {key: :online_id, loader: proc { |_ids, _ctx, _points| {1 => 10, 2 => 20} }}
-          attribute :offline_time, batch: {key: :offline_id, loader: proc { |_ids, _ctx, _points| {3 => 30, 4 => 40} }}
+          attribute :online_time, batch: {key: :online_id, loader: proc { |_ids, _ctx, _point| {1 => 10, 2 => 20} }}
+          attribute :offline_time, batch: {key: :offline_id, loader: proc { |_ids, _ctx, _point| {3 => 30, 4 => 40} }}
         end
       end
 
@@ -207,9 +207,17 @@ RSpec.describe Serega::SeregaPlugins::Batch do
           ]
         )
       end
+
+      it "works when caching enabled" do
+        user_serializer.config.max_cached_map_per_serializer_count = 10
+
+        first_result = user_serializer.to_h(users)
+        second_result = user_serializer.to_h(users)
+        expect(first_result).to eq second_result
+      end
     end
 
-    context "with not a resulted Hash batch loaded value" do
+    context "when batch result is not a Hash" do
       let(:user_serializer) do
         Class.new(Serega) do
           plugin :batch
@@ -219,7 +227,7 @@ RSpec.describe Serega::SeregaPlugins::Batch do
 
       let(:user) { double(first_name: "USER1", online_id: 1) }
 
-      it "raises correct error" do
+      it "raises error" do
         expect { user_serializer.to_h(user) }
           .to raise_error Serega::SeregaError, "Batch loader for `#{user_serializer}.online_time` must return Hash, but #{1.inspect} was returned"
       end
@@ -240,7 +248,7 @@ RSpec.describe Serega::SeregaPlugins::Batch do
 
           attribute :first_name
           attribute :status, serializer: child_serializer,
-            batch: {key: :status_id, loader: proc { |ids, _ctx, _points| {1 => all_statuses[0], 2 => all_statuses[1]} }}
+            batch: {key: :status_id, loader: proc { |ids, _ctx, _point| {1 => all_statuses[0], 2 => all_statuses[1]} }}
         end
       end
 
@@ -266,6 +274,14 @@ RSpec.describe Serega::SeregaPlugins::Batch do
           ]
         )
       end
+
+      it "works when caching enabled" do
+        user_serializer.config.max_cached_map_per_serializer_count = 10
+
+        first_result = user_serializer.to_h(users)
+        second_result = user_serializer.to_h(users)
+        expect(first_result).to eq second_result
+      end
     end
 
     context "with batch load inside batch_load" do
@@ -273,7 +289,7 @@ RSpec.describe Serega::SeregaPlugins::Batch do
         Class.new(Serega) do
           plugin :batch
           attribute :name,
-            batch: {key: :id, loader: proc { |ids, _ctx, _points| {1 => "draft", 2 => "published"} }}
+            batch: {key: :id, loader: proc { |ids, _ctx, _point| {1 => "draft", 2 => "published"} }}
         end
       end
 
@@ -283,7 +299,7 @@ RSpec.describe Serega::SeregaPlugins::Batch do
         Class.new(Serega) do
           plugin :batch
           attribute :status, serializer: st_serializer,
-            batch: {key: :status_id, loader: proc { |ids, _ctx, _points| {1 => all_statuses[0], 2 => all_statuses[1]} }}
+            batch: {key: :status_id, loader: proc { |ids, _ctx, _point| {1 => all_statuses[0], 2 => all_statuses[1]} }}
         end
       end
 
@@ -295,7 +311,7 @@ RSpec.describe Serega::SeregaPlugins::Batch do
           attribute :first_name
           attribute :post,
             serializer: pst_serializer,
-            batch: {key: :post_id, loader: proc { |ids, _ctx, _points| {1 => all_posts[0], 2 => all_posts[1]} }}
+            batch: {key: :post_id, loader: proc { |ids, _ctx, _point| {1 => all_posts[0], 2 => all_posts[1]} }}
         end
       end
 
@@ -322,10 +338,10 @@ RSpec.describe Serega::SeregaPlugins::Batch do
           attribute :first_name
 
           attribute :post,
-            batch: {key: :post_id, loader: proc { |ids, _ctx, _points| {123 => "123", 234 => "234"} }}
+            batch: {key: :post_id, loader: proc { |ids, _ctx, _point| {123 => "123", 234 => "234"} }}
 
           attribute :post_reverse,
-            batch: {key: :post_id, loader: proc { |ids, _ctx, _points| {123 => "123", 234 => "234"} }},
+            batch: {key: :post_id, loader: proc { |ids, _ctx, _point| {123 => "123", 234 => "234"} }},
             format: proc { |value| value.reverse }
         end
       end

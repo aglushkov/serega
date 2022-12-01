@@ -2,6 +2,7 @@
 --title 'Serega API Documentation'
 --charset utf-8
 --markup markdown
+--markup-provider redcarpet
 --output-dir .yardoc
 --use-cache '.yardoc/cache'
 'lib/**/*.rb'

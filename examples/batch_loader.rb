@@ -45,6 +45,11 @@ ActiveRecord::Schema.define do
     t.integer :user_id
     t.string :text
   end
+
+  create_table :views, force: true do |t|
+    t.integer :comment_id
+    t.integer :count
+  end
 end
 
 # Models
@@ -60,6 +65,11 @@ end
 class Comment < ActiveRecord::Base
   belongs_to :post, optional: true
   belongs_to :user, optional: true
+  has_one :view
+end
+
+class View < ActiveRecord::Base
+  belongs_to :comment, optional: true
 end
 
 # Data
@@ -70,10 +80,15 @@ user3 = User.create!(first_name: "Jane", last_name: "Doe")
 post1 = Post.create!(user: user1, text: "post1")
 post2 = Post.create!(user: user1, text: "post2")
 
-Comment.create!(user: user1, post: post1, text: "comment1")
-Comment.create!(user: user2, post: post1, text: "comment2")
-Comment.create!(user: user3, post: post2, text: "comment3")
-Comment.create!(user: user1, post: post2, text: "comment4")
+comment1 = Comment.create!(user: user1, post: post1, text: "comment1")
+comment2 = Comment.create!(user: user2, post: post1, text: "comment2")
+comment3 = Comment.create!(user: user3, post: post2, text: "comment3")
+comment4 = Comment.create!(user: user1, post: post2, text: "comment4")
+
+View.create!(comment: comment1, count: 1)
+View.create!(comment: comment2, count: 2)
+View.create!(comment: comment3, count: 3)
+View.create!(comment: comment4, count: 4)
 
 def groups(keys, values, by:, default: nil)
   data =
@@ -92,11 +107,12 @@ def groups(keys, values, by:, default: nil)
 end
 
 # Serializers
-class SimpleSerializer < Serega
+class AppSerializer < Serega
   plugin :batch
+  plugin :preloads
 end
 
-class UserSerializer < SimpleSerializer
+class UserSerializer < AppSerializer
   attribute :first_name
   attribute :last_name
   attribute :posts, serializer: "PostSerializer", many: true, batch: {key: :id, loader: :users_posts}
@@ -114,12 +130,14 @@ class UserSerializer < SimpleSerializer
   end
 end
 
-class PostSerializer < SimpleSerializer
+class PostSerializer < AppSerializer
   attribute :text
   attribute :comments, serializer: "CommentSerializer", many: true, batch: {key: :id, loader: :posts_comments}
 
-  config.batch_loaders.define(:posts_comments) do |ids|
-    Comment.where(post_id: ids).each_with_object({}) do |comment, groups|
+  config.batch_loaders.define(:posts_comments) do |ids, _ctx, point|
+    scope = Comment.preload(point.preloads)
+    scope = scope.where(post_id: ids)
+    scope.each_with_object({}) do |comment, groups|
       key = comment.post_id
 
       if groups.has_key?(key)
@@ -131,8 +149,9 @@ class PostSerializer < SimpleSerializer
   end
 end
 
-class CommentSerializer < SimpleSerializer
+class CommentSerializer < AppSerializer
   attribute :text
+  attribute :views_count, key: :count, delegate: {to: :view}, preload: :view
 end
 
 # We need to show just DB queries in this examples to show we have no N+1
