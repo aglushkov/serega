@@ -20,13 +20,13 @@ class Serega
     #     end
     #   end
     module Presenter
-      # @return [Symbol] plugin name
+      # @return [Symbol] Plugin name
       def self.plugin_name
         :presenter
       end
 
       #
-      # Loads plugin
+      # Applies plugin code to specific serializer
       #
       # @param serializer_class [Class<Serega>] Current serializer class
       # @param _opts [Hash] Loaded plugins options
@@ -39,10 +39,10 @@ class Serega
       end
 
       #
-      # Adds Presenter to current serializer
+      # Runs callbacks after plugin was attached
       #
       # @param serializer_class [Class<Serega>] Current serializer class
-      # @param _opts [Hash] Loaded plugins options
+      # @param opts [Hash] loaded plugins opts
       #
       # @return [void]
       #

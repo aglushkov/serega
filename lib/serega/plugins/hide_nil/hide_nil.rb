@@ -7,16 +7,16 @@ class Serega
     # if value is nil
     #
     module HideNil
-      # @return [Symbol] plugin name
+      # @return [Symbol] Plugin name
       def self.plugin_name
         :hide_nil
       end
 
       #
-      # Includes plugin modules to current serializer
+      # Applies plugin code to specific serializer
       #
-      # @param serializer_class [Class] current serializer class
-      # @param _opts [Hash] plugin opts
+      # @param serializer_class [Class<Serega>] Current serializer class
+      # @param _opts [Hash] Loaded plugins options
       #
       # @return [void]
       #
@@ -26,6 +26,14 @@ class Serega
         serializer_class::SeregaObjectSerializer.include(SeregaObjectSerializerInstanceMethods)
       end
 
+      #
+      # Adds config options and runs other callbacks after plugin was loaded
+      #
+      # @param serializer_class [Class<Serega>] Current serializer class
+      # @param opts [Hash] loaded plugins opts
+      #
+      # @return [void]
+      #
       def self.after_load_plugin(serializer_class, **opts)
         serializer_class.config.attribute_keys << :hide_nil
       end

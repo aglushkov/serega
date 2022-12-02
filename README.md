@@ -399,7 +399,13 @@ end
 
 ### Plugin :metadata
 
-Allows to add `meta_attribute` to serializers. Meta attributes
+Allows to add meta attributes to serializers. Currently serialized `object` and `context` are sent to `meta_attribute` block.
+
+`.meta_attribute` method accepts this arguments:
+- `*path` - path to serialized meta value in response, for example for path `*[:foo, :bar]` and value `bazz`, response will contain `{foo: {bar: 'bazz'}}`
+- `opts` - currently allows two boolean options - `:hide_empty` and `:hide_nil` to hide metdadata when value is empty or nil.
+
+When enabling `:metadata` plugin, plugin `:root` is also loaded, as metadata can be added only to hash. You can change default root key like this: `plugin: metadata, root: :response # or root_one: :object, root_many: :objects`
 
 ```ruby
 class AppSerializer < Serega

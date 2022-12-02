@@ -1,17 +1,45 @@
 # frozen_string_literal: true
 
 class Serega
+  #
+  # Validations
+  #
   module SeregaValidations
+    #
+    # Validations for attribute params
+    #
     class CheckAttributeParams
+      #
+      # Validations for attribute params instance methods
+      #
       module InstanceMethods
-        attr_reader :name, :opts, :block
+        # @return [Symbol] validated attribute name
+        attr_reader :name
 
+        # @return [Hash] validated attribute options
+        attr_reader :opts
+
+        # @return [nil, Proc] validated attribute block
+        attr_reader :block
+
+        #
+        # Initializes attribute params validator
+        #
+        # @param name [Symbol] attribute name
+        # @param opts [Hash] attribute options
+        # @param block [nil, Proc] block provided to attribute
+        #
+        # @return [void]
+        #
         def initialize(name, opts, block)
           @name = name
           @opts = opts
           @block = block
         end
 
+        #
+        # Validates attribute params
+        #
         def validate
           check_name
           check_opts

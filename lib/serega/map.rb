@@ -1,8 +1,25 @@
 # frozen_string_literal: true
 
 class Serega
+  #
+  # Constructs map of attributes that should be serialized.
+  # We will traverse this map to construct serialized response.
+  #
   class SeregaMap
+    #
+    # SeregaMap class methods
+    #
     module ClassMethods
+      #
+      # Constructs map of attributes that should be serialized.
+      #
+      # @param opts Serialization parameters
+      # @option opts [Hash] :only The only attributes to serialize
+      # @option opts [Hash] :except Attributes to hide
+      # @option opts [Hash] :with Attributes (usually hidden) to serialize additionally
+      #
+      # @return [Array<Serega::SeregaMapPoint>] map
+      #
       def call(opts)
         max_cache_size = serializer_class.config.max_cached_map_per_serializer_count
         return map_for(opts) if max_cache_size.zero?

@@ -21,9 +21,12 @@ end
 require "active_record"
 require "logger"
 
+logger = Logger.new($stdout)
+logger.level = Logger::INFO
+logger.formatter = proc { |severity, datetime, progname, msg| msg << "\n" }
+ActiveRecord::Base.logger = logger
+ActiveSupport::LogSubscriber.colorize_logging = false
 ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: ":memory:")
-ActiveRecord::Base.logger = Logger.new($stdout)
-ActiveRecord::Base.logger.level = Logger::INFO
 
 # Schema (user has many posts, post has many comments)
 ActiveRecord::Schema.define do
@@ -73,50 +76,42 @@ Comment.create!(user: user3, post: post2, text: "comment3")
 Comment.create!(user: user1, post: post2, text: "comment4")
 
 # Serializers
-class SimpleSerializer < Serega
-  plugin :activerecord_preloads
+class AppSerializer < Serega
+  plugin :activerecord_preloads,
+    auto_preload_attributes_with_serializer: true,
+    auto_preload_attributes_with_delegate: true,
+    auto_hide_attributes_with_preload: false
 end
 
-class UserSerializer < SimpleSerializer
+class UserSerializer < AppSerializer
   attribute :first_name
   attribute :last_name
   attribute :posts, serializer: -> { PostSerializer }
 end
 
-class PostSerializer < SimpleSerializer
+class PostSerializer < AppSerializer
   attribute :text
   attribute :comments, serializer: -> { CommentSerializer }
 end
 
-class CommentSerializer < SimpleSerializer
+class CommentSerializer < AppSerializer
   attribute :text
   # attribute :user, serializer: -> { UserSerializer }
 end
 
 # We need to show just DB queries in this examples to show we have no N+1
-UserSerializer.include(
+LogQueries =
   Module.new do
-    def to_h(*)
-      old_level = ActiveRecord::Base.logger.level
+    def serialize(*)
       ActiveRecord::Base.logger.level = Logger::DEBUG
       super
     ensure
-      ActiveRecord::Base.logger.level = old_level
+      ActiveRecord::Base.logger.level = Logger::INFO
     end
   end
-)
 
-CommentSerializer.include(
-  Module.new do
-    def to_h(*)
-      old_level = ActiveRecord::Base.logger.level
-      ActiveRecord::Base.logger.level = Logger::DEBUG
-      super
-    ensure
-      ActiveRecord::Base.logger.level = old_level
-    end
-  end
-)
+UserSerializer::SeregaSerializer.include(LogQueries)
+CommentSerializer::SeregaSerializer.include(LogQueries)
 
 def example(message)
   puts
@@ -128,7 +123,7 @@ def example(message)
 end
 
 example("Single object:") do
-  UserSerializer.new.to_h(user1.reload)
+  UserSerializer.new.call(user1.reload)
 end
 
 example("Single object with created post:") do

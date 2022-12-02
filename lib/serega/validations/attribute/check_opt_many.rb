@@ -3,6 +3,9 @@
 class Serega
   module SeregaValidations
     module Attribute
+      #
+      # Attribute `:many` option validator
+      #
       class CheckOptMany
         #
         # Checks attribute :many option

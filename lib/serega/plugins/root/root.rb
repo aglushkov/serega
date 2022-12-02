@@ -6,16 +6,33 @@ class Serega
       # @return [Symbol] Default response root key
       ROOT_DEFAULT = :data
 
+      # @return [Symbol] Plugin name
       def self.plugin_name
         :root
       end
 
+      #
+      # Applies plugin code to specific serializer
+      #
+      # @param serializer_class [Class<Serega>] Current serializer class
+      # @param _opts [Hash] Loaded plugins options
+      #
+      # @return [void]
+      #
       def self.load_plugin(serializer_class, **_opts)
         serializer_class.extend(ClassMethods)
         serializer_class::SeregaConfig.include(ConfigInstanceMethods)
         serializer_class::SeregaSerializer.include(SerializerInstanceMethods)
       end
 
+      #
+      # Adds config options and runs other callbacks after plugin was loaded
+      #
+      # @param serializer_class [Class<Serega>] Current serializer class
+      # @param opts [Hash] loaded plugins opts
+      #
+      # @return [void]
+      #
       def self.after_load_plugin(serializer_class, **opts)
         config = serializer_class.config
         default = opts[:root] || ROOT_DEFAULT
@@ -30,8 +47,8 @@ class Serega
         # Configures response root key
         #
         # @param root [String, Symbol] Specifies common root when serializing one or multiple objects
-        # @param root_one [String, Symbol] Specifies root when serializing one object
-        # @param root_many [String, Symbol] Specifies root when serializing multiple objects
+        # @param one [String, Symbol] Specifies root when serializing one object
+        # @param many [String, Symbol] Specifies root when serializing multiple objects
         #
         # @return [Hash] Configured root names
         #

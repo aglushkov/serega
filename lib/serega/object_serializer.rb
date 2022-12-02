@@ -1,13 +1,22 @@
 # frozen_string_literal: true
 
 class Serega
+  #
+  # Low-level class that is used by more high-level SeregaSerializer
+  # to construct serialized to hash response
+  #
   class SeregaObjectSerializer
-    module SeregaObjectSerializerInstanceMethods
+    #
+    # SeregaObjectSerializer instance methods
+    #
+    module InstanceMethods
       attr_reader :context, :points, :many, :opts
 
       # @param context [Hash] Serialization context
       # @param many [TrueClass|FalseClass] is object is enumerable
       # @param points [Array<MapPoint>] Serialization points (attributes)
+      #
+      # @return [SeregaObjectSerializer] New SeregaObjectSerializer
       def initialize(context:, points:, many: nil, **opts)
         @context = context
         @points = points
@@ -15,7 +24,11 @@ class Serega
         @opts = opts
       end
 
+      # Serializes object(s)
+      #
       # @param object [Object] Serialized object
+      #
+      # @return [Hash, Array<Hash>] Serialized object(s)
       def serialize(object)
         array?(object, many) ? serialize_array(object) : serialize_object(object)
       end
@@ -62,6 +75,6 @@ class Serega
     end
 
     extend Serega::SeregaHelpers::SerializerClassHelper
-    include SeregaObjectSerializerInstanceMethods
+    include InstanceMethods
   end
 end

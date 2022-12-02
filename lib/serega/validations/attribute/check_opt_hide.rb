@@ -3,6 +3,9 @@
 class Serega
   module SeregaValidations
     module Attribute
+      #
+      # Attribute `:hide` option validator
+      #
       class CheckOptHide
         #
         # Checks attribute :hide option

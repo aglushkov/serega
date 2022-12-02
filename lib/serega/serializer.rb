@@ -3,27 +3,34 @@
 class Serega
   class SeregaSerializer
     module SeregaSerializerInstanceMethods
+      # @param serializer [Serega] Current serializer
       # @param context [Hash] Serialization context
-      # @param many [TrueClass|FalseClass] is object is enumerable
-      # @param points [Array<MapPoint>] Serialization points (attributes)
+      # @param many [Boolean] whether you will provide multiple objects to serialize
       # @param opts [Hash] Any custom options
-      def initialize(context:, points:, many: nil, **opts)
+      def initialize(serializer:, context:, many: nil, **opts)
+        @serializer = serializer
         @context = context
-        @points = points
         @many = many
         @opts = opts
+        @points = serializer.map
       end
 
-      # @param object [Object] Serialized object
+      #
+      # Serializes object to Hash or to Array of Hashes.
+      #
+      # @param object [Object] object(s) to serialize
+      #
+      # @return [Hash, Array<Hash>] Serialized object(s)
+      #
       def serialize(object)
-        self.class.serializer_class::SeregaObjectSerializer
+        serializer.class::SeregaObjectSerializer
           .new(context: context, points: points, many: many, **opts)
           .serialize(object)
       end
 
       private
 
-      attr_reader :context, :points, :many, :opts
+      attr_reader :serializer, :context, :points, :many, :opts
     end
 
     extend Serega::SeregaHelpers::SerializerClassHelper

@@ -12,16 +12,16 @@ class Serega
         auto_hide_attributes_with_preload: false
       }.freeze
 
-      # @return [Symbol] plugin name
+      # @return [Symbol] Plugin name
       def self.plugin_name
         :preloads
       end
 
       #
-      # Includes plugin modules to current serializer
+      # Applies plugin code to specific serializer
       #
-      # @param serializer_class [Class] current serializer class
-      # @param _opts [Hash] plugin opts
+      # @param serializer_class [Class<Serega>] Current serializer class
+      # @param _opts [Hash] Loaded plugins options
       #
       # @return [void]
       #
@@ -41,6 +41,14 @@ class Serega
         require_relative "./validations/check_opt_preload_path"
       end
 
+      #
+      # Adds config options and runs other callbacks after plugin was loaded
+      #
+      # @param serializer_class [Class<Serega>] Current serializer class
+      # @param opts [Hash] loaded plugins opts
+      #
+      # @return [void]
+      #
       def self.after_load_plugin(serializer_class, **opts)
         config = serializer_class.config
         config.attribute_keys << :preload << :preload_path

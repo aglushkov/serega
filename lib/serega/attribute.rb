@@ -2,11 +2,11 @@
 
 class Serega
   #
-  # Stores Attribute data
+  # Stores serialized attribute data
   #
   class SeregaAttribute
     #
-    # Stores Attribute instance methods
+    # Attribute instance methods
     #
     module AttributeInstanceMethods
       # @return [Symbol] Attribute name

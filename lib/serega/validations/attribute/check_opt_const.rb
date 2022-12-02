@@ -3,17 +3,20 @@
 class Serega
   module SeregaValidations
     module Attribute
+      #
+      # Attribute `:const` option validator
+      #
       class CheckOptConst
-        #
-        # Checks attribute :const option
-        #
-        # @param opts [Hash] Attribute options
-        #
-        # @raise [SeregaError] Attribute validation error
-        #
-        # @return [void]
-        #
         class << self
+          #
+          # Checks attribute :const option
+          #
+          # @param opts [Hash] Attribute options
+          #
+          # @raise [SeregaError] Attribute validation error
+          #
+          # @return [void]
+          #
           def call(opts, block = nil)
             return unless opts.key?(:const)
 

@@ -3,18 +3,21 @@
 class Serega
   module SeregaValidations
     module Attribute
+      #
+      # Attribute `:delegate` option validator
+      #
       class CheckOptDelegate
-        #
-        # Checks attribute :delegate option
-        # It must have :to option and can have :optional allow_nil option
-        #
-        # @param opts [Hash] Attribute options
-        #
-        # @raise [SeregaError] Attribute validation error
-        #
-        # @return [void]
-        #
         class << self
+          #
+          # Checks attribute :delegate option
+          # It must have :to option and can have :optional allow_nil option
+          #
+          # @param opts [Hash] Attribute options
+          #
+          # @raise [SeregaError] Attribute validation error
+          #
+          # @return [void]
+          #
           def call(opts, block = nil)
             return unless opts.key?(:delegate)
 

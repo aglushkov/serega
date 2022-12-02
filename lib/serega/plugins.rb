@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Serega
-  # Module in which all Serega plugins should be stored
+  # Plugins are stored here
   module SeregaPlugins
     @plugins = {}
 
@@ -9,8 +9,14 @@ class Serega
       #
       # Registers given plugin to be able to load it using symbol name.
       #
+      # @param name [Symbol] Plugin name
+      # @param mod [Module] Plugin module
+      #
       # @example Register plugin
       #   Serega::SeregaPlugins.register_plugin(:plugin_name, PluginModule)
+      #
+      # @return [void]
+      #
       def register_plugin(name, mod)
         @plugins[name] = mod
       end

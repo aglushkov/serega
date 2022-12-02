@@ -2,14 +2,30 @@
 
 class Serega
   module SeregaValidations
+    #
+    # Validations of serialization options
+    #
     class CheckSerializeParams
+      #
+      # Validations of serialization options instance methods
+      #
       module InstanceMethods
         attr_reader :opts
 
+        #
+        # Initializes validator for serialization options
+        #
+        # @param opts [Hash] serialization options
+        #
+        # @return [void]
+        #
         def initialize(opts)
           @opts = opts
         end
 
+        #
+        # Validates serialization options
+        #
         def validate
           check_opts
         end
