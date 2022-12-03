@@ -21,8 +21,8 @@ class Serega
       #
       def self.load_plugin(serializer_class, **_opts)
         serializer_class.extend(ClassMethods)
+        serializer_class.include(InstanceMethods)
         serializer_class::SeregaConfig.include(ConfigInstanceMethods)
-        serializer_class::SeregaSerializer.include(SerializerInstanceMethods)
       end
 
       #
@@ -98,20 +98,20 @@ class Serega
         end
       end
 
-      module SerializerInstanceMethods
-        def serialize(_object)
+      module InstanceMethods
+        private
+
+        def serialize(_object, opts)
           result = super
           root = build_root(result, opts)
           result = {root => result} if root
           result
         end
 
-        private
-
         def build_root(result, opts)
           return opts[:root] if opts.key?(:root)
 
-          root = self.class.serializer_class.config.root
+          root = self.class.config.root
           result.is_a?(Array) ? root.many : root.one
         end
       end

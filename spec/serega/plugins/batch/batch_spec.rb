@@ -444,9 +444,6 @@ RSpec.describe Serega::SeregaPlugins::Batch do
               }
             ]
           )
-          expect(users.loaded?).to be true
-          expect(users[0].posts.loaded?).to be true
-          expect(users[0].posts[0].comments.loaded?).to be true
         end
       end
 

@@ -38,7 +38,6 @@ require_relative "serega/validations/check_serialize_params"
 
 require_relative "serega/config"
 require_relative "serega/object_serializer"
-require_relative "serega/serializer"
 require_relative "serega/map_point"
 require_relative "serega/map"
 require_relative "serega/plugins"
@@ -85,10 +84,6 @@ class Serega
       map_point_class = Class.new(self::SeregaMapPoint)
       map_point_class.serializer_class = subclass
       subclass.const_set(:SeregaMapPoint, map_point_class)
-
-      serega_serializer_class = Class.new(self::SeregaSerializer)
-      serega_serializer_class.serializer_class = subclass
-      subclass.const_set(:SeregaSerializer, serega_serializer_class)
 
       object_serializer_class = Class.new(self::SeregaObjectSerializer)
       object_serializer_class.serializer_class = subclass
@@ -276,7 +271,7 @@ class Serega
       self.class::CheckSerializeParams.new(opts).validate
       opts[:context] ||= {}
 
-      self.class::SeregaSerializer.new(serializer: self, **opts).serialize(object)
+      serialize(object, opts)
     end
 
     # @see #call
@@ -336,6 +331,12 @@ class Serega
         value = SeregaUtils::ToHash.call(value) if (key == :only) || (key == :except) || (key == :with)
         obj[key] = value
       end
+    end
+
+    def serialize(object, opts)
+      self.class::SeregaObjectSerializer
+        .new(**opts, points: map)
+        .serialize(object)
     end
   end
 

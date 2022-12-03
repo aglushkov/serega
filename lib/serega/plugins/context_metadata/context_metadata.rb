@@ -30,8 +30,8 @@ class Serega
       # @return [void]
       #
       def self.load_plugin(serializer_class, **_opts)
+        serializer_class.include(InstanceMethods)
         serializer_class::SeregaConfig.include(ConfigInstanceMethods)
-        serializer_class::SeregaSerializer.include(SeregaSerializerInstanceMethods)
         serializer_class::CheckSerializeParams.include(CheckSerializeParamsInstanceMethods)
       end
 
@@ -81,17 +81,17 @@ class Serega
         end
       end
 
-      module SeregaSerializerInstanceMethods
-        def serialize(object)
+      module InstanceMethods
+        private
+
+        def serialize(_object, opts)
           super.tap do |hash|
-            add_context_metadata(hash)
+            add_context_metadata(hash, opts)
           end
         end
 
-        private
-
-        def add_context_metadata(hash)
-          context_metadata_key = self.class.serializer_class.config.context_metadata.key
+        def add_context_metadata(hash, opts)
+          context_metadata_key = self.class.config.context_metadata.key
           return unless context_metadata_key
 
           metadata = opts[context_metadata_key]

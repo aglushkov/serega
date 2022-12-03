@@ -1,6 +1,8 @@
 ## [Unreleased]
 
+- Fix `presenter` plugin was not working for nested serializers
 - Fix issue with not auto-preloaded relations when using #call method
+- Remove SeregaSerializer class, moved its functionality to Serega#serialize method
 
 ## [0.6.0] - 2022-12-01
 - Make batch loader to accept current point instead of nested points as 3rd parameter.

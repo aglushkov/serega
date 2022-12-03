@@ -30,6 +30,8 @@ class Serega
       #
       # @return [Hash, Array<Hash>] Serialized object(s)
       def serialize(object)
+        return if object.nil?
+
         array?(object, many) ? serialize_array(object) : serialize_object(object)
       end
 
@@ -40,8 +42,6 @@ class Serega
       end
 
       def serialize_object(object)
-        return unless object
-
         points.each_with_object({}) do |point, container|
           attach_value(object, point, container)
         end

@@ -56,10 +56,10 @@ class Serega
         require_relative "./lib/validations/check_opt_batch"
 
         serializer_class.extend(ClassMethods)
+        serializer_class.include(InstanceMethods)
         serializer_class::CheckAttributeParams.include(CheckAttributeParamsInstanceMethods)
         serializer_class::SeregaAttribute.include(AttributeInstanceMethods)
         serializer_class::SeregaMapPoint.include(MapPointInstanceMethods)
-        serializer_class::SeregaSerializer.include(SeregaSerializerInstanceMethods)
         serializer_class::SeregaObjectSerializer.include(SeregaObjectSerializerInstanceMethods)
       end
 
@@ -201,17 +201,13 @@ class Serega
         end
       end
 
-      module SeregaSerializerInstanceMethods
-        def initialize(**_args)
-          super
-          opts[:batch_loaders] = self.class.serializer_class::SeregaBatchLoaders.new
-        end
+      module InstanceMethods
+        private
 
-        def serialize(*)
+        def serialize(object, opts)
+          batch_loaders = opts[:batch_loaders] = self.class::SeregaBatchLoaders.new
           result = super
-
-          opts[:batch_loaders].load_all
-
+          batch_loaders.load_all
           result
         end
       end

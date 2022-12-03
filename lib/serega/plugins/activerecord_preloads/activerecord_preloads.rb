@@ -37,26 +37,28 @@ class Serega
       def self.load_plugin(serializer_class, **_opts)
         require_relative "./lib/preloader"
 
-        serializer_class::SeregaSerializer.include(SeregaSerializerInstanceMethods)
+        serializer_class.include(InstanceMethods)
       end
 
-      # Overrides Serega classes instance methods
-      module SeregaSerializerInstanceMethods
+      #
+      # Overrides Serega class instance methods
+      #
+      module InstanceMethods
+        private
+
         #
-        # Override original #to_h method
-        # @see Serega#to_h
+        # Override original #serialize method
+        # Preloads associations to object before serialization
         #
-        def serialize(object)
+        def serialize(object, _opts)
           object = add_preloads(object)
           super
         end
 
-        private
-
         def add_preloads(obj)
           return obj if obj.nil? || (obj.is_a?(Array) && obj.empty?)
 
-          preloads = serializer.preloads # `serializer.preloads` method comes from :preloads plugin
+          preloads = preloads() # `preloads()` method comes from :preloads plugin
           return obj if preloads.empty?
 
           Preloader.preload(obj, preloads)
