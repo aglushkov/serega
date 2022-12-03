@@ -110,8 +110,8 @@ LogQueries =
     end
   end
 
-UserSerializer::SeregaSerializer.include(LogQueries)
-CommentSerializer::SeregaSerializer.include(LogQueries)
+UserSerializer.include(LogQueries)
+CommentSerializer.include(LogQueries)
 
 def example(message)
   puts
