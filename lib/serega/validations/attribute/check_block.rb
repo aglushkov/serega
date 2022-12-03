@@ -2,11 +2,17 @@
 
 class Serega
   module SeregaValidations
+    #
+    # Attribute parameters validators
+    #
     module Attribute
+      #
+      # Attribute `block` parameter validator
+      #
       class CheckBlock
         class << self
           #
-          # Checks :value option or a block provided with attribute
+          # Checks block parameter provided with attribute.
           # Must have up to two arguments - object and context.
           # It should not have any *rest or **key arguments
           #
@@ -19,7 +25,6 @@ class Serega
           # @example with two arguments
           #   attribute(:email) { |obj, context| context['is_current'] ? obj.email : nil }
           #
-          # @param opts [Proc] Attribute opts, we will check :value option
           # @param block [Proc] Block that returns serialized attribute value
           #
           # @raise [SeregaError] SeregaError that block has invalid arguments

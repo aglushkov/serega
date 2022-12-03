@@ -3,10 +3,18 @@
 class Serega
   module SeregaPlugins
     module Metadata
+      # @return [Symbol] Plugin name
       def self.plugin_name
         :metadata
       end
 
+      # Checks requirements and loads additional plugins
+      #
+      # @param serializer_class [Class<Serega>] Current serializer class
+      # @param opts [Hash] loaded plugins opts
+      #
+      # @return [void]
+      #
       def self.before_load_plugin(serializer_class, **opts)
         if serializer_class.plugin_used?(:root)
           root = serializer_class.config.root
@@ -17,10 +25,18 @@ class Serega
         end
       end
 
+      #
+      # Applies plugin code to specific serializer
+      #
+      # @param serializer_class [Class<Serega>] Current serializer class
+      # @param _opts [Hash] Loaded plugins options
+      #
+      # @return [void]
+      #
       def self.load_plugin(serializer_class, **_opts)
         serializer_class.extend(ClassMethods)
+        serializer_class.include(InstanceMethods)
         serializer_class::SeregaConfig.include(ConfigInstanceMethods)
-        serializer_class::SeregaSerializer.include(SeregaSerializerInstanceMethods)
 
         require_relative "./meta_attribute"
         require_relative "./validations/check_block"
@@ -34,6 +50,14 @@ class Serega
         serializer_class.const_set(:MetaAttribute, meta_attribute_class)
       end
 
+      #
+      # Adds config options and runs other callbacks after plugin was loaded
+      #
+      # @param serializer_class [Class<Serega>] Current serializer class
+      # @param opts [Hash] loaded plugins opts
+      #
+      # @return [void]
+      #
       def self.after_load_plugin(serializer_class, **_opts)
         serializer_class.config.opts[:metadata] = {attribute_keys: %i[path hide_nil hide_empty]}
       end
@@ -92,9 +116,9 @@ class Serega
         #     end
         #   end
         #
-        # @param *path [Array<String, Symbol>] Metadata attribute path keys
-        # @param **opts [Hash] Metadata attribute options
-        # @param &block [Proc] Metadata attribute value
+        # @param path [String, Symbol, Array<String, Symbol>] Metadata attribute path keys
+        # @param opts [Hash] Metadata attribute options
+        # @param block [Proc] Block to fetch metadata attribute value
         #
         # @return [MetadataAttribute] Added metadata attribute
         #
@@ -104,25 +128,26 @@ class Serega
         end
       end
 
-      module SeregaSerializerInstanceMethods
-        def serialize(object)
+      module InstanceMethods
+        private
+
+        def serialize(object, opts)
           super.tap do |hash|
-            add_metadata(object, hash)
+            context = opts[:context]
+            add_metadata(object, context, hash)
           end
         end
 
-        private
-
-        def add_metadata(object, hash)
-          self.class.serializer_class.meta_attributes.each_value do |meta_attribute|
-            metadata = meta_attribute_value(object, meta_attribute)
+        def add_metadata(object, context, hash)
+          self.class.meta_attributes.each_value do |meta_attribute|
+            metadata = meta_attribute_value(object, context, meta_attribute)
             next unless metadata
 
             deep_merge_metadata(hash, metadata)
           end
         end
 
-        def meta_attribute_value(object, meta_attribute)
+        def meta_attribute_value(object, context, meta_attribute)
           value = meta_attribute.value(object, context)
           return if meta_attribute.hide?(value)
 

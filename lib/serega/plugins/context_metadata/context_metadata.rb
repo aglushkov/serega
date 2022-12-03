@@ -5,20 +5,44 @@ class Serega
     module ContextMetadata
       DEFAULT_CONTEXT_METADATA_KEY = :meta
 
+      # @return [Symbol] Plugin name
       def self.plugin_name
         :context_metadata
       end
 
+      # Checks requirements and loads additional plugins
+      #
+      # @param serializer_class [Class<Serega>] Current serializer class
+      # @param opts [Hash] loaded plugins opts
+      #
+      # @return [void]
+      #
       def self.before_load_plugin(serializer_class, **opts)
         serializer_class.plugin(:root, **opts) unless serializer_class.plugin_used?(:root)
       end
 
+      #
+      # Applies plugin code to specific serializer
+      #
+      # @param serializer_class [Class<Serega>] Current serializer class
+      # @param _opts [Hash] Loaded plugins options
+      #
+      # @return [void]
+      #
       def self.load_plugin(serializer_class, **_opts)
+        serializer_class.include(InstanceMethods)
         serializer_class::SeregaConfig.include(ConfigInstanceMethods)
-        serializer_class::SeregaSerializer.include(SeregaSerializerInstanceMethods)
         serializer_class::CheckSerializeParams.include(CheckSerializeParamsInstanceMethods)
       end
 
+      #
+      # Adds config options and runs other callbacks after plugin was loaded
+      #
+      # @param serializer_class [Class<Serega>] Current serializer class
+      # @param opts [Hash] loaded plugins opts
+      #
+      # @return [void]
+      #
       def self.after_load_plugin(serializer_class, **opts)
         config = serializer_class.config
         meta_key = opts[:context_metadata_key] || DEFAULT_CONTEXT_METADATA_KEY
@@ -57,17 +81,17 @@ class Serega
         end
       end
 
-      module SeregaSerializerInstanceMethods
-        def serialize(object)
+      module InstanceMethods
+        private
+
+        def serialize(_object, opts)
           super.tap do |hash|
-            add_context_metadata(hash)
+            add_context_metadata(hash, opts)
           end
         end
 
-        private
-
-        def add_context_metadata(hash)
-          context_metadata_key = self.class.serializer_class.config.context_metadata.key
+        def add_context_metadata(hash, opts)
+          context_metadata_key = self.class.config.context_metadata.key
           return unless context_metadata_key
 
           metadata = opts[context_metadata_key]

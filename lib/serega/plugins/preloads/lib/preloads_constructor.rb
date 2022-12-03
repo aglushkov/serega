@@ -9,9 +9,9 @@ class Serega
       class PreloadsConstructor
         module ClassMethods
           #
-          # Constructs preloads hash for given serializer
+          # Constructs preloads hash for given map
           #
-          # @param serializer [Serega] Instance of Serega serializer
+          # @param map [Array<Serega::MapPoint>] Serialization map
           #
           # @return [Hash]
           #

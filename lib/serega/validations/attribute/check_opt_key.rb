@@ -3,17 +3,20 @@
 class Serega
   module SeregaValidations
     module Attribute
+      #
+      # Attribute `:key` option validator
+      #
       class CheckOptKey
-        #
-        # Checks attribute :key option
-        #
-        # @param opts [Hash] Attribute options
-        #
-        # @raise [SeregaError] SeregaError that option has invalid value
-        #
-        # @return [void]
-        #
         class << self
+          #
+          # Checks attribute :key option
+          #
+          # @param opts [Hash] Attribute options
+          #
+          # @raise [SeregaError] SeregaError that option has invalid value
+          #
+          # @return [void]
+          #
           def call(opts, block = nil)
             return unless opts.key?(:key)
 

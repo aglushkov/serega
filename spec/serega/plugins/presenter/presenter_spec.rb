@@ -51,8 +51,8 @@ RSpec.describe Serega::SeregaPlugins::Presenter do
     end
 
     serializer.attribute(:rev) { |obj| obj.rev }
-    rev = serializer.new.to_h("123")[:rev]
-    expect(rev).to eq "321"
+    result = serializer.new.to_h("123")
+    expect(result).to eq({rev: "321"})
   end
 
   it "allows to override attribute methods" do
@@ -61,12 +61,42 @@ RSpec.describe Serega::SeregaPlugins::Presenter do
     expect(serializer::Presenter.instance_methods).to include(:value)
     serializer::Presenter.class_exec do
       def value
-        "VALUE"
+        __getobj__
       end
     end
 
-    res = serializer.new.to_h(nil)
-    value = res[:value]
-    expect(value).to eq "VALUE"
+    result = serializer.new.to_h(123)
+    expect(result).to eq({value: 123})
+  end
+
+  it "works for arrays" do
+    serializer.attribute :value
+    serializer::Presenter.class_exec do
+      def value
+        __getobj__
+      end
+    end
+
+    result = serializer.new.to_h([123, 234])
+    expect(result).to eq([{value: 123}, {value: 234}])
+  end
+
+  it "works in nested relation" do
+    current_serializer = serializer
+    serializer.attribute(:rev) { |obj| obj.rev }
+    current_serializer::Presenter.class_exec do
+      def rev
+        reverse
+      end
+    end
+
+    base_serializer = Class.new(Serega) do
+      attribute :nested, serializer: current_serializer
+    end
+
+    base = OpenStruct.new(nested: "123")
+
+    result = base_serializer.new.to_h(base)
+    expect(result).to eq({nested: {rev: "321"}})
   end
 end

@@ -1,12 +1,15 @@
 # frozen_string_literal: true
 
 class Serega
-  # A generic exception Serega uses.
+  #
+  # Base exception class
+  #
   class SeregaError < StandardError; end
 
-  # AttributeNotExist is raised when serializer is initiated using not existing attribute
-  # Example:
-  #    UserSerializer.new(only: 'FOO', except: 'FOO', with: 'FOO')
-  #    UserSerializer.to_h(user, only: 'FOO', except: 'FOO', with: 'FOO' )
+  # Raised when serializer is initiated using not existing attribute
+  #
+  # @example
+  #   Serega.new(only: 'FOO')
+  #   # => Attribute 'FOO' not exists (Serega::AttributeNotExist)
   class AttributeNotExist < SeregaError; end
 end

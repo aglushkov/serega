@@ -3,8 +3,14 @@
 class Serega
   module SeregaValidations
     module Attribute
+      #
+      # Attribute `name` parameter validator
+      #
       class CheckName
+        # Regexp for valid one-char attribute name
         FORMAT_ONE_CHAR = /\A[a-zA-Z0-9]\z/
+
+        # Regexp for valid multi-chars attribute name
         FORMAT_MANY_CHARS = /\A[a-zA-Z0-9][a-zA-Z0-9_-]*?[a-zA-Z0-9]\z/ # allow '-' and '_' in the middle
 
         private_constant :FORMAT_ONE_CHAR, :FORMAT_MANY_CHARS

@@ -2,8 +2,28 @@
 
 class Serega
   module SeregaUtils
+    #
+    # Utility to transform almost anything to Hash
+    #
     class ToHash
-      module ClassMethods
+      class << self
+        #
+        # Constructs deep hashes from provided data
+        #
+        # @param value [Array, Hash, String, Symbol, NilClass, FalseClass] Value to transform
+        #
+        # @example
+        #   Serega::SeregaUtils::ToHash.(nil) # => {}
+        #   Serega::SeregaUtils::ToHash.(false) # => {}
+        #   Serega::SeregaUtils::ToHash.(:foo) # => {:foo=>{}}
+        #   Serega::SeregaUtils::ToHash.("foo") # => {:foo=>{}}
+        #   Serega::SeregaUtils::ToHash.(%w[foo bar]) # => {:foo=>{}, :bar=>{}}
+        #   Serega::SeregaUtils::ToHash.({ foo: nil, bar: false }) # => {:foo=>{}, :bar=>{}}
+        #   Serega::SeregaUtils::ToHash.({ foo: :bar }) # => {:foo=>{:bar=>{}}}
+        #   Serega::SeregaUtils::ToHash.({ foo: [:bar] }) # => {:foo=>{:bar=>{}}}
+        #
+        # @return [Hash] Transformed data
+        #
         def call(value)
           case value
           when Array then array_to_hash(value)
@@ -45,8 +65,6 @@ class Serega
           {value => Serega::FROZEN_EMPTY_HASH}
         end
       end
-
-      extend ClassMethods
     end
   end
 end

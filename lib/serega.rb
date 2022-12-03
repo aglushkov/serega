@@ -38,7 +38,6 @@ require_relative "serega/validations/check_serialize_params"
 
 require_relative "serega/config"
 require_relative "serega/object_serializer"
-require_relative "serega/serializer"
 require_relative "serega/map_point"
 require_relative "serega/map"
 require_relative "serega/plugins"
@@ -61,7 +60,9 @@ class Serega
   check_serialize_params_class.serializer_class = self
   const_set(:CheckSerializeParams, check_serialize_params_class)
 
-  # Core serializer class methods
+  #
+  # Serializers class methods
+  #
   module ClassMethods
     # @return [SeregaConfig] current serializer config
     attr_reader :config
@@ -83,10 +84,6 @@ class Serega
       map_point_class = Class.new(self::SeregaMapPoint)
       map_point_class.serializer_class = subclass
       subclass.const_set(:SeregaMapPoint, map_point_class)
-
-      serega_serializer_class = Class.new(self::SeregaSerializer)
-      serega_serializer_class.serializer_class = subclass
-      subclass.const_set(:SeregaSerializer, serega_serializer_class)
 
       object_serializer_class = Class.new(self::SeregaObjectSerializer)
       object_serializer_class.serializer_class = subclass
@@ -145,7 +142,7 @@ class Serega
     #
     # @param name [Symbol, Class<Module>] Plugin name or plugin module itself
     #
-    # @return [Boolean]
+    # @return [Boolean] Is plugin used
     #
     def plugin_used?(name)
       plugin_name =
@@ -180,37 +177,80 @@ class Serega
       attributes[attribute.name] = attribute
     end
 
+    #
+    # Serializes provided object to Hash
+    #
+    # @param object [Object] Serialized object
+    # @param opts [Hash] Serializer modifiers and other instantiating options
+    # @option opts [Array, Hash, String, Symbol] :only The only attributes to serialize
+    # @option opts [Array, Hash, String, Symbol] :except Attributes to hide
+    # @option opts [Array, Hash, String, Symbol] :with Attributes (usually hidden) to serialize additionally
+    # @option opts [Boolean] :validate Validates provided modifiers (Default is true)
+    # @option opts [Hash] :context Serialization context
+    # @option opts [Boolean] :many Set true if provided multiple objects (Default `object.is_a?(Enumerable)`)
+    #
+    # @return [Hash] Serialization result
+    #
     def call(object, opts = FROZEN_EMPTY_HASH)
       initiate_keys = config.initiate_keys
       new(opts.slice(*initiate_keys)).to_h(object, opts.except(*initiate_keys))
     end
 
+    # @see #call
     def to_h(object, opts = FROZEN_EMPTY_HASH)
       call(object, opts)
     end
 
+    #
+    # Serializes provided object to JSON string
+    #
+    # @param object [Object] Serialized object
+    # @param opts [Hash] Serializer modifiers and other instantiating options
+    # @option opts [Array, Hash, String, Symbol] :only The only attributes to serialize
+    # @option opts [Array, Hash, String, Symbol] :except Attributes to hide
+    # @option opts [Array, Hash, String, Symbol] :with Attributes (usually hidden) to serialize additionally
+    # @option opts [Boolean] :validate Validates provided modifiers (Default is true)
+    # @option opts [Hash] :context Serialization context
+    # @option opts [Boolean] :many Set true if provided multiple objects (Default `object.is_a?(Enumerable)`)
+    #
+    # @return [String] Serialization result
+    #
     def to_json(object, opts = FROZEN_EMPTY_HASH)
       initiate_keys = config.initiate_keys
       new(opts.slice(*initiate_keys)).to_json(object, opts.except(*initiate_keys))
     end
 
+    #
+    # Serializes provided object as JSON
+    #
+    # @param object [Object] Serialized object
+    # @param opts [Hash] Serializer modifiers and other instantiating options
+    # @option opts [Array, Hash, String, Symbol] :only The only attributes to serialize
+    # @option opts [Array, Hash, String, Symbol] :except Attributes to hide
+    # @option opts [Array, Hash, String, Symbol] :with Attributes (usually hidden) to serialize additionally
+    # @option opts [Boolean] :validate Validates provided modifiers (Default is true)
+    # @option opts [Hash] :context Serialization context
+    # @option opts [Boolean] :many Set true if provided multiple objects (Default `object.is_a?(Enumerable)`)
+    #
+    # @return [Hash] Serialization result
+    #
     def as_json(object, opts = FROZEN_EMPTY_HASH)
       config.from_json.call(to_json(object, opts))
     end
   end
 
   #
-  # Core serializer instance methods
+  # Serializers instance methods
   #
   module InstanceMethods
-    attr_reader :opts
-
     #
     # Instantiates new Serega class
     #
-    # @param only [Array, Hash, String, Symbol] The only attributes to serialize
-    # @param except [Array, Hash, String, Symbol] Attributes to hide
-    # @param with [Array, Hash, String, Symbol] Attributes (usually hidden) to serialize additionally
+    # @param opts [Hash] Serializer modifiers and other instantiating options
+    # @option opts [Array, Hash, String, Symbol] :only The only attributes to serialize
+    # @option opts [Array, Hash, String, Symbol] :except Attributes to hide
+    # @option opts [Array, Hash, String, Symbol] :with Attributes (usually hidden) to serialize additionally
+    # @option opts [Boolean] :validate Validates provided modifiers (Default is true)
     #
     def initialize(opts = FROZEN_EMPTY_HASH)
       @opts = (opts == FROZEN_EMPTY_HASH) ? opts : prepare_modifiers(opts)
@@ -218,10 +258,12 @@ class Serega
     end
 
     #
-    # Serializes provided object to hash
+    # Serializes provided object to Hash
     #
     # @param object [Object] Serialized object
-    # @param opts [Hash] Serialization options, like :context and :many
+    # @param opts [Hash] Serializer modifiers and other instantiating options
+    # @option opts [Hash] :context Serialization context
+    # @option opts [Boolean] :many Set true if provided multiple objects (Default `object.is_a?(Enumerable)`)
     #
     # @return [Hash] Serialization result
     #
@@ -229,7 +271,7 @@ class Serega
       self.class::CheckSerializeParams.new(opts).validate
       opts[:context] ||= {}
 
-      self.class::SeregaSerializer.new(points: map, **opts).serialize(object)
+      serialize(object, opts)
     end
 
     # @see #call
@@ -238,9 +280,12 @@ class Serega
     end
 
     #
-    # Serializes provided object to json
+    # Serializes provided object to JSON string
     #
     # @param object [Object] Serialized object
+    # @param opts [Hash] Serializer modifiers and other instantiating options
+    # @option opts [Hash] :context Serialization context
+    # @option opts [Boolean] :many Set true if provided multiple objects (Default `object.is_a?(Enumerable)`)
     #
     # @return [Hash] Serialization result
     #
@@ -250,11 +295,12 @@ class Serega
     end
 
     #
-    # Serializes provided object as json (uses only JSON-compatible types)
-    # When you later serialize/de-serialize it from JSON you should receive
-    # equal object
+    # Serializes provided object as JSON
     #
     # @param object [Object] Serialized object
+    # @param opts [Hash] Serializer modifiers and other instantiating options
+    # @option opts [Hash] :context Serialization context
+    # @option opts [Boolean] :many Set true if provided multiple objects (Default `object.is_a?(Enumerable)`)
     #
     # @return [Hash] Serialization result
     #
@@ -263,14 +309,21 @@ class Serega
       config.from_json.call(json)
     end
 
+    #
+    # Array of MapPoints, which are attributes combined with nested attributes.
+    # This map can be traversed to find currently serializing attributes.
+    #
+    # @return [Array<Serega::SeregaMapPoint>] map
+    def map
+      @map ||= self.class::SeregaMap.call(opts)
+    end
+
     private
+
+    attr_reader :opts
 
     def config
       self.class.config
-    end
-
-    def map
-      @map ||= self.class::SeregaMap.call(opts)
     end
 
     def prepare_modifiers(opts)
@@ -278,6 +331,12 @@ class Serega
         value = SeregaUtils::ToHash.call(value) if (key == :only) || (key == :except) || (key == :with)
         obj[key] = value
       end
+    end
+
+    def serialize(object, opts)
+      self.class::SeregaObjectSerializer
+        .new(**opts, points: map)
+        .serialize(object)
     end
   end
 

@@ -2,11 +2,52 @@
 
 class Serega
   module SeregaPlugins
+    #
+    # Plugin that can be used to load attributes values in batches
+    # Each batch loader accepts list of selected keys, context and current attribute point.
+    # Each batch loader must return Hash with values grouped by provided keys.
+    # There are specific `:default` option that can be used to add default value for missing key.
+    #
+    # @example
+    #   class PostSerializer < Serega
+    #     plugin :batch
+    #
+    #     # Define batch loader via callable class, it must accept three args (keys, context, map_point)
+    #     attribute :comments_count, batch: { key: :id, loader: PostCommentsCountBatchLoader, default: 0}
+    #
+    #     # Define batch loader via Symbol, later we should define this loader via config.batch_loaders.define(:posts_comments_counter) { ... }
+    #     attribute :comments_count, batch: { key: :id, loader: :posts_comments_counter, default: 0}
+    #
+    #     # Define batch loader with serializer
+    #     attribute :comments, serializer: CommentSerializer, batch: { key: :id, loader: :posts_comments, default: []}
+    #
+    #     # Resulted block must return hash like { key => value(s) }
+    #     config.batch_loaders.define(:posts_comments_counter) do |keys|
+    #       Comment.group(:post_id).where(post_id: keys).count
+    #     end
+    #
+    #     # We can return objects that will be automatically serialized if attribute defined with :serializer
+    #     # Parameter `context` can be used when loading batch
+    #     # Parameter `map_point` can be used to find nested attributes that will be serialized (`map_point.preloads`)
+    #     config.batch_loaders.define(:posts_comments) do |keys, context, map_point|
+    #       Comment.where(post_id: keys).where(is_spam: false).group_by(&:post_id)
+    #     end
+    #   end
+    #
     module Batch
+      # @return [Symbol] Plugin name
       def self.plugin_name
         :batch
       end
 
+      #
+      # Applies plugin code to specific serializer
+      #
+      # @param serializer_class [Class<Serega>] Current serializer class
+      # @param _opts [Hash] Loaded plugins options
+      #
+      # @return [void]
+      #
       def self.load_plugin(serializer_class, **_opts)
         require_relative "./lib/loader"
         require_relative "./lib/loaders"
@@ -15,13 +56,21 @@ class Serega
         require_relative "./lib/validations/check_opt_batch"
 
         serializer_class.extend(ClassMethods)
+        serializer_class.include(InstanceMethods)
         serializer_class::CheckAttributeParams.include(CheckAttributeParamsInstanceMethods)
         serializer_class::SeregaAttribute.include(AttributeInstanceMethods)
         serializer_class::SeregaMapPoint.include(MapPointInstanceMethods)
-        serializer_class::SeregaSerializer.include(SeregaSerializerInstanceMethods)
         serializer_class::SeregaObjectSerializer.include(SeregaObjectSerializerInstanceMethods)
       end
 
+      #
+      # Runs callbacks after plugin was attached
+      #
+      # @param serializer_class [Class<Serega>] Current serializer class
+      # @param opts [Hash] loaded plugins opts
+      #
+      # @return [void]
+      #
       def self.after_load_plugin(serializer_class, **opts)
         config = serializer_class.config
         config.attribute_keys << :batch
@@ -152,17 +201,13 @@ class Serega
         end
       end
 
-      module SeregaSerializerInstanceMethods
-        def initialize(**_args)
-          super
-          opts[:batch_loaders] = self.class.serializer_class::SeregaBatchLoaders.new
-        end
+      module InstanceMethods
+        private
 
-        def serialize(*)
+        def serialize(object, opts)
+          batch_loaders = opts[:batch_loaders] = self.class::SeregaBatchLoaders.new
           result = super
-
-          opts[:batch_loaders].load_all
-
+          batch_loaders.load_all
           result
         end
       end

@@ -3,6 +3,9 @@
 class Serega
   module SeregaValidations
     module Attribute
+      #
+      # Attribute `:serializer` option validator
+      #
       class CheckOptSerializer
         class << self
           #

@@ -2,8 +2,22 @@
 
 class Serega
   module SeregaValidations
+    #
+    # Validations Utilities
+    #
     module Utils
+      #
+      # Utility to check all hash keys are allowed
+      #
       class CheckAllowedKeys
+        # Checks hash keys are allowed
+        #
+        # @param opts [Hash] Some options Hash
+        # @param allowed_keys [Array] Allowed hash keys
+        #
+        # @raise [Serega::SeregaError] error when any hash key is not allowed
+        #
+        # @return [void]
         def self.call(opts, allowed_keys)
           opts.each_key do |key|
             next if allowed_keys.include?(key)

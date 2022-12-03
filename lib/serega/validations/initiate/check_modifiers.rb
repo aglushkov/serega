@@ -2,9 +2,24 @@
 
 class Serega
   module SeregaValidations
+    #
+    # Validations that take place when initializing serializer
+    #
     module Initiate
+      #
+      # Modifiers validation
+      #
       class CheckModifiers
         class << self
+          # Validates provided fields names are existing attributes
+          #
+          # @param serializer_class [Serega]
+          # @param fields [Hash] validated fields
+          #
+          # @raise [Serega::AttributeNotExist] when modifier not exist as attribute
+          #
+          # @return [void]
+          #
           def call(serializer_class, fields)
             return unless fields
 
