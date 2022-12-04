@@ -58,19 +58,25 @@ class Serega
       # Preloader adapter for ActiveRecord object
       class ActiverecordObject
         class << self
+          #
           # Checks object is kind of ActiveRecord::Base
+          #
           # @param object [Object] object
+          #
           # @return [Boolean] whether object is kind of ActiveRecord::Base
           def fit?(object)
             object.is_a?(ActiveRecord::Base)
           end
 
-          # Preloads associations to ActiveRecord::Base object
-          # @param object [ActiveRecord::Base] object
-          # @return [Object] provided object with preloaded associations
-          def preload(object, preloads)
-            Loader.call([object], preloads)
-            object
+          #
+          # Preloads associations to ActiveRecord::Base record
+          #
+          # @param record [ActiveRecord::Base] record
+          #
+          # @return [Object] provided record with preloaded associations
+          def preload(record, preloads)
+            Loader.call([record], preloads)
+            record
           end
         end
       end
@@ -78,20 +84,26 @@ class Serega
       # Preloader adapter for ActiveRecord::Relation
       class ActiverecordRelation
         class << self
+          #
           # Checks object is kind of ActiveRecord::Relation
-          # @param objects [Object] objects
+          #
+          # @param object [Object] object to check
+          #
           # @return [Boolean] whether object is kind of ActiveRecord::Relation
-          def fit?(objects)
-            objects.is_a?(ActiveRecord::Relation)
+          def fit?(object)
+            object.is_a?(ActiveRecord::Relation)
           end
 
+          #
           # Preloads associations to ActiveRecord::Relation
-          # @param object [ActiveRecord::Relation] object
-          # @return [ActiveRecord::Relation] provided relation with preloaded associations
-          def preload(objects, preloads)
-            objects.load
-            Loader.call(objects.to_a, preloads)
-            objects
+          #
+          # @param scope [ActiveRecord::Relation] scope
+          #
+          # @return [ActiveRecord::Relation] provided scope with preloaded associations
+          def preload(scope, preloads)
+            scope.load
+            Loader.call(scope.to_a, preloads)
+            scope
           end
         end
       end
@@ -99,28 +111,34 @@ class Serega
       # Preloader adapter for Array of ActiveRecord objects
       class ActiverecordArray
         class << self
+          #
           # Checks object is an array of ActiveRecord::Base objects
-          # @param objects [Object] objects
-          # @return [Boolean] whether object is Array with ActiveRecord objects (and all objects have same class)
-          def fit?(objects)
-            objects.is_a?(Array) &&
-              ActiverecordObject.fit?(objects.first) &&
-              same_kind?(objects)
+          #
+          # @param object [Object] object
+          #
+          # @return [Boolean] whether object is an array with ActiveRecord objects (and all objects have same class)
+          def fit?(object)
+            object.is_a?(Array) &&
+              ActiverecordObject.fit?(object.first) &&
+              same_kind?(object)
           end
 
-          # Preloads associations to Array with ActiveRecord::Base objects
-          # @param object [Array<ActiveRecord::Base>] object
-          # @return [Array<ActiveRecord::Base>] provided objects with preloaded associations
-          def preload(objects, preloads)
-            Loader.call(objects, preloads)
-            objects
+          #
+          # Preloads associations to array with ActiveRecord::Base objects
+          #
+          # @param records [Array<ActiveRecord::Base>] ActiveRecord records
+          #
+          # @return [Array<ActiveRecord::Base>] provided records with preloaded associations
+          def preload(records, preloads)
+            Loader.call(records, preloads)
+            records
           end
 
           private
 
-          def same_kind?(objects)
-            first_object_class = objects.first.class
-            objects.all? { |object| object.instance_of?(first_object_class) }
+          def same_kind?(records)
+            first_object_class = records.first.class
+            records.all? { |record| record.instance_of?(first_object_class) }
           end
         end
       end
@@ -128,20 +146,26 @@ class Serega
       # Preloader adapter for Enumerator with ActiveRecord objects
       class ActiverecordEnumerator
         class << self
+          #
           # Checks object is an Enumerator with each value is a ActiveRecord::Base object
-          # @param objects [Object] objects
+          #
+          # @param object [Object] object
+          #
           # @return [Boolean] whether object is an Enumerator with each value is a ActiveRecord::Base object
-          def fit?(objects)
-            objects.is_a?(Enumerator) &&
-              ActiverecordArray.fit?(objects.to_a)
+          def fit?(object)
+            object.is_a?(Enumerator) &&
+              ActiverecordArray.fit?(object.to_a)
           end
 
+          #
           # Preloads associations to Enumerator with ActiveRecord::Base objects
-          # @param object [Enumerator<ActiveRecord::Base>] object
-          # @return [Enumerator<ActiveRecord::Base>] provided objects with preloaded associations
-          def preload(objects, preloads)
-            ActiverecordArray.preload(objects.to_a, preloads)
-            objects
+          #
+          # @param enum [Enumerator<ActiveRecord::Base>] enum
+          #
+          # @return [Enumerator<ActiveRecord::Base>] provided enumerator with preloaded associations
+          def preload(enum, preloads)
+            ActiverecordArray.preload(enum.to_a, preloads)
+            enum
           end
         end
       end

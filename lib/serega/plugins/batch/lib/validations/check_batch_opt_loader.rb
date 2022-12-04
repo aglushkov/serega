@@ -3,8 +3,20 @@
 class Serega
   module SeregaPlugins
     module Batch
+      #
+      # Validator for option :loader in attribute :batch option
+      #
       class CheckBatchOptLoader
         class << self
+          #
+          # Checks option :loader of attribute :batch option
+          #
+          # @param loader [nil, #call] Attribute :batch option :loader
+          #
+          # @raise [SeregaError] Attribute validation error
+          #
+          # @return [void]
+          #
           def call(loader)
             return if loader.is_a?(Symbol)
 

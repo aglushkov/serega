@@ -3,8 +3,20 @@
 class Serega
   module SeregaPlugins
     module Batch
+      #
+      # Validator for option :key in attribute :batch option
+      #
       class CheckBatchOptKey
         class << self
+          #
+          # Checks option :key of attribute :batch option
+          #
+          # @param key [nil, #call] Attribute :batch option :key
+          #
+          # @raise [SeregaError] validation error
+          #
+          # @return [void]
+          #
           def call(key)
             return if key.is_a?(Symbol)
 

@@ -3,10 +3,10 @@
 class Serega
   module SeregaPlugins
     #
-    # Plugin that can be used to load attributes values in batches
-    # Each batch loader accepts list of selected keys, context and current attribute point.
-    # Each batch loader must return Hash with values grouped by provided keys.
-    # There are specific `:default` option that can be used to add default value for missing key.
+    # Plugin that can be used to load attributes values in batches.
+    #   Each batch loader accepts list of selected keys, context and current attribute point.
+    #   Each batch loader must return Hash with values grouped by provided keys.
+    #   There are specific `:default` option that can be used to add default value for missing key.
     #
     # @example
     #   class PostSerializer < Serega
@@ -96,6 +96,9 @@ class Serega
         end
       end
 
+      #
+      # Batch loader config
+      #
       class BatchLoadersConfig
         attr_reader :opts
 
@@ -103,6 +106,15 @@ class Serega
           @opts = opts
         end
 
+        #
+        # Defines batch loader
+        #
+        # @param loader_name [Symbol] Batch loader name, that is used when defining attribute with batch loader.
+        # @param block [Proc] Block that can accept 3 parameters - keys, context, map_point
+        #   and returns hash where ids are keys and values are batch loaded objects/
+        #
+        # @return [void]
+        #
         def define(loader_name, &block)
           unless block
             raise SeregaError, "Block must be given to batch_loaders.define method"
@@ -116,20 +128,38 @@ class Serega
           opts[loader_name] = block
         end
 
+        #
+        # Finds previously defined batch loader by name
+        #
+        # @param loader_name [Symbol]
+        #
+        # @return [Proc] batch loader block
         def fetch(loader_name)
           opts[loader_name] || (raise SeregaError, "Batch loader with name `#{loader_name.inspect}` was not defined. Define example: config.batch_loaders.define(:#{loader_name}) { |keys, ctx, points| ... }")
         end
       end
 
+      #
+      # Stores batch config for specific attribute
+      #
       class BatchModel
         attr_reader :opts, :loaders, :many
 
+        #
+        # Initializes batch model
+        #
+        # @param opts [Hash] Attribute :batch option
+        # @param loaders [Array] Array of all loaders defined in serialize class
+        # @param many [Boolean] Option :many, defined on attribute
+        #
+        # @return [void]
         def initialize(opts, loaders, many)
           @opts = opts
           @loaders = loaders
           @many = many
         end
 
+        # @return [#call] batch loader
         def loader
           @batch_loader ||= begin
             loader = opts[:loader]
@@ -138,6 +168,7 @@ class Serega
           end
         end
 
+        # @return [Object] key (uid) of batch loaded object
         def key
           @batch_key ||= begin
             key = opts[:key]
@@ -145,6 +176,7 @@ class Serega
           end
         end
 
+        # @return [Object] default value for missing key
         def default_value
           if opts.key?(:default)
             opts[:default]
@@ -154,12 +186,25 @@ class Serega
         end
       end
 
+      #
+      # Config class additional/patched instance methods
+      #
+      # @see Serega::SeregaConfig
+      #
       module ConfigInstanceMethods
+        #
+        # @return [Serega::SeregaPlugins::Batch::BatchLoadersConfig] configuration for batch loaders
+        #
         def batch_loaders
           @batch_loaders ||= BatchLoadersConfig.new(opts.fetch(:batch).fetch(:loaders))
         end
       end
 
+      #
+      # Serega class additional/patched class methods
+      #
+      # @see Serega::SeregaConfig
+      #
       module ClassMethods
         private
 
@@ -176,7 +221,14 @@ class Serega
         end
       end
 
+      #
+      # Serega::SeregaValidations::CheckAttributeParams additional/patched class methods
+      #
+      # @see Serega::SeregaValidations::CheckAttributeParams
+      #
       module CheckAttributeParamsInstanceMethods
+        private
+
         def check_opts
           super
 
@@ -184,13 +236,29 @@ class Serega
         end
       end
 
+      #
+      # Serega::SeregaAttribute additional/patched class methods
+      #
+      # @see Serega::SeregaAttribute
+      #
       module AttributeInstanceMethods
+        #
+        # @return [nil, Hash] :batch option
+        #
         def batch
           opts[:batch]
         end
       end
 
+      #
+      # Serega::SeregaMapPoint additional/patched class methods
+      #
+      # @see Serega::SeregaAttribute
+      #
       module MapPointInstanceMethods
+        #
+        # @return [Serega::Batch::BatchModel] batch model that encapsulates everything needed to load current batch
+        #
         def batch
           return @batch if instance_variable_defined?(:@batch)
 
@@ -201,9 +269,17 @@ class Serega
         end
       end
 
+      #
+      # Serega additional/patched instance methods
+      #
+      # @see Serega
+      #
       module InstanceMethods
         private
 
+        #
+        # Loads batch loaded attributes after serialization
+        #
         def serialize(object, opts)
           batch_loaders = opts[:batch_loaders] = self.class::SeregaBatchLoaders.new
           result = super
@@ -212,6 +288,11 @@ class Serega
         end
       end
 
+      #
+      # SeregaObjectSerializer additional/patched class methods
+      #
+      # @see Serega::SeregaObjectSerializer
+      #
       module SeregaObjectSerializerInstanceMethods
         private
 
