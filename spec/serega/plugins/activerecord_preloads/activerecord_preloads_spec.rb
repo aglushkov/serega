@@ -1,29 +1,19 @@
 # frozen_string_literal: true
 
-load_plugin_code :activerecord_preloads
+load_plugin_code :preloads, :activerecord_preloads
 
 RSpec.describe Serega::SeregaPlugins::ActiverecordPreloads do
   describe "loading" do
-    let(:serializer) { Class.new(Serega) }
+    let(:serializer) { Class.new(Serega) { plugin :preloads } }
 
     it "loads successfully" do
       expect { serializer.plugin(:activerecord_preloads) }.not_to raise_error
     end
 
-    it "loads additionally preloads plugin" do
-      new_class = Class.new(Serega)
-      new_class.plugin :activerecord_preloads
-
-      expect(new_class.plugin_used?(:preloads)).to be true
-    end
-
-    it "loads activerecord_preloads successfully after preloads plugin" do
-      new_class = Class.new(Serega)
-      new_class.plugin :preloads
-      new_class.plugin :activerecord_preloads
-
-      expect(new_class.plugin_used?(:preloads)).to be true
-      expect(new_class.plugin_used?(:activerecord_preloads)).to be true
+    it "raises error if plugin :preloads was not loaded" do
+      serializer = Class.new(Serega)
+      expect { serializer.plugin(:activerecord_preloads) }
+        .to raise_error Serega::SeregaError, "Please load `plugin :preloads` first"
     end
 
     it "raises error if loaded after :batch plugin" do
@@ -36,6 +26,7 @@ RSpec.describe Serega::SeregaPlugins::ActiverecordPreloads do
   describe "InstanceMethods" do
     let(:serializer_class) do
       Class.new(Serega) do
+        plugin :preloads
         plugin :activerecord_preloads
 
         attribute :itself

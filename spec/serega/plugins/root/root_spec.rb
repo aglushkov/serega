@@ -3,6 +3,52 @@
 load_plugin_code :root
 
 RSpec.describe Serega::SeregaPlugins::Root do
+  describe "loading" do
+    let(:serializer) { Class.new(Serega) }
+
+    it "set default root" do
+      serializer.plugin :root
+
+      expect(serializer.config.root.one).to be described_class::ROOT_DEFAULT
+      expect(serializer.config.root.many).to be described_class::ROOT_DEFAULT
+    end
+
+    it "set custom root" do
+      serializer.plugin :root, root: :records
+
+      expect(serializer.config.root.one).to be :records
+      expect(serializer.config.root.many).to be :records
+    end
+
+    it "set custom root per serialization type" do
+      serializer.plugin :root, root_one: :user, root_many: :people
+
+      expect(serializer.config.root.one).to be :user
+      expect(serializer.config.root.many).to be :people
+    end
+
+    it "allows to skip root by default" do
+      serializer.plugin :root, root: nil
+
+      expect(serializer.config.root.one).to be_nil
+      expect(serializer.config.root.many).to be_nil
+    end
+
+    it "allows to skip root for one record serialization" do
+      serializer.plugin :root, root_one: nil
+
+      expect(serializer.config.root.one).to be_nil
+      expect(serializer.config.root.many).to be described_class::ROOT_DEFAULT
+    end
+
+    it "allows to skip root for many records serialization" do
+      serializer.plugin :root, root_many: nil
+
+      expect(serializer.config.root.one).to be described_class::ROOT_DEFAULT
+      expect(serializer.config.root.many).to be_nil
+    end
+  end
+
   describe "configuration" do
     let(:serializer) { Class.new(Serega) { plugin :root } }
 
@@ -56,12 +102,12 @@ RSpec.describe Serega::SeregaPlugins::Root do
 
       it "adds root key to single object response" do
         response = user_serializer.new.to_h(user)
-        expect(response).to eq(user: {first_name: "FIRST_NAME"})
+        expect(response).to eq("user" => {first_name: "FIRST_NAME"})
       end
 
       it "adds root key to multiple objects response" do
         response = user_serializer.new.to_h([user])
-        expect(response).to eq(users: [{first_name: "FIRST_NAME"}])
+        expect(response).to eq("users" => [{first_name: "FIRST_NAME"}])
       end
     end
 

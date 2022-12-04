@@ -13,7 +13,7 @@ class Serega
           #
           # @param loader [nil, #call] Attribute :batch option :loader
           #
-          # @raise [SeregaError] Attribute validation error
+          # @raise [SeregaError] validation error
           #
           # @return [void]
           #

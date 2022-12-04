@@ -3,8 +3,20 @@
 class Serega
   module SeregaPlugins
     module Preloads
+      #
+      # Validator for attribute :preload_path option
+      #
       class CheckOptPreloadPath
         class << self
+          #
+          # Checks preload_path option
+          #
+          # @param opts [Hash] Attribute options
+          #
+          # @raise [SeregaError] validation error
+          #
+          # @return [void]
+          #
           def call(opts)
             return unless opts.key?(:preload_path)
 

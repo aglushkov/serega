@@ -2,7 +2,24 @@
 
 class Serega
   module SeregaPlugins
+    #
+    # Plugin :context_metadata
+    #
+    # Depends on: `:root` plugin, that must be loaded first
+    #
+    # Allows to specify metadata to be added to serialized response.
+    #
+    # @example
+    #   class UserSerializer < Serega
+    #     plugin :root, root: :data
+    #     plugin :context_metadata, context_metadata_key: :meta
+    #   end
+    #
+    #   UserSerializer.to_h(nil, meta: { version: '1.0.1' })
+    #   # => {:data=>nil, :version=>"1.0.1"}
+    #
     module ContextMetadata
+      # Default context metadata option name
       DEFAULT_CONTEXT_METADATA_KEY = :meta
 
       # @return [Symbol] Plugin name
@@ -18,7 +35,9 @@ class Serega
       # @return [void]
       #
       def self.before_load_plugin(serializer_class, **opts)
-        serializer_class.plugin(:root, **opts) unless serializer_class.plugin_used?(:root)
+        unless serializer_class.plugin_used?(:root)
+          raise SeregaError, "Please load :root plugin first so we can wrap serialization response into top-level hash to add metadata there"
+        end
       end
 
       #
@@ -50,29 +69,58 @@ class Serega
         config.serialize_keys << meta_key
       end
 
+      #
+      # Config for `context_metadata` plugin
+      #
       class ContextMetadataConfig
+        # @return [Hash] context_metadata options
         attr_reader :opts
 
+        #
+        # Initializes context_metadata config object
+        #
+        # @param opts [Hash] options
+        #
+        # @return [Serega::SeregaPlugins::ContextMetadata::ContextMetadataConfig]
         def initialize(opts)
           @opts = opts
         end
 
+        # Key that should be used to define metadata
         def key
           opts.fetch(:key)
         end
 
-        def key=(value)
-          opts[:key] = value
+        # Sets key that should be used to define metadata
+        #
+        # @param new_key [Symbol] New key
+        #
+        # @return [Symbol] New key
+        def key=(new_key)
+          opts[:key] = new_key
         end
       end
 
+      #
+      # Config class additional/patched instance methods
+      #
+      # @see Serega::SeregaConfig
+      #
       module ConfigInstanceMethods
+        # @return [Serega::SeregaPlugins::ContextMetadata::ContextMetadataConfig] context_metadata config
         def context_metadata
           @context_metadata ||= ContextMetadataConfig.new(opts.fetch(:context_metadata))
         end
       end
 
+      #
+      # CheckSerializeParams class additional/patched instance methods
+      #
+      # @see Serega::SeregaValidations::CheckSerializeParams
+      #
       module CheckSerializeParamsInstanceMethods
+        private
+
         def check_opts
           super
 
@@ -81,13 +129,23 @@ class Serega
         end
       end
 
+      #
+      # Serega additional/patched instance methods
+      #
+      # @see Serega
+      #
       module InstanceMethods
         private
 
-        def serialize(_object, opts)
-          super.tap do |hash|
-            add_context_metadata(hash, opts)
-          end
+        def serialize(object, opts)
+          result = super
+          return result unless result.is_a?(Hash) # return earlier if not a hash, so no root was added
+
+          root = build_root(object, opts)
+          return result unless root # return earlier when no root
+
+          add_context_metadata(result, opts)
+          result
         end
 
         def add_context_metadata(hash, opts)

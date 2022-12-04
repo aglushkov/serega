@@ -21,7 +21,7 @@ class Serega
       # @return [void]
       #
       def self.load_plugin(serializer_class, **_opts)
-        serializer_class::SeregaAttribute.include(AttributeMethods)
+        serializer_class::SeregaAttribute.include(AttributeInstanceMethods)
         serializer_class::CheckAttributeParams.include(CheckAttributeParamsInstanceMethods)
         serializer_class::SeregaObjectSerializer.include(SeregaObjectSerializerInstanceMethods)
       end
@@ -38,13 +38,23 @@ class Serega
         serializer_class.config.attribute_keys << :hide_nil
       end
 
-      # Adds #hide_nil? Attribute instance method
-      module AttributeMethods
+      #
+      # Serega::SeregaAttribute additional/patched instance methods
+      #
+      # @see Serega::SeregaValidations::CheckAttributeParams
+      #
+      module AttributeInstanceMethods
+        # Check hide_nil is specified
         def hide_nil?
           !!opts[:hide_nil]
         end
       end
 
+      #
+      # Serega::SeregaValidations::CheckAttributeParams additional/patched class methods
+      #
+      # @see Serega::SeregaValidations::CheckAttributeParams
+      #
       module CheckAttributeParamsInstanceMethods
         private
 
@@ -54,6 +64,9 @@ class Serega
         end
       end
 
+      #
+      # Validator class for :hide_nil attribute option
+      #
       class CheckOptHideNil
         #
         # Checks attribute :hide_nil option
@@ -74,6 +87,11 @@ class Serega
         end
       end
 
+      #
+      # SeregaObjectSerializer additional/patched class methods
+      #
+      # @see Serega::SeregaObjectSerializer
+      #
       module SeregaObjectSerializerInstanceMethods
         private
 

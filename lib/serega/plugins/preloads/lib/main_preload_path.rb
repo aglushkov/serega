@@ -3,9 +3,24 @@
 class Serega
   module SeregaPlugins
     module Preloads
+      #
+      # Class that constructs main preloads path.
+      #
+      # When we have nested preloads we will use this path to dig to `main` element and
+      # assign nested preloads to it.
+      #
+      # By default its a path to latest provided preload
+      #
+      # @example
+      #  MainPreloadPath.(a: { b: { c: {} }, d: {} }) # => [:a, :d]
+      #
       class MainPreloadPath
-        module ClassMethods
+        class << self
+          # Finds default preload path
+          #
           # @param preloads [Hash] Formatted user provided preloads hash
+          #
+          # @return [Array<Symbol>] Preloads path to `main` element
           def call(preloads)
             return FROZEN_EMPTY_ARRAY if preloads.empty?
 
@@ -32,8 +47,6 @@ class Serega
             path
           end
         end
-
-        extend ClassMethods
       end
     end
   end

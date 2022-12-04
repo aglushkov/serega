@@ -1,38 +1,19 @@
 # frozen_string_literal: true
 
-load_plugin_code :metadata
+load_plugin_code :root, :metadata
 
 RSpec.describe Serega::SeregaPlugins::Metadata do
+  let(:serializer) { Class.new(Serega) { plugin :root } }
+
   describe "loading" do
-    it "loads additional :root plugin if was not loaded before" do
-      serializer = Class.new(Serega) { plugin :metadata }
-      expect(serializer.plugin_used?(:root)).to be true
-    end
-
-    it "loads additional :root plugin with custom root config" do
-      serializer = Class.new(Serega) { plugin :metadata, root_one: :user, root_many: :users }
-      expect(serializer.config.root.one).to eq :user
-      expect(serializer.config.root.many).to eq :users
-    end
-
-    it "works when :root plugin it was loaded before" do
-      serializer = Class.new(Serega)
-      serializer.plugin :root
-      expect { serializer.plugin :metadata }.not_to raise_error
-    end
-
-    it "configures :root plugin even when it was loaded before" do
-      serializer = Class.new(Serega)
-      serializer.plugin :root
-      serializer.plugin :metadata, root_one: :one, root_many: :many
-      root = serializer.config.root
-      expect(root.one).to eq :one
-      expect(root.many).to eq :many
+    it "raises error when root plugin was not added before" do
+      expect { Class.new(Serega) { plugin :metadata } }
+        .to raise_error Serega::SeregaError, "Please load :root plugin first so we can wrap serialization response into top-level hash to add metadata there"
     end
   end
 
   describe "inheritance" do
-    let(:parent) { Class.new(Serega) { plugin :metadata } }
+    let(:parent) { Class.new(serializer) { plugin :metadata } }
     let(:child) { Class.new(parent) }
 
     it "inherits MetaAttribute class" do
@@ -66,11 +47,11 @@ RSpec.describe Serega::SeregaPlugins::Metadata do
   end
 
   describe "serialization" do
-    subject(:response) { user_serializer.new.to_h(obj, context: context) }
+    subject(:response) { user_serializer.to_h(obj, context: context) }
 
     let(:obj) { double(first_name: "FIRST_NAME") }
     let(:context) { {} }
-    let(:base_serializer) { Class.new(Serega) { plugin :metadata } }
+    let(:base_serializer) { Class.new(serializer) { plugin :metadata } }
     let(:user_serializer) do
       Class.new(base_serializer) do
         attribute :first_name
@@ -164,6 +145,18 @@ RSpec.describe Serega::SeregaPlugins::Metadata do
             test8: "foo"
           }
         )
+      end
+    end
+
+    context "when root is nil" do
+      before do
+        user_serializer.config.root = {one: nil, many: nil}
+        user_serializer.meta_attribute(:version) { "1.2.3" }
+      end
+
+      it "does not add metadata" do
+        expect(user_serializer.to_h(obj)).to eq({first_name: "FIRST_NAME"})
+        expect(user_serializer.to_h([obj])).to eq([{first_name: "FIRST_NAME"}])
       end
     end
   end

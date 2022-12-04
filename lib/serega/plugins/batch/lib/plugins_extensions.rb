@@ -49,7 +49,7 @@ class Serega
             def keys_values(*)
               data = super
 
-              formatter = point.attribute.formatter_resolved
+              formatter = point.attribute.formatter
               data.transform_values! { |value| formatter.call(value) } if formatter
 
               data

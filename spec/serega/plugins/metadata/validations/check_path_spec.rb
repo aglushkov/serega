@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-load_plugin_code(:metadata)
+load_plugin_code(:root, :metadata)
 
 RSpec.describe Serega::SeregaPlugins::Metadata::MetaAttribute::CheckPath do
   def error(name)

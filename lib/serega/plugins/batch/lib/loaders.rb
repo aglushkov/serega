@@ -5,7 +5,6 @@ class Serega
     module Batch
       # Lists batch loaders registered during serialization
       class SeregaBatchLoaders
-
         # BatchLoaders instance methods
         module InstanceMethods
           #

@@ -4,6 +4,9 @@ class Serega
   module SeregaPlugins
     module Metadata
       class MetaAttribute
+        #
+        # Validator for meta_attribute options
+        #
         class CheckOpts
           class << self
             #

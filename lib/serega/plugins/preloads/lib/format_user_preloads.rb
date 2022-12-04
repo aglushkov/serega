@@ -3,7 +3,9 @@
 class Serega
   module SeregaPlugins
     module Preloads
-      # Transforms user provided preloads to hash
+      #
+      # Utility that helps to transform user provided preloads to hash
+      #
       class FormatUserPreloads
         METHODS = {
           Array => :array_to_hash,
@@ -14,7 +16,16 @@ class Serega
           Symbol => :symbol_to_hash
         }.freeze
 
-        module ClassMethods
+        private_constant :METHODS
+
+        class << self
+          #
+          # Transforms user provided preloads to hash
+          #
+          # @param value [Array,Hash,String,Symbol,nil,false] preloads
+          #
+          # @return [Hash] preloads transformed to hash
+          #
           def call(value)
             send(METHODS.fetch(value.class), value)
           end
@@ -45,8 +56,6 @@ class Serega
             {value => {}}
           end
         end
-
-        extend ClassMethods
       end
     end
   end

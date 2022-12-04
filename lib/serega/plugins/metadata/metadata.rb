@@ -2,6 +2,34 @@
 
 class Serega
   module SeregaPlugins
+    #
+    # Plugin `:metadata`
+    #
+    # Depends on: `:root` plugin, that must be loaded first
+    #
+    # Adds ability to describe metadata that must be added to serialized response
+    #
+    # Added class-level method `:meta_attribute`, to define metadata, it accepts:
+    # - *path [Array<Symbol>] - nested hash keys beginning from the root object.
+    # - **options [Hash] - defaults are `hide_nil: false, hide_empty: false`
+    # - &block [Proc] - describes value for current meta attribute
+    #
+    # @example
+    #  class AppSerializer < Serega
+    #    plugin :root
+    #    plugin :metadata
+    #
+    #    meta_attribute(:version) { '1.2.3' }
+    #    meta_attribute(:ab_tests, :names) { %i[foo bar] }
+    #    meta_attribute(:meta, :paging, hide_nil: true) do |records, ctx|
+    #      next unless records.respond_to?(:total_count)
+    #
+    #      { page: records.page, per_page: records.per_page, total_count: records.total_count }
+    #    end
+    #  end
+    #
+    #  AppSerializer.to_h(nil) # => {:data=>nil, :version=>"1.2.3", :ab_tests=>{:names=>[:foo, :bar]}}
+    #
     module Metadata
       # @return [Symbol] Plugin name
       def self.plugin_name
@@ -11,17 +39,13 @@ class Serega
       # Checks requirements and loads additional plugins
       #
       # @param serializer_class [Class<Serega>] Current serializer class
-      # @param opts [Hash] loaded plugins opts
+      # @param _opts [Hash] loaded plugins opts
       #
       # @return [void]
       #
-      def self.before_load_plugin(serializer_class, **opts)
-        if serializer_class.plugin_used?(:root)
-          root = serializer_class.config.root
-          root.one = opts[:root_one] if opts.key?(:root_one)
-          root.many = opts[:root_many] if opts.key?(:root_many)
-        else
-          serializer_class.plugin(:root, **opts)
+      def self.before_load_plugin(serializer_class, **_opts)
+        unless serializer_class.plugin_used?(:root)
+          raise SeregaError, "Please load :root plugin first so we can wrap serialization response into top-level hash to add metadata there"
         end
       end
 
@@ -62,24 +86,49 @@ class Serega
         serializer_class.config.opts[:metadata] = {attribute_keys: %i[path hide_nil hide_empty]}
       end
 
+      #
+      # Config for `metadata` plugin
+      #
       class MetadataConfig
+        # @return [Hash] metadata options
         attr_reader :opts
 
+        #
+        # Initializes context_metadata config object
+        #
+        # @param opts [Hash] options
+        #
+        # @return [Serega::SeregaPlugins::Metadata::MetadataConfig]
+        #
         def initialize(opts)
           @opts = opts
         end
 
+        #
+        # Returns allowed metadata attribute keys
+        #
         def attribute_keys
           opts.fetch(:attribute_keys)
         end
       end
 
+      #
+      # Config class additional/patched instance methods
+      #
+      # @see Serega::SeregaConfig
+      #
       module ConfigInstanceMethods
+        # @return [Serega::SeregaPlugins::Metadata::MetadataConfig] metadata config
         def metadata
           @metadata ||= MetadataConfig.new(opts.fetch(:metadata))
         end
       end
 
+      #
+      # Serega class additional/patched class methods
+      #
+      # @see Serega::SeregaConfig
+      #
       module ClassMethods
         private def inherited(subclass)
           super
@@ -97,30 +146,20 @@ class Serega
         #
         # List of added metadata attributes
         #
-        # @return [Array] Added metadata attributes
+        # @return [Hash<Symbol => Serega::SeregaPlugins::Metadata::MetaAttribute>] Added metadata attributes
         #
         def meta_attributes
           @meta_attributes ||= {}
         end
 
         #
-        # Adds metadata to response
+        # Define metadata attribute
         #
-        # @example
-        #   class AppSerializer < Serega
-        #
-        #     meta_attribute(:version) { '1.2.3' }
-        #
-        #     meta_attribute(:meta, :paging, hide_nil: true, hide_empty: true) do |scope, ctx|
-        #       { page: scope.page, per_page: scope.per_page, total_count: scope.total_count }
-        #     end
-        #   end
-        #
-        # @param path [String, Symbol, Array<String, Symbol>] Metadata attribute path keys
+        # @param path [String, Symbol] Metadata attribute path keys
         # @param opts [Hash] Metadata attribute options
         # @param block [Proc] Block to fetch metadata attribute value
         #
-        # @return [MetadataAttribute] Added metadata attribute
+        # @return [Serega::SeregaPlugins::Metadata::MetaAttribute] Added metadata attribute
         #
         def meta_attribute(*path, **opts, &block)
           attribute = self::MetaAttribute.new(path: path, opts: opts, block: block)
@@ -128,14 +167,23 @@ class Serega
         end
       end
 
+      #
+      # Serega additional/patched instance methods
+      #
+      # @see Serega
+      #
       module InstanceMethods
         private
 
         def serialize(object, opts)
-          super.tap do |hash|
-            context = opts[:context]
-            add_metadata(object, context, hash)
-          end
+          result = super
+          return result unless result.is_a?(Hash) # return earlier if not a hash, so no root was added
+
+          root = build_root(object, opts)
+          return result unless root # return earlier when no root
+
+          add_metadata(object, opts[:context], result)
+          result
         end
 
         def add_metadata(object, context, hash)
