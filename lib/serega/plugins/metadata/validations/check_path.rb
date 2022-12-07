@@ -4,6 +4,9 @@ class Serega
   module SeregaPlugins
     module Metadata
       class MetaAttribute
+        #
+        # Validator for meta_attribute :path parameter
+        #
         class CheckPath
           FORMAT_ONE_CHAR = /\A[a-zA-Z0-9]\z/
           FORMAT_MANY_CHARS = /\A[a-zA-Z0-9][a-zA-Z0-9_-]*?[a-zA-Z0-9]\z/ # allow '-' and '_' in the middle

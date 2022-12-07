@@ -42,7 +42,7 @@ class Serega
       # Runs callbacks after plugin was attached
       #
       # @param serializer_class [Class<Serega>] Current serializer class
-      # @param opts [Hash] loaded plugins opts
+      # @param _opts [Hash] loaded plugins opts
       #
       # @return [void]
       #
@@ -74,7 +74,11 @@ class Serega
         include InstanceMethods
       end
 
-      # Overrides class methods of included class
+      #
+      # Serega additional/patched class methods
+      #
+      # @see Serega
+      #
       module ClassMethods
         private def inherited(subclass)
           super
@@ -94,7 +98,11 @@ class Serega
         end
       end
 
-      # Includes methods to override SeregaObjectSerializer instance methods
+      #
+      # SeregaObjectSerializer additional/patched class methods
+      #
+      # @see Serega::SeregaObjectSerializer
+      #
       module SeregaObjectSerializerInstanceMethods
         private
 

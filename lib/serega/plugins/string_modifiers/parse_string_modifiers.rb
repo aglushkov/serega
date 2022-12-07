@@ -2,23 +2,53 @@
 
 class Serega
   module SeregaPlugins
-    module StringModifiers
-      class ParseStringModifiers
-        COMMA = ","
-        OPEN_BRACKET = "("
-        CLOSE_BRACKET = ")"
+    #
+    # Plugin :string_modifiers
+    #
+    # Allows to specify modifiers as strings.
+    #
+    # Serialized attributes must be split with `,` and nested attributes can be defined inside brackets `(`, `)`.
+    #
+    # @example
+    #   PostSerializer.plugin :string_modifiers
+    #   PostSerializer.new(only: "id,user(id,username)").to_h(post)
+    #   PostSerializer.new(except: "user(username,email)").to_h(post)
+    #   PostSerializer.new(with: "user(email)").to_h(post)
 
+    #   # Modifiers can still be provided old way with nested hashes or arrays.
+    #   PostSerializer.new(with: {user: %i[email, username]}).to_h(post)
+    #
+    module StringModifiers
+      #
+      # Modifiers parser
+      #
+      class ParseStringModifiers
+        #
+        # Parses provided fields
+        #
+        # @param fields [String,Hash,Array,nil]
+        #
+        # @return [Hash] parsed modifiers in form of nested hash
+        #
         def self.call(fields)
           return fields unless fields.is_a?(String)
 
           new.parse(fields)
         end
 
-        # user => { user: {} }
-        # user(id) => { user: { id: {} } }
-        # user(id,name) => { user: { id: {}, name: {} } }
-        # user,comments => { user: {}, comments: {} }
-        # user(comments(text)) => { user: { comments: { text: {} } } }
+        #
+        # Parses string modifiers
+        #
+        # @param fields [String]
+        #
+        # @return [Hash] parsed modifiers in form of nested hash
+        #
+        # @example
+        #   parse("user") => { user: {} }
+        #   parse("user(id)") => { user: { id: {} } }
+        #   parse("user(id,name)") => { user: { id: {}, name: {} } }
+        #   parse("user,comments") => { user: {}, comments: {} }
+        #   parse("user(comments(text))") => { user: { comments: { text: {} } } }
         def parse(fields)
           res = {}
           attribute = +""
@@ -26,12 +56,12 @@ class Serega
 
           fields.each_char do |char|
             case char
-            when COMMA
+            when ","
               add_attribute(res, path_stack, attribute, FROZEN_EMPTY_HASH)
-            when CLOSE_BRACKET
+            when ")"
               add_attribute(res, path_stack, attribute, FROZEN_EMPTY_HASH)
               path_stack&.pop
-            when OPEN_BRACKET
+            when "("
               name = add_attribute(res, path_stack, attribute, {})
               (path_stack ||= []).push(name) if name
             else

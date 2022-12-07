@@ -3,14 +3,67 @@
 class Serega
   module SeregaPlugins
     #
-    # Plugin adds `.preloads` method to find relations that must be preloaded
+    # Plugin `:preloads`
     #
+    # Allows to define `:preloads` to attributes and then allows to merge preloads
+    # from serialized attributes and return single associations hash.
+    #
+    # Plugin accepts options:
+    # - `auto_preload_attributes_with_delegate` - default false
+    # - `auto_preload_attributes_with_serializer` - default false
+    # - `auto_hide_attributes_with_preload` - default false
+    #
+    # This options are very handy if you want to forget about finding preloads manually.
+    #
+    # Preloads can be disabled with `preload: false` attribute option option.
+    # Also automatically added preloads can be overwritten with manually specified `preload: :another_value`.
+    #
+    # Some examples, **please read comments in the code below**
+    #
+    # @example
+    #   class AppSerializer < Serega
+    #     plugin :preloads,
+    #       auto_preload_attributes_with_delegate: true,
+    #       auto_preload_attributes_with_serializer: true,
+    #       auto_hide_attributes_with_preload: true
+    #   end
+    #
+    #   class UserSerializer < AppSerializer
+    #     # No preloads
+    #     attribute :username
+    #
+    #     # Specify `preload: :user_stats` manually
+    #     attribute :followers_count, preload: :user_stats, value: proc { |user| user.user_stats.followers_count }
+    #
+    #     # Automatically `preloads: :user_stats` as `auto_preload_attributes_with_delegate` option is true
+    #     attribute :comments_count, delegate: { to: :user_stats }
+    #
+    #     # Automatically `preloads: :albums` as `auto_preload_attributes_with_serializer` option is true
+    #     attribute :albums, serializer: 'AlbumSerializer'
+    #   end
+    #
+    #   class AlbumSerializer < AppSerializer
+    #     attribute :images_count, delegate: { to: :album_stats }
+    #   end
+    #
+    #   # By default preloads are empty, as we specify `auto_hide_attributes_with_preload = true`,
+    #   # and attributes with preloads will be not serialized
+    #   UserSerializer.new.preloads # => {}
+    #   UserSerializer.new.to_h(OpenStruct.new(username: 'foo')) # => {:username=>"foo"}
+    #
+    #   UserSerializer.new(with: :followers_count).preloads # => {:user_stats=>{}}
+    #   UserSerializer.new(with: %i[followers_count comments_count]).preloads # => {:user_stats=>{}}
+    #   UserSerializer.new(with: [:followers_count, :comments_count, { albums: :images_count }]).preloads # => {:user_stats=>{}, :albums=>{:album_stats=>{}}}
+    #
+
     module Preloads
       DEFAULT_CONFIG = {
         auto_preload_attributes_with_delegate: false,
         auto_preload_attributes_with_serializer: false,
         auto_hide_attributes_with_preload: false
       }.freeze
+
+      private_constant :DEFAULT_CONFIG
 
       # @return [Symbol] Plugin name
       def self.plugin_name
@@ -27,9 +80,9 @@ class Serega
       #
       def self.load_plugin(serializer_class, **_opts)
         serializer_class.include(InstanceMethods)
-        serializer_class::SeregaAttribute.include(AttributeMethods)
+        serializer_class::SeregaAttribute.include(AttributeInstanceMethods)
         serializer_class::SeregaConfig.include(ConfigInstanceMethods)
-        serializer_class::SeregaMapPoint.include(MapPointMethods)
+        serializer_class::SeregaMapPoint.include(MapPointInstanceMethods)
 
         serializer_class::CheckAttributeParams.include(CheckAttributeParamsInstanceMethods)
 
@@ -61,21 +114,57 @@ class Serega
         preloads_config.auto_hide_attributes_with_preload = preloads_opts[:auto_hide_attributes_with_preload]
       end
 
-      # Adds #preloads instance method
+      #
+      # Serega additional/patched instance methods
+      #
+      # @see Serega
+      #
       module InstanceMethods
-        # @return [Hash] relations that can be preloaded to omit N+1
+        # @return [Hash] merged preloads of all serialized attributes
         def preloads
           @preloads ||= PreloadsConstructor.call(map)
         end
       end
 
+      #
+      # Config for `preloads` plugin
+      #
       class PreloadsConfig
+        # @return [Hash] preloads plugin options
         attr_reader :opts
 
+        #
+        # Initializes context_metadata config object
+        #
+        # @param opts [Hash] options
+        #
+        # @return [Serega::SeregaPlugins::Metadata::MetadataConfig]
+        #
         def initialize(opts)
           @opts = opts
         end
 
+        # @!method auto_preload_attributes_with_delegate
+        #   @return [Boolean, nil] option value
+        #
+        # @!method auto_preload_attributes_with_delegate=(value)
+        #   @param value [Boolean] New option value
+        #   @return [Boolean] New option value
+        #
+        # @!method auto_preload_attributes_with_serializer
+        #   @return [Boolean, nil] option value
+        #
+        # @!method auto_preload_attributes_with_serializer=(value)
+        #   @param value [Boolean] New option value
+        #   @return [Boolean] New option value
+        #
+        # @!method auto_hide_attributes_with_preload
+        #   @return [Boolean, nil] option value
+        #
+        # @!method auto_hide_attributes_with_preload=(value)
+        #   @param value [Boolean] New option value
+        #   @return [Boolean] New option value
+        #
         %i[
           auto_preload_attributes_with_delegate
           auto_preload_attributes_with_serializer
@@ -92,26 +181,46 @@ class Serega
         end
       end
 
+      #
+      # Config class additional/patched instance methods
+      #
+      # @see Serega::SeregaConfig
+      #
       module ConfigInstanceMethods
+        # @return [Serega::SeregaPlugins::Preloads::PreloadsConfig] `preloads` plugin config
         def preloads
           @preloads ||= PreloadsConfig.new(opts.fetch(:preloads))
         end
       end
 
-      # Adds #preloads and #preloads_path Attribute instance method
-      module AttributeMethods
+      #
+      # Serega::SeregaAttribute additional/patched instance methods
+      #
+      # @see Serega::SeregaAttribute::AttributeInstanceMethods
+      #
+      module AttributeInstanceMethods
+        # @return [Hash,nil] formatted preloads of current attribute
         def preloads
           return @preloads if defined?(@preloads)
 
           @preloads = get_preloads
         end
 
+        # @return [Array] formatted preloads_path of current attribute
         def preloads_path
           return @preloads_path if defined?(@preloads_path)
 
           @preloads_path = get_preloads_path
         end
 
+        # Patch for original `hide` method
+        #
+        # Marks attribute hidden if auto_hide_attribute_with_preloads option was set and attribute has preloads
+        #
+        # @return [Boolean, nil] if attribute is hidden
+        #
+        # @see Serega::SeregaAttribute::AttributeInstanceMethods#hide
+        #
         def hide
           res = super
           return res unless res.nil?
@@ -151,16 +260,32 @@ class Serega
         end
       end
 
-      module MapPointMethods
+      #
+      # Serega::SeregaMapPoint additional/patched instance methods
+      #
+      # @see Serega::SeregaMapPoint::InstanceMethods
+      #
+      module MapPointInstanceMethods
+        #
+        # @return [Hash] preloads for nested attributes
+        #
         def preloads
           @preloads ||= PreloadsConstructor.call(nested_points)
         end
 
+        #
+        # @return [Array<Symbol>] preloads path for current attribute
+        #
         def preloads_path
           attribute.preloads_path
         end
       end
 
+      #
+      # Serega::SeregaValidations::CheckAttributeParams additional/patched class methods
+      #
+      # @see Serega::SeregaValidations::CheckAttributeParams
+      #
       module CheckAttributeParamsInstanceMethods
         private
 

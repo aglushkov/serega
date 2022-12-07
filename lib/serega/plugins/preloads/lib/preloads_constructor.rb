@@ -4,12 +4,12 @@ class Serega
   module SeregaPlugins
     module Preloads
       #
-      # Finds relations to preload for provided serializer
+      # Finds preloads for provided attributes map
       #
       class PreloadsConstructor
-        module ClassMethods
+        class << self
           #
-          # Constructs preloads hash for given map
+          # Constructs preloads hash for given attributes map
           #
           # @param map [Array<Serega::MapPoint>] Serialization map
           #
@@ -54,8 +54,6 @@ class Serega
             (!path || path.empty?) ? preloads : preloads.dig(*path)
           end
         end
-
-        extend ClassMethods
       end
     end
   end

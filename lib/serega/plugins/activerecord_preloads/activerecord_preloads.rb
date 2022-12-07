@@ -3,27 +3,69 @@
 class Serega
   module SeregaPlugins
     #
-    # Plugin that automatically preloads relations to serialized objects
+    # Plugin :activerecord_preloads
+    # (depends on :preloads plugin, that must be loaded first)
+    #
+    # Automatically preloads associations to serialized objects
+    #
+    # It takes all defined preloads from serialized attributes (including attributes from serialized relations),
+    # merges them into single associations hash and then uses ActiveRecord::Associations::Preloader
+    # to preload all associations.
+    #
+    # @example
+    #   class AppSerializer < Serega
+    #     plugin :preloads,
+    #       auto_preload_attributes_with_delegate: true,
+    #       auto_preload_attributes_with_serializer: true,
+    #       auto_hide_attributes_with_preload: true
+    #
+    #     plugin :activerecord_preloads
+    #   end
+    #
+    #   class UserSerializer < AppSerializer
+    #     # no preloads
+    #     attribute :username
+    #
+    #     # preloads `:user_stats` as auto_preload_attributes_with_delegate option is true
+    #     attribute :comments_count, delegate: { to: :user_stats }
+    #
+    #     # preloads `:albums` as auto_preload_attributes_with_serializer option is true
+    #     attribute :albums, serializer: AlbumSerializer, hide: false
+    #   end
+    #
+    #   class AlbumSerializer < AppSerializer
+    #     # no preloads
+    #     attribute :title
+    #
+    #     # preloads :downloads_count as manually specified
+    #     attribute :downloads_count, preload: :downloads, value: proc { |album| album.downloads.count }
+    #   end
+    #
+    #   UserSerializer.to_h(user) # => preloads {users_stats: {}, albums: { downloads: {} }}
     #
     module ActiverecordPreloads
+      #
       # @return [Symbol] Plugin name
+      #
       def self.plugin_name
         :activerecord_preloads
       end
 
-      # Checks requirements and loads additional plugins
+      # Checks requirements to load plugin
       #
       # @param serializer_class [Class<Serega>] Current serializer class
-      # @param opts [Hash] loaded plugins opts
+      # @param _opts [Hash] plugins options
       #
       # @return [void]
       #
-      def self.before_load_plugin(serializer_class, **opts)
+      def self.before_load_plugin(serializer_class, **_opts)
+        unless serializer_class.plugin_used?(:preloads)
+          raise SeregaError, "Please load `plugin :preloads` first"
+        end
+
         if serializer_class.plugin_used?(:batch)
           raise SeregaError, "Plugin `activerecord_preloads` must be loaded before `batch`"
         end
-
-        serializer_class.plugin(:preloads, **opts) unless serializer_class.plugin_used?(:preloads)
       end
 
       #

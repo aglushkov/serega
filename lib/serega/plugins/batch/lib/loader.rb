@@ -3,19 +3,51 @@
 class Serega
   module SeregaPlugins
     module Batch
+      #
+      # Encapsulates point and according object_serializer
+      #   so we can put batch loaded values to this serializer response
+      #
       class SeregaBatchLoader
+        #
+        # Batch Loader instance methods
+        #
         module InstanceMethods
-          attr_reader :object_serializer, :point
+          # @return [Serega::SeregaMapPoint]
+          attr_reader :point
 
+          # @return [Serega::SeregaObjectSerializer]
+          attr_reader :object_serializer
+
+          #
+          # Initializes new SeregaBatchLoader
+          #
+          # @param object_serializer [Serega::SeregaObjectSerializer]
+          # @param point [Serega::SeregaMapPoint]
+          #
+          # @return [Serega::SeregaPlugins::Batch::SeregaBatchLoader]
+          #
           def initialize(object_serializer, point)
             @object_serializer = object_serializer
             @point = point
           end
 
+          #
+          # Remembers key and hash container where value for this key must be inserted
+          #
+          # @param key [Object] key that identifies batch loaded objects
+          # @param container [Hash] container where batch loaded objects must be attached
+          #
+          # @return [void]
+          #
           def remember(key, container)
             (keys[key] ||= []) << container
           end
 
+          #
+          # Loads this batch and assigns values to remembered containers
+          #
+          # @return [void]
+          #
           def load
             keys_values = keys_values()
 

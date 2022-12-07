@@ -4,6 +4,9 @@ class Serega
   module SeregaPlugins
     module Metadata
       class MetaAttribute
+        #
+        # Validator for meta_attribute block parameter
+        #
         class CheckBlock
           ALLOWED_PARAM_TYPES = %i[opt req]
           private_constant :ALLOWED_PARAM_TYPES

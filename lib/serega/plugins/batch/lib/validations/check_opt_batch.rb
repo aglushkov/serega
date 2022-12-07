@@ -3,8 +3,20 @@
 class Serega
   module SeregaPlugins
     module Batch
+      #
+      # Attribute `:batch` option validator
+      #
       class CheckOptBatch
         class << self
+          #
+          # Checks attribute :batch  option
+          #
+          # @param opts [Hash] Attribute options
+          #
+          # @raise [SeregaError] Attribute validation error
+          #
+          # @return [void]
+          #
           def call(opts, block)
             return unless opts.key?(:batch)
 

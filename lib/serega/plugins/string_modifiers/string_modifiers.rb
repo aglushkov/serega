@@ -21,6 +21,11 @@ class Serega
         require_relative "./parse_string_modifiers"
       end
 
+      #
+      # Serega additional/patched instance methods
+      #
+      # @see Serega
+      #
       module InstanceMethods
         private
 

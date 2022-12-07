@@ -22,9 +22,9 @@ end
 
 require "serega"
 
-def load_plugin_code(name)
+def load_plugin_code(*names)
   ser = Class.new(Serega)
-  ser.plugin(name)
+  names.each { |name| ser.plugin(name) }
 end
 
 RSpec.configure do |config|

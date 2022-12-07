@@ -1,5 +1,16 @@
 ## [Unreleased]
 
+## [0.7.0]
+
+- Root plugin now does not symbolize provided root key
+- Root plugin now allows to provide `nil` root to skip adding root
+- Metadata and context_metadata plugins now raise error if root plugin was not added before manually
+- Metadata and context_metadata not added if root is nil
+- More documentation with yardoc
+- Require :preloads plugin to be added manually before :activerecord_preloads
+
+## [0.6.1] - 2022-12-03
+
 - Fix `presenter` plugin was not working for nested serializers
 - Fix issue with not auto-preloaded relations when using #call method
 - Remove SeregaSerializer class, moved its functionality to Serega#serialize method

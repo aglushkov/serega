@@ -366,6 +366,7 @@ RSpec.describe Serega::SeregaPlugins::Batch do
     context "with activerecord_preloads plugin" do
       let(:base_serializer) do
         Class.new(Serega) do
+          plugin :preloads
           plugin :activerecord_preloads
           plugin :batch
         end

@@ -4,10 +4,13 @@ class Serega
   module SeregaPlugins
     module Metadata
       class MetaAttribute
+        #
+        # Validator for meta_attribute :hide_nil option
+        #
         class CheckOptHideNil
           class << self
             #
-            # Checks attribute :after_hide_if option
+            # Checks attribute :hide_nil option
             #
             # @param opts [Hash] Attribute options
             #
