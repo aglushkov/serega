@@ -27,6 +27,6 @@ Gem::Specification.new do |spec|
   spec.metadata["source_code_uri"] = "https://github.com/aglushkov/serega"
   spec.metadata["changelog_uri"] = "https://github.com/aglushkov/serega/blob/master/CHANGELOG.md"
 
-  spec.files = Dir["lib/**/*.rb"] << "VERSION"
+  spec.files = Dir["lib/**/*.rb"] << "VERSION" << "README.md"
   spec.require_paths = ["lib"]
 end
