@@ -6,12 +6,14 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
+    runs-on: ubuntu-22.04
     name: Ruby ${{ matrix.ruby }} (AR ${{ matrix.activerecord }})
     strategy:
       fail-fast: false
       matrix:
         include:
+          # https://github.com/ruby/ruby-builder/releases
           - ruby: "head"
             activerecord: "7.0"
           - ruby: "3.1"
@@ -28,13 +30,13 @@ jobs:
             activerecord: "6.1"
           - ruby: "2.6"
             activerecord: "5.2"
-          - ruby: "jruby-9.3.4.0"
-            activerecord: "5.2"
-          - ruby: "jruby-9.3.4.0"
+          - ruby: "jruby-9.4.0"
             activerecord: "6.1"
-          - ruby: "truffleruby-22.1.0"
+          - ruby: "jruby-9.4.0"
             activerecord: "7.0"
-          - ruby: "truffleruby-22.1.0"
+          - ruby: "truffleruby-22.3.0"
+            activerecord: "7.0"
+          - ruby: "truffleruby-22.3.0"
             activerecord: "6.1"
 
     env:
@@ -42,7 +44,10 @@ jobs:
       CC_TEST_REPORTER_ID: 2b0dd65d1c078b0d9f6edc768751ab9f210decdace1eae9651603a6bccff96ca
 
     steps:
+      # https://github.com/actions/checkout
       - uses: actions/checkout@v3
+
+      # https://github.com/ruby/setup-ruby
       - name: Set up Ruby ${{ matrix.ruby }} (AR ${{ matrix.activerecord }})
         uses: ruby/setup-ruby@v1
         with:
@@ -59,5 +64,5 @@ jobs:
 
       # https://github.com/paambaati/codeclimate-action
       - name: Publish code coverage to code-climate
-        uses: paambaati/codeclimate-action@v3.0.0
+        uses: paambaati/codeclimate-action@v3.2
         if: (github.event_name == 'push') && startsWith(matrix.ruby, '3.1')
