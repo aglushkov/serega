@@ -1,6 +1,6 @@
 ## [Unreleased]
 
-## [0.7.0]
+## [0.7.0] - 2022-12-08
 
 - Root plugin now does not symbolize provided root key
 - Root plugin now allows to provide `nil` root to skip adding root
