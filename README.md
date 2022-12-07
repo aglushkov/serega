@@ -5,21 +5,21 @@
 
 # Serega Ruby Serializer
 
-The Serega Ruby Serializer provides easy and powerfull DSL to describe your objects and to serialize them to Hash or JSON.
+The Serega Ruby Serializer provides easy and powerful DSL to describe your objects and to serialize them to Hash or JSON.
 
 ---
 
-  📌 Serega can be used with or without any framework, it does not depend on any gem
+  📌 Serega does not depend on any gem and works with any framework
 
 ---
 
-It has also some great features:
+It has some great features:
 
 - Manually [select serialized fields](#selecting-fields)
+- Solutions for N+1 problem (via [batch][batch], [preloads][preloads] or [activerecord_preloads][activerecord_preloads] plugins)
 - Built-in object presenter ([presenter][presenter] plugin)
-- Solution for N+1 problem (via [batch][batch], [preloads][preloads] or [activerecord_preloads][activerecord_preloads] plugins)
-- Custom metadata (via [metadata][metadata] or [context_metadata][context_metadata] plugins)
-- Custom attribute formatters ([formatters][formatters] plugin)
+- Adding custom metadata (via [metadata][metadata] or [context_metadata][context_metadata] plugins)
+- Attributes formatters ([formatters][formatters] plugin)
 
 ## Installation
 
@@ -28,23 +28,26 @@ It has also some great features:
 
 ### Define serializers
 
-Most apps should define base serializer with common plugins and settings to not repeat this in every serializer.
-Children serializers will inherit plugins, config, attributes from parent.
+Most apps should define **base serializer** with common plugins and settings to not repeat them in each serializer.
+Children serializers will inherit everything (plugins, config, attributes) from parent.
 
 ```ruby
 class AppSerializer < Serega
-  plugin :root
-  plugin :formatters
-  plugin :preloads
-  plugin :activerecord_preloads
+  # plugin :one
+  # plugin :two
 
-  config.formatters.add(iso_time: ->(time) { time.iso8601.round(6) })
+  # config.one = :one
+  # config.two = :two
 end
 
 class UserSerializer < AppSerializer
-  attribute :one
-  attribute :two
-  attribute :three
+  # attribute :one
+  # attribute :two
+end
+
+class CommentSerializer < AppSerializer
+  # attribute :one
+  # attribute :two
 end
 ```
 
@@ -134,19 +137,19 @@ UserSerializer.as_json([user]) # => [{"username":"serega"}]
 
 ### Selecting Fields
 
-  By default all attributes are serialized (except once marked as `hide: true`).
+  By default all attributes are serialized (except marked as `hide: true`).
 
   We can provide **modifiers** to select only needed attributes:
 
   - *only* - lists attributes to serialize;
   - *except* - lists attributes to not serialize;
-  - *with* - lists attributes to serialize additionally (By default all attributes are exposed and will be serialized, but some attributes can be hidden when they are defined with `hide: true` option, more on this below. `with` modifier can be used to show such attributes).
+  - *with* - lists attributes to serialize additionally (By default all attributes are exposed and will be serialized, but some attributes can be hidden when they are defined with `hide: true` option, more on this below. `with` modifier can be used to expose such attributes).
 
   Modifiers can be provided as Hash, Array, String, Symbol or their combinations.
 
   With plugin [string_modifiers][string_modifiers] we can provide modifiers as single `String` with attributes split by comma `,` and nested values inside brackets `()`, like: `username,enemies(username,email)`. This can be very useful to accept list of field in **GET** requests.
 
-  When provided non-existing attribute, `Serega::AttributeNotExist` error will be raised, but it can be muted with `check_initiate_params: false` parameter.
+  When provided non-existing attribute, `Serega::AttributeNotExist` error will be raised. This error can be muted with `check_initiate_params: false` parameter.
 
 ```ruby
 class UserSerializer < Serega
@@ -221,6 +224,8 @@ UserSerializer.new.to_h(user, context: {current_user: user}) # same
 
 ## Configuration
 
+This is initial config options, other config options can be added by plugins
+
 ```ruby
 class AppSerializer < Serega
   # Configure adapter to serialize to JSON.
@@ -235,26 +240,10 @@ class AppSerializer < Serega
   # By default it is enabled. After disabling, when provided not existed attribute it will be just skipped.
   config.check_initiate_params = false # default is true, enabled
 
-  # Stores serialized attributes in class instance variables
-  # This way we can reuse some calculated data from previous serialization.
-  # Stores last specified number of different serializations. Serializations differ by modifiers (`:only, :except, :with`).
+  # Stores in memory prepared `maps` of serialized attributes during serialization.
+  # Next time serialization happens with same modifiers (`:only, :except, :with`), we will use already prepared `map`.
+  # Setting defines storage size (count of stored `maps` with different modifiers).
   config.max_cached_map_per_serializer_count = 50 # default is 0, disabled
-
-  # With context_metadata plugin:
-  config.context_metadata.key=(value) # Changes key used to add context_metadata. By default it is :meta
-
-  # With formatters plugin:
-  config.formatters.add(key => callable_value)
-
-  # With preloads plugin:
-  config.preloads.auto_preload_attributes_with_delegate = true # Default is false
-  config.preloads.auto_preload_attributes_with_serializer = true # Default is false
-  config.preloads.auto_hide_attributes_with_preload = true # Default is false
-
-  # With root plugin
-  config.root = { one: :data, many: :data } # Changes root values. Default is :data
-  config.root.one = :user # Changes specific root value
-  config.root.many = :people # Changes specific root value
 end
 ```
 
@@ -515,10 +504,16 @@ Allows to provide metadata and attach it to serialized response.
 
 Accepts option `:context_metadata_key` with name of keyword that must be used to provide metadata. By default it is `:meta`
 
+Key can be changed in children serializers using config `config.context_metadata.key=(value)`
+
 ```ruby
 class UserSerializer < Serega
   plugin :root, root: :data
   plugin :context_metadata, context_metadata_key: :meta
+
+  # Same:
+  # plugin :context_metadata
+  # config.context_metadata.key = :meta
 end
 
 UserSerializer.to_h(nil, meta: { version: '1.0.1' })
@@ -527,9 +522,9 @@ UserSerializer.to_h(nil, meta: { version: '1.0.1' })
 
 ### Plugin :formatters
 
-Allows to define value formatters one time and apply them on any attributes.
+Allows to define `formatters` and apply them on attributes.
 
-Config option `config.formatters.add()` can be used to add formatters.
+Config option `config.formatters.add` can be used to add formatters.
 
 Attribute option `:format` now can be used with name of formatter or with callable instance.
 
@@ -564,17 +559,22 @@ end
 
 ### Plugin :presenter
 
-Sometimes code will be clear when using `:presenter` plugin so we can define some complex logic there
+Helps to write clear code by adding attribute names as methods to Presenter
 
 ```ruby
 class UserSerializer < Serega
   plugin :presenter
 
   attribute :name
+  attribute :address
 
   class Presenter
     def name
       [first_name, last_name].compact_blank.join(' ')
+    end
+
+    def address
+      [country, city, address].join("\n")
     end
   end
 end
@@ -600,7 +600,7 @@ PostSerializer.new(with: {user: %i[email, username]}).to_h(post)
 
 ### Plugin :hide_nil
 
-Allows to hide attributes which values are nil
+Allows to hide attributes with `nil` values
 
 ```ruby
 class UserSerializer < Serega
