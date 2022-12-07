@@ -42,7 +42,7 @@ jobs:
       CC_TEST_REPORTER_ID: 2b0dd65d1c078b0d9f6edc768751ab9f210decdace1eae9651603a6bccff96ca
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up Ruby ${{ matrix.ruby }} (AR ${{ matrix.activerecord }})
         uses: ruby/setup-ruby@v1
         with:
