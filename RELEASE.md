@@ -14,25 +14,25 @@
 2. Update version number in VERSION file
 
 3. Checkout to new release branch
-  ```
-  git co -b "v$(cat "VERSION")"
-  ```
+```
+git co -b "v$(cat "VERSION")"
+```
 
 4. Make local gem release
-  ```
-  gem build serega.gemspec
-  ```
+```
+gem build serega.gemspec
+```
 
 5. Repeat
-  ```
-  bundle update \
-    && BUNDLE_GEMFILE=gemfiles/5.2.gemfile bundle update \
-    && BUNDLE_GEMFILE=gemfiles/6.1.gemfile bundle update \
-    && BUNDLE_GEMFILE=gemfiles/7.0.gemfile bundle update \
-    && bundle exec rspec \
-    && bundle exec rubocop -A \
-    && bundle exec rake examples
-  ```
+```
+bundle update \
+  && BUNDLE_GEMFILE=gemfiles/5.2.gemfile bundle update \
+  && BUNDLE_GEMFILE=gemfiles/6.1.gemfile bundle update \
+  && BUNDLE_GEMFILE=gemfiles/7.0.gemfile bundle update \
+  && bundle exec rspec \
+  && bundle exec rubocop -A \
+  && bundle exec rake examples
+```
 
 6. Add CHANGELOG, README notices.
 
