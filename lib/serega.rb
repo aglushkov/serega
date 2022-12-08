@@ -4,9 +4,11 @@ require_relative "serega/version"
 
 # Parent class for your serializers
 class Serega
+  # Frozen hash
   # @return [Hash] frozen hash
   FROZEN_EMPTY_HASH = {}.freeze
 
+  # Frozen array
   # @return [Array] frozen array
   FROZEN_EMPTY_ARRAY = [].freeze
 end
@@ -64,6 +66,7 @@ class Serega
   # Serializers class methods
   #
   module ClassMethods
+    # Returns current config
     # @return [SeregaConfig] current serializer config
     attr_reader :config
 
