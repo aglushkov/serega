@@ -140,12 +140,13 @@ class Serega
       end
 
       def delegate_block
-        return unless opts.key?(:delegate)
+        delegate = opts[:delegate]
+        return unless delegate
 
-        key_method_name = key
-        delegate_to = opts[:delegate][:to]
+        key_method_name = delegate[:key] || key
+        delegate_to = delegate[:to]
 
-        if opts[:delegate][:allow_nil]
+        if delegate[:allow_nil]
           proc { |object| object.public_send(delegate_to)&.public_send(key_method_name) }
         else
           proc { |object| object.public_send(delegate_to).public_send(key_method_name) }

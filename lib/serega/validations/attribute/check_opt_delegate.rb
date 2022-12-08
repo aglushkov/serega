@@ -32,6 +32,7 @@ class Serega
 
             delegate_opts = opts[:delegate]
             check_opt_delegate_to(delegate_opts)
+            check_opt_delegate_key(delegate_opts)
             check_opt_delegate_allow_nil(delegate_opts)
           end
 
@@ -42,13 +43,16 @@ class Serega
             Utils::CheckOptIsStringOrSymbol.call(delegate_opts, :to)
           end
 
-          def check_opt_delegate_allow_nil(delegate_opts)
-            return unless delegate_opts.key?(:allow_nil)
+          def check_opt_delegate_key(delegate_opts)
+            Utils::CheckOptIsStringOrSymbol.call(delegate_opts, :key)
+          end
 
+          def check_opt_delegate_allow_nil(delegate_opts)
             Utils::CheckOptIsBool.call(delegate_opts, :allow_nil)
           end
 
           def check_usage_with_other_params(opts, block)
+            raise SeregaError, "Option :delegate can not be used together with option :key" if opts.key?(:key)
             raise SeregaError, "Option :delegate can not be used together with option :const" if opts.key?(:const)
             raise SeregaError, "Option :delegate can not be used together with option :value" if opts.key?(:value)
             raise SeregaError, "Option :delegate can not be used together with block" if block
