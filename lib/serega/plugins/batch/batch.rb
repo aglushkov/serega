@@ -35,6 +35,7 @@ class Serega
     #   end
     #
     module Batch
+      # Returns plugin name
       # @return [Symbol] Plugin name
       def self.plugin_name
         :batch
@@ -159,6 +160,7 @@ class Serega
           @many = many
         end
 
+        # Returns proc that will be used to batch load registered keys values
         # @return [#call] batch loader
         def loader
           @batch_loader ||= begin
@@ -168,6 +170,7 @@ class Serega
           end
         end
 
+        # Returns proc that will be used to find batch_key for current attribute.
         # @return [Object] key (uid) of batch loaded object
         def key
           @batch_key ||= begin
@@ -176,6 +179,7 @@ class Serega
           end
         end
 
+        # Returns default value to use if batch loader does not return value for some key
         # @return [Object] default value for missing key
         def default_value
           if opts.key?(:default)
@@ -192,6 +196,8 @@ class Serega
       # @see Serega::SeregaConfig
       #
       module ConfigInstanceMethods
+        #
+        # Returns all batch loaders registered for current serializer
         #
         # @return [Serega::SeregaPlugins::Batch::BatchLoadersConfig] configuration for batch loaders
         #
@@ -253,11 +259,13 @@ class Serega
       #
       # Serega::SeregaMapPoint additional/patched class methods
       #
-      # @see Serega::SeregaAttribute
+      # @see SeregaAttribute
       #
       module MapPointInstanceMethods
         #
-        # @return [Serega::Batch::BatchModel] batch model that encapsulates everything needed to load current batch
+        # Returns BatchModel, an object that encapsulates all batch_loader methods for current point
+        #
+        # @return [BatchModel] batch model that encapsulates everything needed to load current batch
         #
         def batch
           return @batch if instance_variable_defined?(:@batch)
@@ -272,7 +280,7 @@ class Serega
       #
       # Serega additional/patched instance methods
       #
-      # @see Serega
+      # @see Serega::InstanceMethods
       #
       module InstanceMethods
         private

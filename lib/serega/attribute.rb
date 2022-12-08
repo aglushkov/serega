@@ -9,12 +9,15 @@ class Serega
     # Attribute instance methods
     #
     module AttributeInstanceMethods
+      # Returns attribute name
       # @return [Symbol] Attribute name
       attr_reader :name
 
+      # Returns attribute options
       # @return [Hash] Attribute options
       attr_reader :opts
 
+      # Returns attribute block
       # @return [Proc] Attribute originally added block
       attr_reader :block
 
@@ -40,26 +43,32 @@ class Serega
         @block = block
       end
 
-      # @return [Symbol] Object method name to will be used to get attribute value unless block provided
+      # Method name that will be used to get attribute value
+      #
+      # @return [Symbol] key
       def key
         @key ||= opts.key?(:key) ? opts[:key].to_sym : name
       end
 
-      # @return [Boolean, nil] Attribute initial :hide option value
+      # Shows current opts[:hide] option
+      # @return [Boolean, nil] Attribute :hide option value
       def hide
         opts[:hide]
       end
 
-      # @return [Boolean, nil] Attribute initialization :many option
+      # Shows current opts[:many] option
+      # @return [Boolean, nil] Attribute :many option value
       def many
         opts[:many]
       end
 
+      # Shows whether attribute has specified serializer
       # @return [Boolean] Checks if attribute is relationship (if :serializer option exists)
       def relation?
         !opts[:serializer].nil?
       end
 
+      # Shows specified serializer class
       # @return [Serega, nil] Attribute serializer if exists
       def serializer
         return @serializer if instance_variable_defined?(:@serializer)
@@ -73,6 +82,7 @@ class Serega
           end
       end
 
+      # Returns final block that will be used to find attribute value
       # @return [Proc] Proc to find attribute value
       def value_block
         return @value_block if instance_variable_defined?(:@value_block)
@@ -130,12 +140,13 @@ class Serega
       end
 
       def delegate_block
-        return unless opts.key?(:delegate)
+        delegate = opts[:delegate]
+        return unless delegate
 
-        key_method_name = key
-        delegate_to = opts[:delegate][:to]
+        key_method_name = delegate[:key] || key
+        delegate_to = delegate[:to]
 
-        if opts[:delegate][:allow_nil]
+        if delegate[:allow_nil]
           proc { |object| object.public_send(delegate_to)&.public_send(key_method_name) }
         else
           proc { |object| object.public_send(delegate_to).public_send(key_method_name) }

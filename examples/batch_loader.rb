@@ -151,7 +151,7 @@ end
 
 class CommentSerializer < AppSerializer
   attribute :text
-  attribute :views_count, key: :count, delegate: {to: :view}, preload: :view
+  attribute :views_count, delegate: {to: :view, key: :count}, preload: :view
 end
 
 # We need to show just DB queries in this examples to show we have no N+1

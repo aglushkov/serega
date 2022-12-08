@@ -11,9 +11,11 @@ class Serega
     module InstanceMethods
       extend Forwardable
 
+      # Shows current attribute
       # @return [Serega::SeregaAttribute] Current attribute
       attr_reader :attribute
 
+      # Shows nested points
       # @return [NilClass, Array<Serega::SeregaMapPoint>] Nested points or nil
       attr_reader :nested_points
 

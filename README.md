@@ -70,6 +70,9 @@ class UserSerializer < Serega
   # Option :delegate can be used to define attribute value. Sub-option :allow_nil by default is false
   attribute :first_name, delegate: { to: :profile, allow_nil: true }
 
+  # Option :delegate can be used with :key sub-option to change method called on delegated object
+  attribute :first_name, delegate: { to: :profile, key: :fname }
+
   # Option :const specifies attribute with specific constant value
   attribute(:type, const: 'user')
 
