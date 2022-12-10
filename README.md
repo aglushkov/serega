@@ -150,7 +150,7 @@ UserSerializer.as_json([user]) # => [{"username":"serega"}]
 
   Modifiers can be provided as Hash, Array, String, Symbol or their combinations.
 
-  With plugin [string_modifiers][string_modifiers] we can provide modifiers as single `String` with attributes split by comma `,` and nested values inside brackets `()`, like: `username,enemies(username,email)`. This can be very useful to accept list of field in **GET** requests.
+  With plugin [string_modifiers][string_modifiers] we can provide modifiers as single `String` with attributes split by comma `,` and nested values inside brackets `()`, like: `username,enemies(username,email)`. This can be very useful to accept list of fields in **GET** requests.
 
   When provided non-existing attribute, `Serega::AttributeNotExist` error will be raised. This error can be muted with `check_initiate_params: false` parameter.
 
@@ -258,9 +258,9 @@ Allows to define `:preloads` to attributes and then allows to merge preloads
 from serialized attributes and return single associations hash.
 
 Plugin accepts options:
-- `auto_preload_attributes_with_delegate` - default false
-- `auto_preload_attributes_with_serializer` - default false
-- `auto_hide_attributes_with_preload` - default false
+- `auto_preload_attributes_with_delegate` - default `false`
+- `auto_preload_attributes_with_serializer` - default `false`
+- `auto_hide_attributes_with_preload` - default `false`
 
 This options are very handy if you want to forget about finding preloads manually.
 
@@ -373,13 +373,12 @@ Added new `:batch` attribute option, example:
 attribute :name, batch: { key: :id, loader: :name_loader, default: '' }
 ```
 
-`:batch` option must be a hash with this keys:
-- :key (required) [Symbol, Proc, callable] - Defines identifier of current object
-- :loader (required) [Symbol, Proc, callable] - Defines how to fetch values for batch of keys. Accepts 3 parameters: keys, context, point.
-- :default (optional) - Default value used when loader does not return value for current key. By default it is `nil` or `[]` when attribute has additional option `many: true` (`attribute :name, many: true, batch: { ... }`).
+Attribute `:batch` option must be a hash with this keys:
+- `key` (required) [Symbol, Proc, callable] - Defines identifier of current object
+- `loader` (required) [Symbol, Proc, callable] - Defines how to fetch values for batch of keys. Accepts 3 parameters: keys, context, point.
+- `default` (optional) - Default value used when loader does not return value for current key. By default it is `nil` or `[]` when attribute has additional option `many: true` (ex: `attribute :name, many: true, batch: { ... }`).
 
-If `:loader` was defined via Symbol then batch loader must be defined using `config.batch_loaders.define(:loader_name) { ... }` method.
-Result of this block must be a Hash where keys are - provided keys, and values are - batch loaded values for according keys.
+If `:loader` was defined using name (as Symbol) then batch loader must be defined using `config.batch_loaders.define(:loader_name) { ... }` method. Result of this block must be a Hash where keys are - provided keys, and values are - batch loaded values for according keys.
 
 Batch loader works well with [`activerecord_preloads`][activerecord_preloads] plugin.
 

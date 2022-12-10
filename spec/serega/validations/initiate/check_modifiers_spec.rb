@@ -15,51 +15,44 @@ RSpec.describe Serega::SeregaValidations::Initiate::CheckModifiers do
   end
 
   it "does not raise error when all provided fields present" do
-    expect { serializer.new(only: "foo_bar,foo_bazz(foo_bar)") }.not_to raise_error
+    attrs = "foo_bar,foo_bazz(foo_bar)"
+    expect { serializer.new(only: attrs, with: attrs, except: attrs) }.not_to raise_error
   end
 
   it "raises error when some provided field not exist" do
-    expect { serializer.new(only: "foo_bar,extra") }
-      .to raise_error Serega::AttributeNotExist, "Attribute 'extra' not exists"
+    attrs = "foo_bar,extra"
+    message = "Not existing attributes: extra"
+    expect { serializer.new(only: attrs) }.to raise_error Serega::AttributeNotExist, message
+    expect { serializer.new(with: attrs) }.to raise_error Serega::AttributeNotExist, message
+    expect { serializer.new(except: attrs) }.to raise_error Serega::AttributeNotExist, message
   end
 
-  it "validates deeply nested fields" do
-    c = Class.new(base_serializer)
-    c.attribute :c1
-    c.attribute :c2
-
-    b = Class.new(base_serializer)
-    b.attribute :b1
-    b.attribute :b2
-    b.attribute :c, serializer: c
-
-    a = Class.new(base_serializer)
-    a.attribute :a1
-    a.attribute :a2
-    a.attribute :b, serializer: b
-    a.attribute :c, serializer: c
-
-    expect { a.new(with: "a1,a2,c(c1,c2),b(b1,b2,c(c1,c2,c3)") }
-      .to raise_error Serega::SeregaError, "Attribute 'c3' ('b.c.c3') not exists"
+  it "raises when multiple provided field not exist" do
+    attrs = "foo,foo_bar,extra"
+    message = "Not existing attributes: foo, extra"
+    expect { serializer.new(only: attrs) }.to raise_error Serega::AttributeNotExist, message
+    expect { serializer.new(with: attrs) }.to raise_error Serega::AttributeNotExist, message
+    expect { serializer.new(except: attrs) }.to raise_error Serega::AttributeNotExist, message
   end
 
-  it "validates deeply nested fields about not existing relation" do
-    c = Class.new(base_serializer)
-    c.attribute :c1
-    c.attribute :c2
+  it "raises when multiple provided fields not exist from multiple params" do
+    expect { serializer.new(only: "only", with: "with", except: "except") }
+      .to raise_error Serega::AttributeNotExist, "Not existing attributes: only, with, except"
+  end
 
-    b = Class.new(base_serializer)
-    b.attribute :b1
-    b.attribute :b2
-    b.attribute :c, serializer: c
+  it "raises when provided not existing attribute in nested serializer" do
+    attrs = "foo_bazz(extra)"
+    message = "Not existing attributes: foo_bazz.extra"
+    expect { serializer.new(only: attrs) }.to raise_error Serega::AttributeNotExist, message
+    expect { serializer.new(with: attrs) }.to raise_error Serega::AttributeNotExist, message
+    expect { serializer.new(except: attrs) }.to raise_error Serega::AttributeNotExist, message
+  end
 
-    a = Class.new(base_serializer)
-    a.attribute :a1
-    a.attribute :a2
-    a.attribute :b, serializer: b
-    a.attribute :c, serializer: c
-
-    expect { a.new(except: "a1,a2,c(c1,c2),b(b1,b2,c(c1,c2(c3))") }
-      .to raise_error Serega::AttributeNotExist, "Attribute 'c2' ('b.c.c2') has no :serializer option specified to add nested 'c3' attribute"
+  it "raises when provided nested attribute for not nested parent attribute" do
+    attrs = "foo_bar(extra)"
+    message = "Not existing attributes: foo_bar.extra"
+    expect { serializer.new(only: attrs) }.to raise_error Serega::AttributeNotExist, message
+    expect { serializer.new(with: attrs) }.to raise_error Serega::AttributeNotExist, message
+    expect { serializer.new(except: attrs) }.to raise_error Serega::AttributeNotExist, message
   end
 end

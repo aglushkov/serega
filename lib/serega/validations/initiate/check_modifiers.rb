@@ -10,55 +10,72 @@ class Serega
       # Modifiers validation
       #
       class CheckModifiers
-        class << self
-          # Validates provided fields names are existing attributes
-          #
-          # @param serializer_class [Serega]
-          # @param fields [Hash] validated fields
-          #
-          # @raise [Serega::AttributeNotExist] when modifier not exist as attribute
-          #
-          # @return [void]
-          #
-          def call(serializer_class, fields)
-            return unless fields
+        #
+        # Validates provided fields names are existing attributes
+        #
+        # @param serializer_class [Serega]
+        # @param only [Hash, nil] `only` modifier
+        # @param with [Hash, nil] `with` modifier
+        # @param except [Hash, nil] `except` modifier
+        #
+        # @raise [Serega::AttributeNotExist] when some checked modifier has not existing attribute
+        #
+        # @return [void]
+        #
+        def call(serializer_class, only, with, except)
+          validate(serializer_class, only) if only
+          validate(serializer_class, with) if with
+          validate(serializer_class, except) if except
 
-            validate(serializer_class, fields, [])
-          end
+          raise_errors if any_error?
+        end
 
-          private
+        private
 
-          def validate(serializer_class, fields, prev_names)
-            fields.each do |name, nested_fields|
-              attribute = serializer_class.attributes[name]
+        def validate(serializer_class, fields)
+          fields.each do |name, nested_fields|
+            attribute = serializer_class && serializer_class.attributes[name]
 
-              raise_error(name, prev_names) unless attribute
-              next if nested_fields.empty?
+            # Save error when no attribute with checked name exists
+            unless attribute
+              save_error(name)
+              next
+            end
 
-              raise_nested_error(name, prev_names, nested_fields) unless attribute.relation?
-              nested_serializer = attribute.serializer
-              validate(nested_serializer, nested_fields, prev_names + [name])
+            # Return when attribute has no nested fields
+            next if nested_fields.empty?
+
+            with_parent_name(name) do
+              validate(attribute.serializer, nested_fields)
             end
           end
+        end
 
-          def raise_error(name, prev_names)
-            field_name = field_name(name, prev_names)
+        def parents_names
+          @parents_names ||= []
+        end
 
-            raise Serega::AttributeNotExist, "Attribute #{field_name} not exists"
-          end
+        def with_parent_name(name)
+          parents_names << name
+          yield
+          parents_names.pop
+        end
 
-          def raise_nested_error(name, prev_names, nested_fields)
-            field_name = field_name(name, prev_names)
-            first_nested = nested_fields.keys.first
+        def error_attributes
+          @error_attributes ||= []
+        end
 
-            raise Serega::AttributeNotExist, "Attribute #{field_name} has no :serializer option specified to add nested '#{first_nested}' attribute"
-          end
+        def save_error(name)
+          full_attribute_name = [*parents_names, name].join(".")
+          error_attributes << full_attribute_name
+        end
 
-          def field_name(name, prev_names)
-            res = "'#{name}'"
-            res += " ('#{prev_names.join(".")}.#{name}')" if prev_names.any?
-            res
-          end
+        def raise_errors
+          raise Serega::AttributeNotExist, "Not existing attributes: #{error_attributes.join(", ")}"
+        end
+
+        def any_error?
+          defined?(@error_attributes)
         end
       end
     end

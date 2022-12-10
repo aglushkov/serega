@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+- Change requested fields validation message. Now we return all not existing fields instead of first one.
+
 ## [0.8.0] - 2022-12-09
 
 - Add `:key` option to `:delegate` option. Remove possibility to add top-level `:key` option together with `:delegate` option
