@@ -39,9 +39,7 @@ class Serega
         end
 
         def check_modifiers
-          Initiate::CheckModifiers.call(serializer_class, opts[:only])
-          Initiate::CheckModifiers.call(serializer_class, opts[:except])
-          Initiate::CheckModifiers.call(serializer_class, opts[:with])
+          Initiate::CheckModifiers.new.call(serializer_class, opts[:only], opts[:with], opts[:except])
         end
 
         def serializer_class
