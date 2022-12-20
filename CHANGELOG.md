@@ -1,7 +1,9 @@
 ## [Unreleased]
 
+## [0.8.2] - 2022-12-20
+
 - Show current serializer and attribute when NoMethodError happens
-- Fix extra db request for attributes with :batch and :serialzier options
+- Fix auto preload, that should not be added for attributes with :serializer and :batch options
 
 ## [0.8.1] - 2022-12-11
 
