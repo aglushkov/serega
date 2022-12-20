@@ -136,7 +136,9 @@ class Serega
 
       def keyword_block
         key_method_name = key
-        proc { |object| object.public_send(key_method_name) }
+        proc do |object|
+          handle_no_method_error { object.public_send(key_method_name) }
+        end
       end
 
       def delegate_block
@@ -147,10 +149,24 @@ class Serega
         delegate_to = delegate[:to]
 
         if delegate[:allow_nil]
-          proc { |object| object.public_send(delegate_to)&.public_send(key_method_name) }
+          proc do |object|
+            handle_no_method_error do
+              object.public_send(delegate_to)&.public_send(key_method_name)
+            end
+          end
         else
-          proc { |object| object.public_send(delegate_to).public_send(key_method_name) }
+          proc do |object|
+            handle_no_method_error do
+              object.public_send(delegate_to).public_send(key_method_name)
+            end
+          end
         end
+      end
+
+      def handle_no_method_error
+        yield
+      rescue NoMethodError => error
+        raise error, "NoMethodError when serializing '#{name}' attribute in #{self.class.serializer_class}\n\n#{error.message}", error.backtrace
       end
     end
 

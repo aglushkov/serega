@@ -81,67 +81,6 @@ RSpec.describe Serega::SeregaPlugins::Batch do
     end
   end
 
-  describe "BatchModel" do
-    describe "#loader" do
-      it "returns provided Proc loader" do
-        loader = proc {}
-        opts = {loader: loader}
-        model = Serega::SeregaPlugins::Batch::BatchModel.new(opts, nil, nil)
-
-        expect(model.loader).to eq loader
-      end
-
-      it "returns loader found by Symbol name" do
-        loader = proc {}
-        opts = {loader: :loader_name}
-        loaders = Serega::SeregaPlugins::Batch::BatchLoadersConfig.new(loader_name: loader)
-        model = Serega::SeregaPlugins::Batch::BatchModel.new(opts, loaders, nil)
-
-        expect(model.loader).to eq loader
-      end
-    end
-
-    describe "#key" do
-      it "returns provided Proc key" do
-        key = proc {}
-        opts = {key: key}
-        model = Serega::SeregaPlugins::Batch::BatchModel.new(opts, nil, nil)
-
-        expect(model.key).to eq key
-      end
-
-      it "constructs Proc with Symbol key" do
-        opts = {key: :some_count}
-        model = Serega::SeregaPlugins::Batch::BatchModel.new(opts, nil, nil)
-        object = double(some_count: 3)
-
-        expect(model.key.call(object)).to eq 3
-      end
-    end
-
-    describe "#default_value" do
-      it "returns nil by default" do
-        model = Serega::SeregaPlugins::Batch::BatchModel.new({}, nil, nil)
-        expect(model.default_value).to be_nil
-      end
-
-      it "returns provided default" do
-        model = Serega::SeregaPlugins::Batch::BatchModel.new({default: 0}, nil, nil)
-        expect(model.default_value).to eq 0
-      end
-
-      it "returns provided default when many=true" do
-        model = Serega::SeregaPlugins::Batch::BatchModel.new({default: 0}, nil, true)
-        expect(model.default_value).to eq 0
-      end
-
-      it "returns empty Array by default when many=true" do
-        model = Serega::SeregaPlugins::Batch::BatchModel.new({}, nil, true)
-        expect(model.default_value).to be Serega::FROZEN_EMPTY_ARRAY
-      end
-    end
-  end
-
   describe "MapPoint methods" do
     specify "#batch" do
       batch_loader = proc {}
@@ -151,7 +90,7 @@ RSpec.describe Serega::SeregaPlugins::Batch do
       pt2 = serializer::SeregaMapPoint.new(at2, [])
 
       batch = pt1.batch
-      expect(batch).to be_a Serega::SeregaPlugins::Batch::BatchModel
+      expect(batch).to be_a Serega::SeregaPlugins::Batch::BatchOptionModel
       expect(batch.many).to be true
       expect(batch.loaders).to be serializer.config.batch_loaders
       expect(batch.key).to be_a(Proc)
