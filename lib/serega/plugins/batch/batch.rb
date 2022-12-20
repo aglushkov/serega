@@ -50,6 +50,7 @@ class Serega
       # @return [void]
       #
       def self.load_plugin(serializer_class, **_opts)
+        require_relative "./lib/batch_option_model"
         require_relative "./lib/loader"
         require_relative "./lib/loaders"
         require_relative "./lib/validations/check_batch_opt_key"
@@ -146,56 +147,6 @@ class Serega
       end
 
       #
-      # Stores batch config for specific attribute
-      #
-      class BatchModel
-        attr_reader :opts, :loaders, :many
-
-        #
-        # Initializes batch model
-        #
-        # @param opts [Hash] Attribute :batch option
-        # @param loaders [Array] Array of all loaders defined in serialize class
-        # @param many [Boolean] Option :many, defined on attribute
-        #
-        # @return [void]
-        def initialize(opts, loaders, many)
-          @opts = opts
-          @loaders = loaders
-          @many = many
-        end
-
-        # Returns proc that will be used to batch load registered keys values
-        # @return [#call] batch loader
-        def loader
-          @batch_loader ||= begin
-            loader = opts[:loader]
-            loader = loaders.fetch(loader) if loader.is_a?(Symbol)
-            loader
-          end
-        end
-
-        # Returns proc that will be used to find batch_key for current attribute.
-        # @return [Object] key (uid) of batch loaded object
-        def key
-          @batch_key ||= begin
-            key = opts[:key]
-            key.is_a?(Symbol) ? proc { |object| object.public_send(key) } : key
-          end
-        end
-
-        # Returns default value to use if batch loader does not return value for some key
-        # @return [Object] default value for missing key
-        def default_value
-          if opts.key?(:default)
-            opts[:default]
-          elsif many
-            FROZEN_EMPTY_ARRAY
-          end
-        end
-      end
-
-      #
       # Config class additional/patched instance methods
       #
       # @see Serega::SeregaConfig
@@ -268,16 +219,16 @@ class Serega
       #
       module MapPointInstanceMethods
         #
-        # Returns BatchModel, an object that encapsulates all batch_loader methods for current point
+        # Returns BatchOptionModel, an object that combines options and methods needed to load batch
         #
-        # @return [BatchModel] batch model that encapsulates everything needed to load current batch
+        # @return [BatchOptionModel] Class that combines options and methods needed to load batch.
         #
         def batch
           return @batch if instance_variable_defined?(:@batch)
 
           @batch = begin
             opts = attribute.batch
-            BatchModel.new(opts, self.class.serializer_class.config.batch_loaders, many) if opts
+            BatchOptionModel.new(attribute) if opts
           end
         end
       end

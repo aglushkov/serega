@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+- Show current serializer and attribute when NoMethodError happens
+- Fix extra db request for attributes with :batch and :serialzier options
+
 ## [0.8.1] - 2022-12-11
 
 - Change requested fields validation message. Now we return all not existing fields instead of first one.
