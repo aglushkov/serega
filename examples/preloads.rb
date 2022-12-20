@@ -29,6 +29,7 @@ ActiveSupport::LogSubscriber.colorize_logging = false
 ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: ":memory:")
 
 # Schema (user has many posts, post has many comments)
+ActiveRecord::Migration.verbose = false
 ActiveRecord::Schema.define do
   create_table :users, force: true do |t|
     t.string :first_name
@@ -77,11 +78,12 @@ Comment.create!(user: user1, post: post2, text: "comment4")
 
 # Serializers
 class AppSerializer < Serega
-  plugin :preloads
-  plugin :activerecord_preloads,
+  plugin :preloads,
     auto_preload_attributes_with_serializer: true,
     auto_preload_attributes_with_delegate: true,
     auto_hide_attributes_with_preload: false
+
+  plugin :activerecord_preloads
 end
 
 class UserSerializer < AppSerializer
@@ -100,73 +102,72 @@ class CommentSerializer < AppSerializer
   # attribute :user, serializer: -> { UserSerializer }
 end
 
-# We need to show just DB queries in this examples to show we have no N+1
-LogQueries =
-  Module.new do
-    def serialize(*)
-      ActiveRecord::Base.logger.level = Logger::DEBUG
-      super
-    ensure
-      ActiveRecord::Base.logger.level = Logger::INFO
-    end
-  end
+def example(message, expected_queries_count:)
+  sqls = Storage.sqls
+  sqls.clear
 
-UserSerializer.include(LogQueries)
-CommentSerializer.include(LogQueries)
-
-def example(message)
-  puts
-  puts "----------------"
-  puts
-  puts message
-  puts
   yield
+
+  if sqls.count != expected_queries_count
+    raise "#{message}: expected #{expected_queries_count}, but there were #{sqls.count} requests: \n - #{sqls.join("\n - ")}"
+  end
 end
 
-example("Single object:") do
-  UserSerializer.new.call(user1.reload)
+class Storage
+  @sqls = []
+
+  class << self
+    attr_accessor :sqls
+  end
 end
 
-example("Single object with created post:") do
-  user1.reload
-  user1.posts.create!(text: "post3")
+ActiveSupport::Notifications.subscribe "sql.active_record" do |_name, _started, _finished, _id, payload|
+  Storage.sqls << payload[:sql]
+end
 
+user1.reload
+example("Single object", expected_queries_count: 2) do # loads posts, comments
+  UserSerializer.new.call(user1)
+end
+
+user1.reload
+user1.posts.create!(text: "post3")
+example("Single object with created post", expected_queries_count: 2) do # loads posts, comments
   UserSerializer.new.to_h(user1)
 end
 
-example("Array:") do
-  users = [user1.reload, user2.reload, user3.reload]
+users = [user1.reload, user2.reload, user3.reload]
+example("Array", expected_queries_count: 2) do # loads posts, comments
   UserSerializer.new.to_h(users)
 end
 
-example("Array with created posts in some user:") do
-  users = [user1.reload, user2.reload, user3.reload]
-  user1.posts.create!(text: "post4")
-
+users = [user1.reload, user2.reload, user3.reload]
+user1.posts.create!(text: "post4")
+example("Array with created posts in some user", expected_queries_count: 2) do # loads posts, comments
   UserSerializer.new.to_h(users)
 end
 
-example("Relation:") do
-  users = User.all
+users = User.all
+example("Relation", expected_queries_count: 3) do # loads users, posts, comments
   UserSerializer.new.to_h(users)
 end
 
-example("Loaded Relation:") do
-  users = User.all.load
+users = User.all.load
+example("Loaded Relation", expected_queries_count: 2) do # loads posts, comments
   UserSerializer.new.to_h(users)
 end
 
-example("Relation included posts:") do
-  users = User.all.includes(:posts)
+users = User.all.includes(:posts)
+example("Relation included posts", expected_queries_count: 3) do # loads users, posts, comments
   UserSerializer.new.to_h(users)
 end
 
-example("Loaded attribute included posts:") do
-  users = User.all.includes(:posts).load
+users = User.all.includes(:posts).load
+example("Loaded attribute included posts", expected_queries_count: 1) do # loads only comments
   UserSerializer.new.to_h(users)
 end
 
-example("No preloads:") do
-  comments = Comment.all
+comments = Comment.all
+example("No preloads", expected_queries_count: 1) do # loads only comments
   CommentSerializer.to_h(comments)
 end
