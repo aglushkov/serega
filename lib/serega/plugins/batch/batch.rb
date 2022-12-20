@@ -87,13 +87,18 @@ class Serega
         serializer_class.const_set(:SeregaBatchLoader, batch_loader_class)
 
         if serializer_class.plugin_used?(:activerecord_preloads)
-          require_relative "./lib/plugins_extensions"
+          require_relative "./lib/plugins_extensions/activerecord_preloads"
           serializer_class::SeregaBatchLoader.include(PluginsExtensions::ActiveRecordPreloads::BatchLoaderInstanceMethods)
         end
 
         if serializer_class.plugin_used?(:formatters)
-          require_relative "./lib/plugins_extensions"
+          require_relative "./lib/plugins_extensions/formatters"
           serializer_class::SeregaBatchLoader.include(PluginsExtensions::Formatters::BatchLoaderInstanceMethods)
+        end
+
+        if serializer_class.plugin_used?(:preloads)
+          require_relative "./lib/plugins_extensions/preloads"
+          serializer_class::SeregaAttribute.include(PluginsExtensions::Preloads::AttributeInstanceMethods)
         end
       end
 

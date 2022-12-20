@@ -28,7 +28,8 @@ ActiveRecord::Base.logger = logger
 ActiveSupport::LogSubscriber.colorize_logging = false
 ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: ":memory:")
 
-# Schema (user has many posts, post has many comments)
+# Schema (user has many posts, post has many comments, comment has many views)
+ActiveRecord::Migration.verbose = false
 ActiveRecord::Schema.define do
   create_table :users, force: true do |t|
     t.string :first_name
@@ -108,8 +109,13 @@ end
 
 # Serializers
 class AppSerializer < Serega
+  plugin :preloads,
+    auto_preload_attributes_with_serializer: true,
+    auto_preload_attributes_with_delegate: true,
+    auto_hide_attributes_with_preload: false
+
+  plugin :activerecord_preloads
   plugin :batch
-  plugin :preloads
 end
 
 class UserSerializer < AppSerializer
@@ -154,39 +160,39 @@ class CommentSerializer < AppSerializer
   attribute :views_count, delegate: {to: :view, key: :count}, preload: :view
 end
 
-# We need to show just DB queries in this examples to show we have no N+1
-allow_db_logs =
-  Module.new do
-    def to_h(*)
-      old_level = ActiveRecord::Base.logger.level
-      ActiveRecord::Base.logger.level = Logger::DEBUG
-      super
-    ensure
-      ActiveRecord::Base.logger.level = old_level
-    end
-  end
+def example(message, expected_queries_count:)
+  sqls = Storage.sqls
+  sqls.clear
 
-UserSerializer.include(allow_db_logs)
-
-def example(message)
-  puts
-  puts "----------------"
-  puts
-  puts message
-  puts
   yield
+
+  if sqls.count != expected_queries_count
+    raise "#{message}: expected #{expected_queries_count}, but there were #{sqls.count} requests: \n - #{sqls.join("\n - ")}"
+  end
 end
 
-example("Single object:") do
+class Storage
+  @sqls = []
+
+  class << self
+    attr_accessor :sqls
+  end
+end
+
+ActiveSupport::Notifications.subscribe "sql.active_record" do |_name, _started, _finished, _id, payload|
+  Storage.sqls << payload[:sql]
+end
+
+example("Single object", expected_queries_count: 3) do
   UserSerializer.new.to_h(user1)
 end
 
-example("Array:") do
+example("Array", expected_queries_count: 3) do
   users = [user1, user2, user3]
   UserSerializer.new.to_h(users)
 end
 
-example("Relation:") do
+example("Relation", expected_queries_count: 4) do
   users = User.all
-  puts UserSerializer.new.to_h(users).inspect
+  UserSerializer.new.to_h(users).inspect
 end
