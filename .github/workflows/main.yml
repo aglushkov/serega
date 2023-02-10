@@ -16,6 +16,8 @@ jobs:
           # https://github.com/ruby/ruby-builder/releases
           - ruby: "head"
             activerecord: "7.0"
+          - ruby: "3.2"
+            activerecord: "7.0"
           - ruby: "3.1"
             activerecord: "7.0"
           - ruby: "3.0"
@@ -56,7 +58,7 @@ jobs:
 
       # Check code standards only for latest MRI. It takes a lot of time for jruby or truffleruby
       - name: Check Code Standards
-        if: startsWith(matrix.ruby, '3.1')
+        if: startsWith(matrix.ruby, '3.2')
         run: bundle exec rubocop
 
       - name: Run Tests
