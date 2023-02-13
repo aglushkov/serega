@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "stringio"
+
 class Serega
   module SeregaPlugins
     #
@@ -52,9 +54,11 @@ class Serega
         def parse(fields)
           res = {}
           attribute = +""
+          char = +""
           path_stack = nil
+          fields = StringIO.new(fields)
 
-          fields.each_char do |char|
+          while fields.read(1, char)
             case char
             when ","
               add_attribute(res, path_stack, attribute, FROZEN_EMPTY_HASH)
