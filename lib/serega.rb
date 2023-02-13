@@ -184,7 +184,7 @@ class Serega
     # Serializes provided object to Hash
     #
     # @param object [Object] Serialized object
-    # @param opts [Hash] Serializer modifiers and other instantiating options
+    # @param opts [Hash, nil] Serializer modifiers and other instantiating options
     # @option opts [Array, Hash, String, Symbol] :only The only attributes to serialize
     # @option opts [Array, Hash, String, Symbol] :except Attributes to hide
     # @option opts [Array, Hash, String, Symbol] :with Attributes (usually hidden) to serialize additionally
@@ -194,13 +194,23 @@ class Serega
     #
     # @return [Hash] Serialization result
     #
-    def call(object, opts = FROZEN_EMPTY_HASH)
+    def call(object, opts = nil)
+      opts ||= FROZEN_EMPTY_HASH
       initiate_keys = config.initiate_keys
-      new(opts.slice(*initiate_keys)).to_h(object, opts.except(*initiate_keys))
+
+      if opts.empty?
+        modifiers_opts = FROZEN_EMPTY_HASH
+        serialize_opts = nil
+      else
+        serialize_opts = opts.except(*initiate_keys)
+        modifiers_opts = opts.slice(*initiate_keys)
+      end
+
+      new(modifiers_opts).to_h(object, serialize_opts)
     end
 
     # @see #call
-    def to_h(object, opts = FROZEN_EMPTY_HASH)
+    def to_h(object, opts = nil)
       call(object, opts)
     end
 
@@ -208,7 +218,7 @@ class Serega
     # Serializes provided object to JSON string
     #
     # @param object [Object] Serialized object
-    # @param opts [Hash] Serializer modifiers and other instantiating options
+    # @param opts [Hash, nil] Serializer modifiers and other instantiating options
     # @option opts [Array, Hash, String, Symbol] :only The only attributes to serialize
     # @option opts [Array, Hash, String, Symbol] :except Attributes to hide
     # @option opts [Array, Hash, String, Symbol] :with Attributes (usually hidden) to serialize additionally
@@ -218,16 +228,15 @@ class Serega
     #
     # @return [String] Serialization result
     #
-    def to_json(object, opts = FROZEN_EMPTY_HASH)
-      initiate_keys = config.initiate_keys
-      new(opts.slice(*initiate_keys)).to_json(object, opts.except(*initiate_keys))
+    def to_json(object, opts = nil)
+      config.to_json.call(to_h(object, opts))
     end
 
     #
     # Serializes provided object as JSON
     #
     # @param object [Object] Serialized object
-    # @param opts [Hash] Serializer modifiers and other instantiating options
+    # @param opts [Hash, nil] Serializer modifiers and other instantiating options
     # @option opts [Array, Hash, String, Symbol] :only The only attributes to serialize
     # @option opts [Array, Hash, String, Symbol] :except Attributes to hide
     # @option opts [Array, Hash, String, Symbol] :with Attributes (usually hidden) to serialize additionally
@@ -237,7 +246,7 @@ class Serega
     #
     # @return [Hash] Serialization result
     #
-    def as_json(object, opts = FROZEN_EMPTY_HASH)
+    def as_json(object, opts = nil)
       config.from_json.call(to_json(object, opts))
     end
   end
@@ -249,36 +258,37 @@ class Serega
     #
     # Instantiates new Serega class
     #
-    # @param opts [Hash] Serializer modifiers and other instantiating options
+    # @param opts [Hash, nil] Serializer modifiers and other instantiating options
     # @option opts [Array, Hash, String, Symbol] :only The only attributes to serialize
     # @option opts [Array, Hash, String, Symbol] :except Attributes to hide
     # @option opts [Array, Hash, String, Symbol] :with Attributes (usually hidden) to serialize additionally
     # @option opts [Boolean] :validate Validates provided modifiers (Default is true)
     #
-    def initialize(opts = FROZEN_EMPTY_HASH)
-      @opts = (opts == FROZEN_EMPTY_HASH) ? opts : prepare_modifiers(opts)
-      self.class::CheckInitiateParams.new(@opts).validate if opts.fetch(:check_initiate_params) { config.check_initiate_params }
+    def initialize(opts = nil)
+      @opts = (opts.nil? || opts.empty?) ? FROZEN_EMPTY_HASH : prepare_modifiers(opts)
+      self.class::CheckInitiateParams.new(@opts).validate if opts&.fetch(:check_initiate_params) { config.check_initiate_params }
     end
 
     #
     # Serializes provided object to Hash
     #
     # @param object [Object] Serialized object
-    # @param opts [Hash] Serializer modifiers and other instantiating options
+    # @param opts [Hash, nil] Serializer modifiers and other instantiating options
     # @option opts [Hash] :context Serialization context
     # @option opts [Boolean] :many Set true if provided multiple objects (Default `object.is_a?(Enumerable)`)
     #
     # @return [Hash] Serialization result
     #
-    def call(object, opts = {})
-      self.class::CheckSerializeParams.new(opts).validate
+    def call(object, opts = nil)
+      self.class::CheckSerializeParams.new(opts).validate if opts&.any?
+      opts ||= {}
       opts[:context] ||= {}
 
       serialize(object, opts)
     end
 
     # @see #call
-    def to_h(object, opts = {})
+    def to_h(object, opts = nil)
       call(object, opts)
     end
 
@@ -286,13 +296,13 @@ class Serega
     # Serializes provided object to JSON string
     #
     # @param object [Object] Serialized object
-    # @param opts [Hash] Serializer modifiers and other instantiating options
+    # @param opts [Hash, nil] Serializer modifiers and other instantiating options
     # @option opts [Hash] :context Serialization context
     # @option opts [Boolean] :many Set true if provided multiple objects (Default `object.is_a?(Enumerable)`)
     #
     # @return [Hash] Serialization result
     #
-    def to_json(object, opts = {})
+    def to_json(object, opts = nil)
       hash = to_h(object, opts)
       config.to_json.call(hash)
     end
@@ -301,13 +311,13 @@ class Serega
     # Serializes provided object as JSON
     #
     # @param object [Object] Serialized object
-    # @param opts [Hash] Serializer modifiers and other instantiating options
+    # @param opts [Hash, nil] Serializer modifiers and other instantiating options
     # @option opts [Hash] :context Serialization context
     # @option opts [Boolean] :many Set true if provided multiple objects (Default `object.is_a?(Enumerable)`)
     #
     # @return [Hash] Serialization result
     #
-    def as_json(object, opts = {})
+    def as_json(object, opts = nil)
       json = to_json(object, opts)
       config.from_json.call(json)
     end

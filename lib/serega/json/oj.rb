@@ -6,7 +6,7 @@ class Serega
     # JSON dump adapter for ::Oj
     #
     class OjDump
-      OPTS = { mode: :compat }.freeze
+      OPTS = {mode: :compat}.freeze
 
       #
       # Dumps data to JSON string
