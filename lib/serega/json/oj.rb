@@ -6,6 +6,8 @@ class Serega
     # JSON dump adapter for ::Oj
     #
     class OjDump
+      OPTS = { mode: :compat }.freeze
+
       #
       # Dumps data to JSON string
       #
@@ -14,7 +16,7 @@ class Serega
       # @return [String] Data serialized to JSON
       #
       def self.call(data)
-        ::Oj.dump(data, mode: :compat)
+        ::Oj.dump(data, OPTS)
       end
     end
 
