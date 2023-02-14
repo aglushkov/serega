@@ -14,6 +14,18 @@ gem "rubocop-rspec", "~> 2.11", ">= 2.11.1", require: false
 gem "redcarpet", "~> 3.5", require: false
 gem "rspec-sqlimit", "~> 0.0.5", require: false
 
+# Can be used in test like:
+#  require 'allocation_stats'
+#
+#  stats = AllocationStats.trace do
+#    subject
+#  end
+#
+#  puts stats.allocations(alias_paths: true).group_by(:sourcefile, :sourceline).to_text
+#
+gem "allocation_stats", require: false
+gem "yard", require: false
+
 if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("3.1")
   gem "debug", ">= 1.0.0"
 else

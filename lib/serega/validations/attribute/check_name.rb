@@ -27,7 +27,7 @@ class Serega
           # @return [void]
           #
           def call(name)
-            name = name.to_s
+            name = SeregaUtils::SymbolName.call(name)
 
             valid =
               case name.size
