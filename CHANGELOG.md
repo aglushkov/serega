@@ -1,5 +1,15 @@
 ## [Unreleased]
 
+## [0.8.3] - 2023-02-14
+  - Allow to call serialize methods with `nil` as options
+    ```
+      UserSerialzier.to_h(user, nil) # same as UserSerialzier.to_h(user)
+      UserSerialzier.new(nil).to_h(user, nil)  # same as UserSerialzier.new.to_h(user)
+    ```
+  - Optimize allocations
+  - Add documentation coverage checks in RELEASE.md
+  - Add allocate_stats gem to easily check extra allocations
+
 ## [0.8.2] - 2022-12-20
 
 - Show current serializer and attribute when NoMethodError happens
