@@ -76,22 +76,12 @@ class Serega
         cache_key ||= +""
 
         opts.each do |key, nested_opts|
-          cache_key.insert(-1, symbol_name(key))
+          cache_key.insert(-1, SeregaUtils::SymbolName.call(key))
           cache_key.insert(-1, "-")
           construct_cache_key(nested_opts, cache_key)
         end
 
         cache_key
-      end
-
-      if RUBY_VERSION < "3"
-        def symbol_name(key)
-          key.name
-        end
-      else
-        def symbol_name(key)
-          key.to_s.freeze
-        end
       end
     end
 
