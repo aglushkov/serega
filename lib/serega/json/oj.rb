@@ -6,6 +6,7 @@ class Serega
     # JSON dump adapter for ::Oj
     #
     class OjDump
+      # Default Oj serialization options
       OPTS = {mode: :compat}.freeze
 
       #

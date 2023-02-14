@@ -24,6 +24,7 @@ gem "rspec-sqlimit", "~> 0.0.5", require: false
 #  puts stats.allocations(alias_paths: true).group_by(:sourcefile, :sourceline).to_text
 #
 gem "allocation_stats", require: false
+gem "yard", require: false
 
 if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("3.1")
   gem "debug", ">= 1.0.0"

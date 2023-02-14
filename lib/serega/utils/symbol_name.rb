@@ -7,31 +7,30 @@ class Serega
     #
     class SymbolName
       class << self
+        #
+        # Returns frozen string corresponding to provided symbol
+        #
+        # @param key [Symbol]
+        #
+        # @return [String] frozen string corresponding to provided symbol
+        #
+        def call(key)
+          key.is_a?(String) ? key : to_frozen_string(key)
+        end
+
+        private
+
+        # :nocov:
         if RUBY_VERSION < "3"
-          #
-          # Returns symbol string name
-          #
-          # @param key [Symbol]
-          #
-          # @return frozen string corresponding to provided symbol
-          #
-          def call(key)
-            key.name
-          end
-        else
-          #
-          # Returns symbol string name
-          #
-          # @param key [Symbol]
-          #
-          # @return frozen string corresponding to provided symbol
-          #
-          # :nocov:
-          def call(key)
+          def to_frozen_string(key)
             key.to_s.freeze
           end
-          # :nocov:
+        else
+          def to_frozen_string(key)
+            key.name
+          end
         end
+        # :nocov:
       end
     end
   end

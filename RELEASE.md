@@ -1,6 +1,11 @@
 # Release process
 
-1. Run and fix all warnings
+1. Check documentation
+```
+yard --no-cache --quiet && yard stats --list-undoc
+```
+
+2. Run and fix all warnings
 ```
 bundle update \
   && BUNDLE_GEMFILE=gemfiles/5.2.gemfile bundle update \
@@ -11,19 +16,19 @@ bundle update \
   && bundle exec rake examples
 ```
 
-2. Update version number in VERSION file
+3. Update version number in VERSION file
 
-3. Checkout to new release branch
+4. Checkout to new release branch
 ```
 git co -b "v$(cat "VERSION")"
 ```
 
-4. Make local gem release
+5. Make local gem release
 ```
 gem build serega.gemspec
 ```
 
-5. Repeat
+6. Repeat
 ```
 bundle update \
   && BUNDLE_GEMFILE=gemfiles/5.2.gemfile bundle update \
@@ -34,17 +39,17 @@ bundle update \
   && bundle exec rake examples
 ```
 
-6. Add CHANGELOG, README notices.
+7. Add CHANGELOG, README notices.
 
-7. Commit all changes.
+8. Commit all changes.
 ```
 git add . && git commit -m "Release v$(cat "VERSION")"
 git push origin "v$(cat "VERSION")"
 ```
 
-8. Merge PR when all checks pass.
+9. Merge PR when all checks pass.
 
-9. Add tag
+10. Add tag
 ```
 git checkout master
 git pull --rebase origin master
@@ -53,7 +58,7 @@ git push origin master
 git push origin --tags
 ```
 
-10. Push new gem version
+11. Push new gem version
 ```
 gem push serega-$(cat "VERSION").gem
 ```

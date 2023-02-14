@@ -16,7 +16,7 @@ class Serega
     #   PostSerializer.new(only: "id,user(id,username)").to_h(post)
     #   PostSerializer.new(except: "user(username,email)").to_h(post)
     #   PostSerializer.new(with: "user(email)").to_h(post)
-
+    #
     #   # Modifiers can still be provided old way with nested hashes or arrays.
     #   PostSerializer.new(with: {user: %i[email, username]}).to_h(post)
     #
