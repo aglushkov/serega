@@ -1,7 +1,7 @@
 PATH
   remote: ..
   specs:
-    serega (0.8.2)
+    serega (0.8.3)
 
 GEM
   remote: https://rubygems.org/
