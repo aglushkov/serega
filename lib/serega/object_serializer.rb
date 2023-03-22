@@ -43,8 +43,12 @@ class Serega
 
       def serialize_object(object)
         points.each_with_object({}) do |point, container|
-          attach_value(object, point, container)
+          serialize_point(object, point, container)
         end
+      end
+
+      def serialize_point(object, point, container)
+        attach_value(object, point, container)
       end
 
       def attach_value(object, point, container)

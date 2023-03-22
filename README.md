@@ -20,6 +20,7 @@ It has some great features:
 - Built-in object presenter ([presenter][presenter] plugin)
 - Adding custom metadata (via [metadata][metadata] or [context_metadata][context_metadata] plugins)
 - Attributes formatters ([formatters][formatters] plugin)
+- Conditional attributes ([if][if] plugin)
 
 ## Installation
 
@@ -94,9 +95,11 @@ class UserSerializer < Serega
   # It allows to specify associations to preload to attribute value
   attribute :email, preload: :emails, value: proc { |user| user.emails.find(&:verified?) }
 
-  # Option `:hide_nil` can be specified when enabled `:hide_nil` plugin
-  # It is literally hides attribute if its value is nil
-  attribute :email, hide_nil: true
+  # Options `:if`, `:unless`, `:if_value`, `:unless_value` can be specified when enabled `:if` plugin
+  # They hide attribute key and value from response when conditions satisfied
+  # See more usage examples in :if plugin section.
+  attribute :email, if: proc { |user, ctx| user == ctx[:current_user] }
+  attribute :email, if_value: :present?
 
   # Option `:format` can be specified when enabled `:formatters` plugin
   # It changes attribute value
@@ -600,16 +603,45 @@ PostSerializer.new(with: "user(email)").to_h(post)
 PostSerializer.new(with: {user: %i[email, username]}).to_h(post)
 ```
 
-### Plugin :hide_nil
+### Plugin :if
 
-Allows to hide attributes with `nil` values
+Plugin adds `:if`, `:unless`, `:if_value`, `:unless_value` options to
+attributes so we can remove attributes from response in various ways.
+
+Use `:if` and `:unless` when you want to hide attributes before finding attribute value,
+and use `:if_value` and `:unless_value` to hide attributes after we find final value.
+
+Options `:if` and `:unless` accept currently serialized object and context as parameters.
+Options `:if_value` and `:unless_value` accept already found serialized value and context as parameters.
+
+Options `:if_value` and `:unless_value` cannot be used with :serializer option, as
+serialized objects have no "serialized value". Use `:if` and `:unless` in this case.
+
+See also a `:hide` option that is available without any plugins to hide
+attribute without conditions. Look at [select serialized fields](#selecting-fields) for `:hide` usage examples.
 
 ```ruby
-class UserSerializer < Serega
-  plugin :hide_nil
+ class UserSerializer < Serega
+   attribute :email, if: :active? # if user.active?
+   attribute :email, if: proc {|user| user.active?} # same
+   attribute :email, if: proc {|user, ctx| user == ctx[:current_user]} # using context
+   attribute :email, if: CustomPolicy.method(:view_email?) # You can provide own callable object
 
-  attribute :email, hide_nil: true
-end
+   attribute :email, unless: :hidden? # unless user.hidden?
+   attribute :email, unless: proc {|user| user.hidden?} # same
+   attribute :email, unless: proc {|user, context| context[:show_emails]} # using context
+   attribute :email, unless: CustomPolicy.method(:hide_email?) # You can provide own callable object
+
+   attribute :email, if_value: :present? # if email.present?
+   attribute :email, if_value: proc {|email| email.present?} # same
+   attribute :email, if_value: proc {|email, ctx| ctx[:show_emails]} # using context
+   attribute :email, if_value: CustomPolicy.method(:view_email?) # You can provide own callable object
+
+   attribute :email, unless_value: :blank? # unless email.blank?
+   attribute :email, unless_value: proc {|email| email.blank?} # same
+   attribute :email, unless_value: proc {|email, context| context[:show_emails]} # using context
+   attribute :email, unless_value: CustomPolicy.method(:hide_email?) # You can provide own callable object
+ end
 ```
 
 ## Errors
@@ -648,3 +680,4 @@ The gem is available as open source under the terms of the [MIT License](https:/
 [presenter]: #plugin-presenter
 [root]: #plugin-root
 [string_modifiers]: #plugin-string_modifiers
+[if]: #plugin-if

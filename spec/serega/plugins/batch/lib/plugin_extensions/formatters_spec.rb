@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "support/activerecord"
-
 load_plugin_code :batch
 
 RSpec.describe Serega::SeregaPlugins::Batch do

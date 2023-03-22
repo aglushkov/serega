@@ -1,5 +1,17 @@
 ## [Unreleased]
 
+- Plugin `:if` was added, look at README.md for all options and examples.
+- Plugin `:hide_nil` was removed, but it can be replaced by plugin `:if`
+```ruby
+# previously
+plugin :hide_nil
+attribute :email, hide_nil: true
+
+# now
+plugin :if
+attribute :email, unless_value: :nil?
+```
+
 ## [0.8.3] - 2023-02-14
   - Allow to call serialize methods with `nil` as options
     ```
