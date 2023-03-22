@@ -264,12 +264,16 @@ class Serega
           batch = point.batch
 
           if batch
-            key = batch.key.call(object, context)
-            opts[:batch_loaders].get(point, self).remember(key, container)
-            container[point.name] = nil # Reserve attribute place in resulted hash. We will set correct value later
+            remember_key_for_batch_loading(batch, object, point, container)
           else
             super
           end
+        end
+
+        def remember_key_for_batch_loading(batch, object, point, container)
+          key = batch.key.call(object, context)
+          opts[:batch_loaders].get(point, self).remember(key, container)
+          container[point.name] = nil # Reserve attribute place in resulted hash. We will set correct value later
         end
       end
     end
