@@ -130,19 +130,6 @@ class Serega
       # @see Serega::SeregaConfig
       #
       module ClassMethods
-        private def inherited(subclass)
-          super
-
-          meta_attribute_class = Class.new(self::MetaAttribute)
-          meta_attribute_class.serializer_class = subclass
-          subclass.const_set(:MetaAttribute, meta_attribute_class)
-
-          # Assign same metadata attributes
-          meta_attributes.each_value do |attr|
-            subclass.meta_attribute(*attr.path, **attr.opts, &attr.block)
-          end
-        end
-
         #
         # List of added metadata attributes
         #
@@ -164,6 +151,21 @@ class Serega
         def meta_attribute(*path, **opts, &block)
           attribute = self::MetaAttribute.new(path: path, opts: opts, block: block)
           meta_attributes[attribute.name] = attribute
+        end
+
+        private
+
+        def inherited(subclass)
+          super
+
+          meta_attribute_class = Class.new(self::MetaAttribute)
+          meta_attribute_class.serializer_class = subclass
+          subclass.const_set(:MetaAttribute, meta_attribute_class)
+
+          # Assign same metadata attributes
+          meta_attributes.each_value do |attr|
+            subclass.meta_attribute(*attr.path, **attr.opts, &attr.block)
+          end
         end
       end
 

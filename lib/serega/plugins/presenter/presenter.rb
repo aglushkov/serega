@@ -80,14 +80,6 @@ class Serega
       # @see Serega
       #
       module ClassMethods
-        private def inherited(subclass)
-          super
-
-          presenter_class = Class.new(self::Presenter)
-          presenter_class.serializer_class = subclass
-          subclass.const_set(:Presenter, presenter_class)
-        end
-
         # Overrides {Serega::ClassMethods#attribute} method, additionally adds method
         # to Presenter to not hit {Serega::SeregaPlugins::Presenter::Presenter#method_missing}
         # @see Serega::ClassMethods#attribute
@@ -95,6 +87,16 @@ class Serega
           super.tap do |attribute|
             self::Presenter.def_delegator(:__getobj__, attribute.key) unless attribute.block
           end
+        end
+
+        private
+
+        def inherited(subclass)
+          super
+
+          presenter_class = Class.new(self::Presenter)
+          presenter_class.serializer_class = subclass
+          subclass.const_set(:Presenter, presenter_class)
         end
       end
 

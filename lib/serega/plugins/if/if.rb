@@ -66,19 +66,6 @@ class Serega
         serializer_class::SeregaObjectSerializer.include(SeregaObjectSerializerInstanceMethods)
       end
 
-      # Checks requirements and loads additional plugins
-      #
-      # @param serializer_class [Class<Serega>] Current serializer class
-      # @param opts [Hash] loaded plugins opts
-      #
-      # @return [void]
-      #
-      def self.before_load_plugin(serializer_class, **opts)
-        if serializer_class.plugin_used?(:batch)
-          raise SeregaError, "Plugin `#{plugin_name}` must be loaded before `batch`"
-        end
-      end
-
       #
       # Adds config options and runs other callbacks after plugin was loaded
       #

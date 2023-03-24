@@ -235,6 +235,8 @@ class Serega
           @auto_hide_attribute_with_preloads = auto && !preloads.nil? && (preloads != false) && (preloads != {})
         end
 
+        # Patched in:
+        # - plugin :batch (extension :preloads - skips auto preloads when batch option provided)
         def get_preloads
           preloads_provided = opts.key?(:preload)
           preloads =

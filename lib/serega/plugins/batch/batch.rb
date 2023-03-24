@@ -262,12 +262,9 @@ class Serega
 
         def attach_value(object, point, container)
           batch = point.batch
+          return super unless batch
 
-          if batch
-            remember_key_for_batch_loading(batch, object, point, container)
-          else
-            super
-          end
+          remember_key_for_batch_loading(batch, object, point, container)
         end
 
         def remember_key_for_batch_loading(batch, object, point, container)

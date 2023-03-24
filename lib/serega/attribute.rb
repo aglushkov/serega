@@ -51,6 +51,10 @@ class Serega
       end
 
       # Shows current opts[:hide] option
+      #
+      # Patched in:
+      # - plugin :preloads (returns true by default if config option auto_hide_attribute_with_preloads is enabled)
+      #
       # @return [Boolean, nil] Attribute :hide option value
       def hide
         opts[:hide]
@@ -82,7 +86,11 @@ class Serega
           end
       end
 
-      # Returns final block that will be used to find attribute value
+      # Returns final block used to find attribute value
+      #
+      # Patched in:
+      # - plugin :formatters (wraps resulted block in formatter block and formats :const values)
+      #
       # @return [Proc] Proc to find attribute value
       def value_block
         return @value_block if instance_variable_defined?(:@value_block)

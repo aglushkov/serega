@@ -29,14 +29,10 @@ class Serega
       module InstanceMethods
         private
 
-        def prepare_modifiers(opts)
-          parsed_opts =
-            opts.each_with_object({}) do |(key, value), obj|
-              value = ParseStringModifiers.call(value) if (key == :only) || (key == :except) || (key == :with)
-              obj[key] = value
-            end
+        def parse_modifier(value)
+          return ParseStringModifiers.parse(value) if value.is_a?(String)
 
-          super(parsed_opts)
+          super
         end
       end
     end

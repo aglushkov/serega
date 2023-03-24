@@ -52,6 +52,11 @@ class Serega
           Attribute::CheckName.call(name)
         end
 
+        # Patched in:
+        # - plugin :batch (checks :batch option)
+        # - plugin :context_metadata (checks context metadata option which is :meta by default)
+        # - plugin :if (checks :if, :if_value, :unless, :unless_value options)
+        # - plugin :preloads (checks :preload option)
         def check_opts
           Utils::CheckAllowedKeys.call(opts, allowed_opts_keys)
 
