@@ -41,22 +41,30 @@ class Serega
         object.map { |obj| serialize_object(obj) }
       end
 
+      # Patched in:
+      # - plugin :presenter (makes presenter_object and serializes it)
       def serialize_object(object)
         points.each_with_object({}) do |point, container|
           serialize_point(object, point, container)
         end
       end
 
+      # Patched in:
+      # - plugin :if (conditionally skips serializing this point)
       def serialize_point(object, point, container)
         attach_value(object, point, container)
       end
 
+      # Patched in:
+      # - plugin :batch (remembers key for batch loading values instead of attaching)
       def attach_value(object, point, container)
         value = point.value(object, context)
         final_value = final_value(value, point)
         attach_final_value(final_value, point, container)
       end
 
+      # Patched in:
+      # - plugin :if (conditionally skips attaching)
       def attach_final_value(final_value, point, container)
         container[point.name] = final_value
       end

@@ -68,6 +68,9 @@ class Serega
             end
           end
 
+          # Patched in:
+          # - plugin batch (extension :activerecord_preloads - preloads data to found values)
+          # - plugin batch (extension :formatters - formats values)
           def keys_values
             ids = keys.keys
 

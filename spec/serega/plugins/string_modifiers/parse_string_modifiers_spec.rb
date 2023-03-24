@@ -4,19 +4,10 @@ load_plugin_code :string_modifiers
 
 RSpec.describe Serega::SeregaPlugins::StringModifiers::ParseStringModifiers do
   def parse(str)
-    described_class.call(str)
+    described_class.parse(str)
   end
 
-  describe ".call" do
-    it "returns provided objects when not a String provided" do
-      data = nil
-      expect(parse(data)).to be data
-      data = []
-      expect(parse(data)).to be data
-      data = {}
-      expect(parse(data)).to be data
-    end
-
+  describe ".parse" do
     it "returns empty hash when empty string provided" do
       expect(parse("")).to eq({})
     end

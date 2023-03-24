@@ -70,49 +70,6 @@ class Serega
     # Returns current config
     # @return [SeregaConfig] current serializer config
     attr_reader :config
-
-    private def inherited(subclass)
-      config_class = Class.new(self::SeregaConfig)
-      config_class.serializer_class = subclass
-      subclass.const_set(:SeregaConfig, config_class)
-      subclass.instance_variable_set(:@config, subclass::SeregaConfig.new(config.opts))
-
-      attribute_class = Class.new(self::SeregaAttribute)
-      attribute_class.serializer_class = subclass
-      subclass.const_set(:SeregaAttribute, attribute_class)
-
-      map_class = Class.new(self::SeregaMap)
-      map_class.serializer_class = subclass
-      subclass.const_set(:SeregaMap, map_class)
-
-      map_point_class = Class.new(self::SeregaMapPoint)
-      map_point_class.serializer_class = subclass
-      subclass.const_set(:SeregaMapPoint, map_point_class)
-
-      object_serializer_class = Class.new(self::SeregaObjectSerializer)
-      object_serializer_class.serializer_class = subclass
-      subclass.const_set(:SeregaObjectSerializer, object_serializer_class)
-
-      check_attribute_params_class = Class.new(self::CheckAttributeParams)
-      check_attribute_params_class.serializer_class = subclass
-      subclass.const_set(:CheckAttributeParams, check_attribute_params_class)
-
-      check_initiate_params_class = Class.new(self::CheckInitiateParams)
-      check_initiate_params_class.serializer_class = subclass
-      subclass.const_set(:CheckInitiateParams, check_initiate_params_class)
-
-      check_serialize_params_class = Class.new(self::CheckSerializeParams)
-      check_serialize_params_class.serializer_class = subclass
-      subclass.const_set(:CheckSerializeParams, check_serialize_params_class)
-
-      # Assign same attributes
-      attributes.each_value do |attr|
-        subclass.attribute(attr.name, **attr.opts, &attr.block)
-      end
-
-      super
-    end
-
     #
     # Enables plugin for current serializer
     #
@@ -169,6 +126,9 @@ class Serega
 
     #
     # Adds attribute
+    #
+    # Patched in:
+    # - plugin :presenter (additionally adds method in Presenter class)
     #
     # @param name [Symbol] Attribute name. Attribute value will be found by executing `object.<name>`
     # @param opts [Hash] Options to serialize attribute
@@ -250,6 +210,54 @@ class Serega
     def as_json(object, opts = nil)
       config.from_json.call(to_json(object, opts))
     end
+
+    private
+
+    # Patched in:
+    # - plugin :batch (defines SeregaBatchLoaders, SeregaBatchLoader)
+    # - plugin :metadata (defines MetaAttribute and copies meta_attributes to subclasses)
+    # - plugin :presenter (defines Presenter)
+    def inherited(subclass)
+      config_class = Class.new(self::SeregaConfig)
+      config_class.serializer_class = subclass
+      subclass.const_set(:SeregaConfig, config_class)
+      subclass.instance_variable_set(:@config, subclass::SeregaConfig.new(config.opts))
+
+      attribute_class = Class.new(self::SeregaAttribute)
+      attribute_class.serializer_class = subclass
+      subclass.const_set(:SeregaAttribute, attribute_class)
+
+      map_class = Class.new(self::SeregaMap)
+      map_class.serializer_class = subclass
+      subclass.const_set(:SeregaMap, map_class)
+
+      map_point_class = Class.new(self::SeregaMapPoint)
+      map_point_class.serializer_class = subclass
+      subclass.const_set(:SeregaMapPoint, map_point_class)
+
+      object_serializer_class = Class.new(self::SeregaObjectSerializer)
+      object_serializer_class.serializer_class = subclass
+      subclass.const_set(:SeregaObjectSerializer, object_serializer_class)
+
+      check_attribute_params_class = Class.new(self::CheckAttributeParams)
+      check_attribute_params_class.serializer_class = subclass
+      subclass.const_set(:CheckAttributeParams, check_attribute_params_class)
+
+      check_initiate_params_class = Class.new(self::CheckInitiateParams)
+      check_initiate_params_class.serializer_class = subclass
+      subclass.const_set(:CheckInitiateParams, check_initiate_params_class)
+
+      check_serialize_params_class = Class.new(self::CheckSerializeParams)
+      check_serialize_params_class.serializer_class = subclass
+      subclass.const_set(:CheckSerializeParams, check_serialize_params_class)
+
+      # Assign same attributes
+      attributes.each_value do |attr|
+        subclass.attribute(attr.name, **attr.opts, &attr.block)
+      end
+
+      super
+    end
   end
 
   #
@@ -266,7 +274,7 @@ class Serega
     # @option opts [Boolean] :validate Validates provided modifiers (Default is true)
     #
     def initialize(opts = nil)
-      @opts = (opts.nil? || opts.empty?) ? FROZEN_EMPTY_HASH : prepare_modifiers(opts)
+      @opts = (opts.nil? || opts.empty?) ? FROZEN_EMPTY_HASH : parse_modifiers(opts)
       self.class::CheckInitiateParams.new(@opts).validate if opts&.fetch(:check_initiate_params) { config.check_initiate_params }
     end
 
@@ -340,13 +348,29 @@ class Serega
       self.class.config
     end
 
-    def prepare_modifiers(opts)
-      opts.each_with_object({}) do |(key, value), obj|
-        value = SeregaUtils::ToHash.call(value) if (key == :only) || (key == :except) || (key == :with)
-        obj[key] = value
+    def parse_modifiers(opts)
+      result = {}
+
+      opts.each do |key, value|
+        value = parse_modifier(value) if (key == :only) || (key == :except) || (key == :with)
+        result[key] = value
       end
+
+      result
     end
 
+    # Patched in:
+    # - plugin :string_modifiers (parses string modifiers differently)
+    def parse_modifier(value)
+      SeregaUtils::ToHash.call(value)
+    end
+
+    # Patched in:
+    # - plugin :activerecord_preloads (loads defined :preloads to object)
+    # - plugin :batch (runs serialization of collected batches)
+    # - plugin :root (wraps result `{ root => result }`)
+    # - plugin :context_metadata (adds context metadata to final result)
+    # - plugin :metadata (adds metadata to final result)
     def serialize(object, opts)
       self.class::SeregaObjectSerializer
         .new(**opts, points: map)

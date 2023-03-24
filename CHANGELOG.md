@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+- Added comments in code about where each methods extended
+- Allow to load :if plugin and :batch plugin in any order
+- Less objects allocations when parsing string modifiers
+
 ## [0.9.0] - 2023-03-23
 - Plugin `:if` was added, look at README.md for all options and examples.
 - Plugin `:hide_nil` was removed, but it can be replaced by plugin `:if`
