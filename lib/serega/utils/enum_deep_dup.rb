@@ -38,8 +38,8 @@ class Serega
         end
 
         def dup_array_values(duplicate_data)
-          duplicate_data.each_with_index do |value, index|
-            duplicate_data[index] = call(value) if value.is_a?(Enumerable)
+          duplicate_data.map! do |value|
+            value.is_a?(Enumerable) ? call(value) : value
           end
         end
       end
