@@ -41,7 +41,7 @@ class Serega
         # Validates attribute params
         #
         def validate
-          check_name
+          check_name if check_attribute_name
           check_opts
           check_block
         end
@@ -75,6 +75,10 @@ class Serega
 
         def allowed_opts_keys
           self.class.serializer_class.config.attribute_keys
+        end
+
+        def check_attribute_name
+          self.class.serializer_class.config.check_attribute_name
         end
       end
 

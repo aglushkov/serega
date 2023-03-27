@@ -46,6 +46,43 @@ RSpec.describe Serega::SeregaPlugins::Metadata do
     end
   end
 
+  describe "MetaAttribute validations" do
+    subject(:validate) { serializer::MetaAttribute.new(path: ["PATH"], opts: {foo: :bar}, block: "BLOCK") }
+
+    let(:serializer) do
+      Class.new(Serega) do
+        plugin :root
+        plugin :metadata
+      end
+    end
+
+    before do
+      allow(Serega::SeregaPlugins::Metadata::MetaAttribute::CheckPath).to receive(:call)
+      allow(Serega::SeregaPlugins::Metadata::MetaAttribute::CheckOpts).to receive(:call)
+      allow(Serega::SeregaPlugins::Metadata::MetaAttribute::CheckBlock).to receive(:call)
+    end
+
+    it "validates path, opts, block" do
+      validate
+      expect(Serega::SeregaPlugins::Metadata::MetaAttribute::CheckPath)
+        .to have_received(:call).with(["PATH"])
+
+      expect(Serega::SeregaPlugins::Metadata::MetaAttribute::CheckOpts)
+        .to have_received(:call).with({foo: :bar}, [:path, :hide_nil, :hide_empty])
+
+      expect(Serega::SeregaPlugins::Metadata::MetaAttribute::CheckBlock)
+        .to have_received(:call).with("BLOCK")
+    end
+
+    it "skips validating path when check_attribute_name option is false" do
+      serializer.config.check_attribute_name = false
+      validate
+
+      expect(Serega::SeregaPlugins::Metadata::MetaAttribute::CheckPath)
+        .not_to have_received(:call)
+    end
+  end
+
   describe "serialization" do
     subject(:response) { user_serializer.to_h(obj, context: context) }
 

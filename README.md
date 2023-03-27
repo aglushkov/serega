@@ -111,6 +111,23 @@ class UserSerializer < Serega
 end
 ```
 
+---
+
+⚠️ Attribute names are checked to include only "a-z", "A-Z", "0-9", "_", "-", "~" characters.
+We have this check as:
+- Attributes names can be used in URL without encoding.
+- Plugin [string_modifiers][string_modifiers] already uses "," and "()" as attribute names delimeters.
+- We are protected from errors when added some non-english character looking as english.
+
+This names check can be disabled globally or per-serializer via:
+```ruby
+Serega.config.check_attribute_name = false
+
+class SomeSerializer < Serega
+  config.check_attribute_name = false
+end
+```
+
 ### Serializing
 
 We can serialize objects using class methods `.to_h`, `.to_json`, `.as_json` and same instance methods `#to_h`, `#to_json`, `#as_json`.
