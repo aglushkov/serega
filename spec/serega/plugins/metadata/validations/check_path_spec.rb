@@ -4,7 +4,7 @@ load_plugin_code(:root, :metadata)
 
 RSpec.describe Serega::SeregaPlugins::Metadata::MetaAttribute::CheckPath do
   def error(name)
-    %(Invalid metadata path #{name.inspect}, globally allowed characters: "a-z", "A-Z", "0-9". Minus and low line "-", "_" also allowed except as the first or last character)
+    %(Invalid metadata path #{name.inspect}. Allowed characters: "a-z", "A-Z", "0-9", "_", "-", "~")
   end
 
   it "prohibits empty name" do
@@ -12,7 +12,7 @@ RSpec.describe Serega::SeregaPlugins::Metadata::MetaAttribute::CheckPath do
     expect { described_class.call([:foo, ""]) }.to raise_error Serega::SeregaError, error("")
   end
 
-  it "allows one char A-Za-z0-9" do
+  it "allows one char _A-Za-z0-9~-" do
     expect { described_class.call(["a"]) }.not_to raise_error
     expect { described_class.call(["s"]) }.not_to raise_error
     expect { described_class.call(["z"]) }.not_to raise_error
@@ -22,35 +22,43 @@ RSpec.describe Serega::SeregaPlugins::Metadata::MetaAttribute::CheckPath do
     expect { described_class.call(["0"]) }.not_to raise_error
     expect { described_class.call(["5"]) }.not_to raise_error
     expect { described_class.call(["9"]) }.not_to raise_error
+    expect { described_class.call(["_"]) }.not_to raise_error
+    expect { described_class.call(["~"]) }.not_to raise_error
+    expect { described_class.call(["-"]) }.not_to raise_error
 
-    expect { described_class.call(["-"]) }.to raise_error Serega::SeregaError, error("-")
+    expect { described_class.call(["!"]) }.to raise_error Serega::SeregaError, error("!")
     expect { described_class.call(["`"]) }.to raise_error Serega::SeregaError, error("`")
-    expect { described_class.call(["_"]) }.to raise_error Serega::SeregaError, error("_")
+    expect { described_class.call(["+"]) }.to raise_error Serega::SeregaError, error("+")
+    expect { described_class.call([" "]) }.to raise_error Serega::SeregaError, error(" ")
   end
 
-  it "allows two chars A-Za-z0-9" do
+  it "allows two chars _A-Za-z0-9~-" do
     expect { described_class.call(["aZ"]) }.not_to raise_error
     expect { described_class.call(["Za"]) }.not_to raise_error
     expect { described_class.call(["09"]) }.not_to raise_error
-
-    expect { described_class.call(["a~"]) }.to raise_error Serega::SeregaError, error("a~")
-    expect { described_class.call(["a-"]) }.to raise_error Serega::SeregaError, error("a-")
-    expect { described_class.call(["-a"]) }.to raise_error Serega::SeregaError, error("-a")
-    expect { described_class.call(["_a"]) }.to raise_error Serega::SeregaError, error("_a")
-    expect { described_class.call(["a_"]) }.to raise_error Serega::SeregaError, error("a_")
+    expect { described_class.call(["_a"]) }.not_to raise_error
+    expect { described_class.call(["a_"]) }.not_to raise_error
+    expect { described_class.call(["__"]) }.not_to raise_error
+    expect { described_class.call(["a~"]) }.not_to raise_error
+    expect { described_class.call(["a-"]) }.not_to raise_error
+    expect { described_class.call(["-a"]) }.not_to raise_error
+    expect { described_class.call(["a+"]) }.to raise_error Serega::SeregaError, error("a+")
+    expect { described_class.call(["+a"]) }.to raise_error Serega::SeregaError, error("+a")
+    expect { described_class.call(["!!"]) }.to raise_error Serega::SeregaError, error("!!")
   end
 
-  it 'allows multiple chars A-Za-z0-9 with "-" and "_" in the middle' do
+  it "allows multiple chars _A-Za-z0-9~-" do
     expect { described_class.call(["foo"]) }.not_to raise_error
     expect { described_class.call(["bar"]) }.not_to raise_error
     expect { described_class.call(["fooBAR123"]) }.not_to raise_error
     expect { described_class.call(["foo-123"]) }.not_to raise_error
     expect { described_class.call(["foo_3"]) }.not_to raise_error
+    expect { described_class.call(["_-_"]) }.not_to raise_error
+    expect { described_class.call(["---"]) }.not_to raise_error
+    expect { described_class.call(["~~~"]) }.not_to raise_error
 
-    expect { described_class.call(["foo-"]) }.to raise_error Serega::SeregaError, error("foo-")
-    expect { described_class.call(["foo_"]) }.to raise_error Serega::SeregaError, error("foo_")
-    expect { described_class.call(["-foo"]) }.to raise_error Serega::SeregaError, error("-foo")
-    expect { described_class.call(["_foo"]) }.to raise_error Serega::SeregaError, error("_foo")
+    expect { described_class.call(["foo!"]) }.to raise_error Serega::SeregaError, error("foo!")
+    expect { described_class.call(["!foo"]) }.to raise_error Serega::SeregaError, error("!foo")
     expect { described_class.call(["foo+bar"]) }.to raise_error Serega::SeregaError, error("foo+bar")
   end
 end

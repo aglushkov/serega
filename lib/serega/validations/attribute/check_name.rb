@@ -7,19 +7,13 @@ class Serega
       # Attribute `name` parameter validator
       #
       class CheckName
-        # Regexp for valid one-char attribute name
-        FORMAT_ONE_CHAR = /\A[a-zA-Z0-9]\z/
-
-        # Regexp for valid multi-chars attribute name
-        FORMAT_MANY_CHARS = /\A[a-zA-Z0-9][a-zA-Z0-9_-]*?[a-zA-Z0-9]\z/ # allow '-' and '_' in the middle
-
-        private_constant :FORMAT_ONE_CHAR, :FORMAT_MANY_CHARS
+        # Regexp for valid attribute name
+        FORMAT = /\A[\w~-]+\z/
 
         class << self
           #
           # Checks allowed characters.
-          # Globally allowed characters: "a-z", "A-Z", "0-9".
-          # Minus and low line "-", "_" also allowed except as the first or last character.
+          # Allowed characters: "a-z", "A-Z", "0-9", "_", "-", "~".
           #
           # @param name [String, Symbol] Attribute name
           #
@@ -28,23 +22,16 @@ class Serega
           #
           def call(name)
             name = SeregaUtils::SymbolName.call(name)
-
-            valid =
-              case name.size
-              when 0 then false
-              when 1 then name.match?(FORMAT_ONE_CHAR)
-              else name.match?(FORMAT_MANY_CHARS)
-              end
-
-            return if valid
-
-            raise SeregaError, message(name)
+            raise SeregaError, message(name) unless FORMAT.match?(name)
           end
 
           private
 
           def message(name)
-            %(Invalid attribute name = #{name.inspect}. Globally allowed characters: "a-z", "A-Z", "0-9". Minus and low line "-", "_" also allowed except as the first or last character)
+            <<~MESSAGE.tr("\n", "")
+              Invalid attribute name = #{name.inspect}.
+               Allowed characters: "a-z", "A-Z", "0-9", "_", "-", "~"
+            MESSAGE
           end
         end
       end

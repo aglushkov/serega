@@ -39,4 +39,11 @@ RSpec.describe Serega::SeregaValidations::CheckAttributeParams do
     expect(Serega::SeregaValidations::Attribute::CheckOptSerializer).to have_received(:call).with(opts)
     expect(Serega::SeregaValidations::Attribute::CheckOptValue).to have_received(:call).with(opts, block)
   end
+
+  it "skips checking name if names check is disabled" do
+    serializer.config.check_attribute_name = false
+    validate
+
+    expect(Serega::SeregaValidations::Attribute::CheckName).not_to have_received(:call)
+  end
 end

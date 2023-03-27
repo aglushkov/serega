@@ -60,9 +60,17 @@ class Serega
           private
 
           def check(path, opts, block)
-            CheckPath.call(path)
-            CheckOpts.call(opts, self.class.serializer_class.config.metadata.attribute_keys)
+            CheckPath.call(path) if check_attribute_name
+            CheckOpts.call(opts, attribute_keys)
             CheckBlock.call(block)
+          end
+
+          def attribute_keys
+            self.class.serializer_class.config.metadata.attribute_keys
+          end
+
+          def check_attribute_name
+            self.class.serializer_class.config.check_attribute_name
           end
         end
 

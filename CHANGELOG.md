@@ -1,5 +1,15 @@
 ## [Unreleased]
 
+- Less strict attribute name format. Allow attribute names to include chars "_", "-" and "~". They can be added as first or last characters also.
+- Allow to disable attribute name format check globally or per-serializer via:
+```ruby
+Serega.config.check_attribute_name = false
+
+class SomeSerializer < Serega
+  config.check_attribute_name = false
+end
+```
+
 - Added comments in code about where each methods extended
 - Allow to load :if plugin and :batch plugin in any order
 - Less objects allocations when parsing string modifiers

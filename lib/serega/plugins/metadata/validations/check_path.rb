@@ -8,16 +8,15 @@ class Serega
         # Validator for meta_attribute :path parameter
         #
         class CheckPath
-          FORMAT_ONE_CHAR = /\A[a-zA-Z0-9]\z/
-          FORMAT_MANY_CHARS = /\A[a-zA-Z0-9][a-zA-Z0-9_-]*?[a-zA-Z0-9]\z/ # allow '-' and '_' in the middle
+          # Regexp for valid path
+          FORMAT = /\A[\w~-]+\z/
 
-          private_constant :FORMAT_ONE_CHAR, :FORMAT_MANY_CHARS
+          private_constant :FORMAT
 
           class << self
             #
-            # Checks allowed characters in specified metadata path parts.
-            # Globally allowed characters: "a-z", "A-Z", "0-9".
-            # Minus and low line "-", "_" also allowed except as the first or last character.
+            # Checks allowed characters.
+            # Allowed characters: "a-z", "A-Z", "0-9", "_", "-", "~".
             #
             # @param path [Array<String, Symbol>] Metadata attribute path names
             #
@@ -33,20 +32,14 @@ class Serega
             def check_name(name)
               name = name.to_s
 
-              valid =
-                case name.size
-                when 0 then false
-                when 1 then name.match?(FORMAT_ONE_CHAR)
-                else name.match?(FORMAT_MANY_CHARS)
-                end
-
-              return if valid
-
-              raise SeregaError, message(name)
+              raise SeregaError, message(name) unless FORMAT.match?(name)
             end
 
             def message(name)
-              %(Invalid metadata path #{name.inspect}, globally allowed characters: "a-z", "A-Z", "0-9". Minus and low line "-", "_" also allowed except as the first or last character)
+              <<~MESSAGE.tr("\n", "")
+                Invalid metadata path #{name.inspect}.
+                 Allowed characters: "a-z", "A-Z", "0-9", "_", "-", "~"
+              MESSAGE
             end
           end
         end

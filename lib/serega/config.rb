@@ -17,6 +17,7 @@ class Serega
       initiate_keys: %i[only with except check_initiate_params].freeze,
       attribute_keys: %i[key value serializer many hide const delegate].freeze,
       serialize_keys: %i[context many].freeze,
+      check_attribute_name: true,
       check_initiate_params: true,
       max_cached_map_per_serializer_count: 0,
       to_json: (SeregaJSON.adapter == :oj) ? SeregaJSON::OjDump : SeregaJSON::JSONDump,
@@ -100,6 +101,21 @@ class Serega
       def max_cached_map_per_serializer_count=(value)
         raise SeregaError, "Must have Integer value, #{value.inspect} provided" unless value.is_a?(Integer)
         opts[:max_cached_map_per_serializer_count] = value
+      end
+
+      # Returns whether attributes names check is disabled
+      def check_attribute_name
+        opts.fetch(:check_attribute_name)
+      end
+
+      # Sets :check_attribute_name config option
+      #
+      # @param value [Boolean] Set :check_attribute_name config option
+      #
+      # @return [Boolean] New :check_attribute_name config option
+      def check_attribute_name=(value)
+        raise SeregaError, "Must have boolean value, #{value.inspect} provided" if (value != true) && (value != false)
+        opts[:check_attribute_name] = value
       end
 
       # Returns current `to_json` adapter

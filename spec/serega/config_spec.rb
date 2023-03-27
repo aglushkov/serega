@@ -18,6 +18,15 @@ RSpec.describe Serega::SeregaConfig do
     end
   end
 
+  describe "#check_attribute_name=" do
+    it "validates value is boolean" do
+      expect { config.check_attribute_name = false }.not_to raise_error
+      expect { config.check_attribute_name = true }.not_to raise_error
+      expect { config.check_attribute_name = nil }
+        .to raise_error Serega::SeregaError, "Must have boolean value, #{nil.inspect} provided"
+    end
+  end
+
   describe "#check_initiate_params=" do
     it "validates value is boolean" do
       expect { config.check_initiate_params = false }.not_to raise_error

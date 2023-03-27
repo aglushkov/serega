@@ -174,6 +174,12 @@ RSpec.describe Serega::SeregaAttribute do
       attribute = attribute_class.new(name: :name, block: block)
       expect(attribute.value(obj, context)).to eq [3, :bar]
     end
+
+    it "works when attribute has name with `-` sign" do
+      obj = double("-foo": "-bar")
+      attribute = attribute_class.new(name: :"-foo")
+      expect(attribute.value(obj, nil)).to eq "-bar"
+    end
   end
 
   describe "#visible?" do

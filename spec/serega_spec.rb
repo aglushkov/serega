@@ -16,6 +16,7 @@ RSpec.describe Serega do
         initiate_keys
         serialize_keys
         attribute_keys
+        check_attribute_name
         check_initiate_params
         max_cached_map_per_serializer_count
         to_json
@@ -26,6 +27,7 @@ RSpec.describe Serega do
       expect(config.serialize_keys).to match_array(%i[context many])
       expect(config.initiate_keys).to match_array(%i[only except with check_initiate_params])
       expect(config.attribute_keys).to match_array(%i[key value serializer many hide const delegate])
+      expect(config.check_attribute_name).to be true
       expect(config.check_initiate_params).to be true
       expect(config.max_cached_map_per_serializer_count).to eq 0
       expect(config.to_json.call({})).to eq "{}"
