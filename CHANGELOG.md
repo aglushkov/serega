@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [0.10.0] - 2023-03-28
+
 - Less strict attribute name format. Allow attribute names to include chars "_", "-" and "~". They can be added as first or last characters also.
 - Allow to disable attribute name format check globally or per-serializer via:
 ```ruby
