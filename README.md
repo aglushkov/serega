@@ -5,7 +5,8 @@
 
 # Serega Ruby Serializer
 
-The Serega Ruby Serializer provides easy and powerful DSL to describe your objects and to serialize them to Hash or JSON.
+The Serega Ruby Serializer provides easy and powerful DSL to describe your
+objects and to serialize them to Hash or JSON.
 
 ---
 
@@ -16,9 +17,11 @@ The Serega Ruby Serializer provides easy and powerful DSL to describe your objec
 It has some great features:
 
 - Manually [select serialized fields](#selecting-fields)
-- Solutions for N+1 problem (via [batch][batch], [preloads][preloads] or [activerecord_preloads][activerecord_preloads] plugins)
+- Solutions for N+1 problem (via [batch][batch], [preloads][preloads] or
+  [activerecord_preloads][activerecord_preloads] plugins)
 - Built-in object presenter ([presenter][presenter] plugin)
-- Adding custom metadata (via [metadata][metadata] or [context_metadata][context_metadata] plugins)
+- Adding custom metadata (via [metadata][metadata] or
+  [context_metadata][context_metadata] plugins)
 - Attributes formatters ([formatters][formatters] plugin)
 - Conditional attributes ([if][if] plugin)
 
@@ -26,11 +29,13 @@ It has some great features:
 
 `bundle add serega`
 
-
 ### Define serializers
 
-Most apps should define **base serializer** with common plugins and settings to not repeat them in each serializer.
-Children serializers will inherit everything (plugins, config, attributes) from parent.
+Most apps should define **base serializer** with common plugins and settings to
+not repeat them in each serializer.
+
+Serializers will inherit everything (plugins, config, attributes) from their
+superclasses.
 
 ```ruby
 class AppSerializer < Serega
@@ -68,10 +73,11 @@ class UserSerializer < Serega
   # Option :value can be used with callable object to define attribute value
   attribute :first_name, value: proc { |user| user.profile&.first_name }
 
-  # Option :delegate can be used to define attribute value. Sub-option :allow_nil by default is false
+  # Option :delegate can be used to define attribute value.
+  # Sub-option :allow_nil by default is false
   attribute :first_name, delegate: { to: :profile, allow_nil: true }
 
-  # Option :delegate can be used with :key sub-option to change method called on delegated object
+  # Option :delegate can be used with :key sub-option
   attribute :first_name, delegate: { to: :profile, key: :fname }
 
   # Option :const specifies attribute with specific constant value
@@ -93,10 +99,10 @@ class UserSerializer < Serega
 
   # Option `:preload` can be specified when enabled `:preloads` plugin
   # It allows to specify associations to preload to attribute value
-  attribute :email, preload: :emails, value: proc { |user| user.emails.find(&:verified?) }
+  attribute(:email, preload: :emails) { |user| user.emails.find(&:verified?) }
 
-  # Options `:if`, `:unless`, `:if_value`, `:unless_value` can be specified when enabled `:if` plugin
-  # They hide attribute key and value from response when conditions satisfied
+  # Options `:if`, `:unless`, `:if_value`, `:unless_value` can be specified
+  # when enabled `:if` plugin. They hide attribute key and value from response.
   # See more usage examples in :if plugin section.
   attribute :email, if: proc { |user, ctx| user == ctx[:current_user] }
   attribute :email, if_value: :present?
@@ -113,16 +119,19 @@ end
 
 ---
 
-⚠️ Attribute names are checked to include only "a-z", "A-Z", "0-9", "_", "-", "~" characters.
-We have this check as:
-- Attributes names can be used in URL without encoding.
-- Plugin [string_modifiers][string_modifiers] already uses "," and "()" as attribute names delimeters.
-- We are protected from errors when added some non-english character looking as english.
+⚠️ Attribute names are checked to include only "a-z", "A-Z", "0-9", "\_", "-",
+"~" characters.
 
-This names check can be disabled globally or per-serializer via:
+We allow ONLY this characters as we want to be able to use attributes names in
+URLs without escaping.
+
+This check can be disabled this way:
+
 ```ruby
+# Disable globally
 Serega.config.check_attribute_name = false
 
+# Disable for specific serializer
 class SomeSerializer < Serega
   config.check_attribute_name = false
 end
@@ -130,9 +139,9 @@ end
 
 ### Serializing
 
-We can serialize objects using class methods `.to_h`, `.to_json`, `.as_json` and same instance methods `#to_h`, `#to_json`, `#as_json`.
+We can serialize objects using class methods `.to_h`, `.to_json`, `.as_json` and
+same instance methods `#to_h`, `#to_json`, `#as_json`.
 `to_h` method is also aliased as `call`.
-
 
 ```ruby
 user = OpenStruct.new(username: 'serega')
@@ -151,28 +160,53 @@ UserSerializer.as_json(user) # => {"username":"serega"}
 UserSerializer.as_json([user]) # => [{"username":"serega"}]
 ```
 
----
-⚠️ When you serialize `Struct` object, specify manually `many: false`. As Struct is Enumerable and we check `object.is_a?(Enumerable)` to detect if we should return array.
+If you always serialize same attributes it will make sense to save instance
+of serializer and reuse this instance, it will be a bit faster (fields will be
+prepared only once).
 
 ```ruby
-  UserSerializer.to_h(user_struct, many: false)
+# Example with all fields
+serializer = UserSerializer.new
+serializer.to_h(user1)
+serializer.to_h(user2)
+
+# Example with custom fields
+serializer = UserSerializer.new(only: [:username, :avatar])
+serializer.to_h(user1)
+serializer.to_h(user2)
+```
+
+---
+⚠️ When you serialize `Struct` object, specify manually `many: false`. As Struct
+is Enumerable and we check `object.is_a?(Enumerable)` to detect if we should
+return array.
+
+```ruby
+UserSerializer.to_h(user_struct, many: false)
 ```
 
 ### Selecting Fields
 
-  By default all attributes are serialized (except marked as `hide: true`).
+By default all attributes are serialized (except marked as `hide: true`).
 
-  We can provide **modifiers** to select only needed attributes:
+We can provide **modifiers** to select only needed attributes:
 
-  - *only* - lists attributes to serialize;
-  - *except* - lists attributes to not serialize;
-  - *with* - lists attributes to serialize additionally (By default all attributes are exposed and will be serialized, but some attributes can be hidden when they are defined with `hide: true` option, more on this below. `with` modifier can be used to expose such attributes).
+- *only* - lists attributes to serialize;
+- *except* - lists attributes to not serialize;
+- *with* - lists attributes to serialize additionally (By default all attributes
+  are exposed and will be serialized, but some attributes can be hidden when
+  they are defined with `hide: true` option, more on this below. `with` modifier
+  can be used to expose such attributes).
 
-  Modifiers can be provided as Hash, Array, String, Symbol or their combinations.
+Modifiers can be provided as Hash, Array, String, Symbol or their combinations.
 
-  With plugin [string_modifiers][string_modifiers] we can provide modifiers as single `String` with attributes split by comma `,` and nested values inside brackets `()`, like: `username,enemies(username,email)`. This can be very useful to accept list of fields in **GET** requests.
+With plugin [string_modifiers][string_modifiers] we can provide modifiers as
+single `String` with attributes split by comma `,` and nested values inside
+brackets `()`, like: `username,enemies(username,email)`. This can be very useful
+to accept list of fields in **GET** requests.
 
-  When provided non-existing attribute, `Serega::AttributeNotExist` error will be raised. This error can be muted with `check_initiate_params: false` parameter.
+When provided non-existing attribute, `Serega::AttributeNotExist` error will be
+raised. This error can be muted with `check_initiate_params: false` parameter.
 
 ```ruby
 class UserSerializer < Serega
@@ -185,53 +219,88 @@ class UserSerializer < Serega
   attribute :enemies, serializer: UserSerializer, hide: true
 end
 
-joker = OpenStruct.new(username: 'The Joker', first_name: 'jack', last_name: 'Oswald White', email: 'joker@mail.com', enemies: [])
-bruce = OpenStruct.new(username: 'Batman', first_name: 'Bruce', last_name: 'Wayne', email: 'bruce@wayneenterprises.com', enemies: [])
+joker = OpenStruct.new(
+  username: 'The Joker',
+  first_name: 'jack',
+  last_name: 'Oswald White',
+  email: 'joker@mail.com',
+  enemies: []
+)
+
+bruce = OpenStruct.new(
+  username: 'Batman',
+  first_name: 'Bruce',
+  last_name: 'Wayne',
+  email: 'bruce@wayneenterprises.com',
+  enemies: []
+)
+
 joker.enemies << bruce
 bruce.enemies << joker
 
 # Default
-UserSerializer.to_h(bruce) # => {:username=>"Batman", :first_name=>"Bruce", :last_name=>"Wayne"}
+UserSerializer.to_h(bruce)
+# => {:username=>"Batman", :first_name=>"Bruce", :last_name=>"Wayne"}
 
 # With `:only` modifier
-# Next 3 lines are identical:
-UserSerializer.to_h(bruce, only: [:username, { enemies: [:username, :email] }])
-UserSerializer.new(only: [:username, { enemies: [:username, :email] }]).to_h(bruce)
-UserSerializer.new(only: 'username,enemies(username,email)').to_h(bruce)
-# => {:username=>"Batman", :enemies=>[{:username=>"The Joker", :email=>"joker@mail.com"}]}
+fields = [:username, { enemies: [:username, :email] }]
+fields_as_string = 'username,enemies(username,email)'
+
+UserSerializer.to_h(bruce, only: fields)
+UserSerializer.new(only: fields).to_h(bruce)
+UserSerializer.new(only: fields_as_string).to_h(bruce)
+# =>
+# {
+#   :username=>"Batman",
+#   :enemies=>[{:username=>"The Joker", :email=>"joker@mail.com"}]
+# }
 
 # With `:except` modifier
-# Next 3 lines are identical:
-UserSerializer.new(except: %i[first_name last_name]).to_h(bruce)
-UserSerializer.to_h(bruce, except: %i[first_name last_name])
-UserSerializer.to_h(bruce, except: 'first_name,last_name')
+fields = %i[first_name last_name]
+fields_as_string = 'first_name,last_name'
+UserSerializer.new(except: fields).to_h(bruce)
+UserSerializer.to_h(bruce, except: fields)
+UserSerializer.to_h(bruce, except: fields_as_string)
 # => {:username=>"Batman"}
 
 # With `:with` modifier
-# Next 3 lines are identical:
-UserSerializer.new(with: %i[email enemies]).to_h(bruce)
-UserSerializer.to_h(bruce, with: %i[email enemies])
-UserSerializer.to_h(bruce, with: 'email,enemies')
-# => {:username=>"Batman", :first_name=>"Bruce", :last_name=>"Wayne", :email=>"bruce@wayneenterprises.com", :enemies=>[{:username=>"The Joker", :first_name=>"jack", :last_name=>"Oswald White"}]}
+fields = %i[email enemies]
+fields_as_string = 'email,enemies'
+UserSerializer.new(with: fields).to_h(bruce)
+UserSerializer.to_h(bruce, with: fields)
+UserSerializer.to_h(bruce, with: fields_as_string)
+# =>
+# {
+#   :username=>"Batman",
+#   :first_name=>"Bruce",
+#   :last_name=>"Wayne",
+#   :email=>"bruce@wayneenterprises.com",
+#   :enemies=>[
+#     {:username=>"The Joker", :first_name=>"jack", :last_name=>"Oswald White"}
+#   ]
+# }
 
 # With not existing attribute
-# Next 3 lines are identical:
-UserSerializer.new(only: %i[first_name enemy]).to_h(bruce)
-UserSerializer.to_h(bruce, only: %i[first_name enemy])
-UserSerializer.to_h(bruce, only: 'first_name,enemy')
+fields = %i[first_name enemy]
+fields_as_string = 'first_name,enemy')
+UserSerializer.new(only: fields).to_h(bruce)
+UserSerializer.to_h(bruce, only: fields)
+UserSerializer.to_h(bruce, only: fields_as_string)
 # => raises Serega::AttributeNotExist, "Attribute 'enemy' not exists"
 
 # With not existing attribute and disabled validation
-# Next 3 lines are identical:
-UserSerializer.new(only: %i[first_name enemy], check_initiate_params: false).to_h(bruce)
-UserSerializer.to_h(bruce, only: %i[first_name enemy], check_initiate_params: false)
-UserSerializer.to_h(bruce, only: 'first_name,enemy', check_initiate_params: false)
+fields = %i[first_name enemy]
+fields_as_string = 'first_name,enemy'
+UserSerializer.new(only: fields, check_initiate_params: false).to_h(bruce)
+UserSerializer.to_h(bruce, only: fields, check_initiate_params: false)
+UserSerializer.to_h(bruce, only: fields_as_string, check_initiate_params: false)
 # => {:first_name=>"Bruce"}
 ```
 
 ### Using Context
 
-Sometimes you can decide to use some context during serialization, like current_user or any.
+Sometimes you can decide to use some context during serialization, like
+current_user or any.
 
 ```ruby
 class UserSerializer < Serega
@@ -241,8 +310,11 @@ class UserSerializer < Serega
 end
 
 user = OpenStruct.new(email: 'email@example.com')
-UserSerializer.(user, context: {current_user: user}) # => {:email=>"email@example.com"}
+UserSerializer.(user, context: {current_user: user})
+# => {:email=>"email@example.com"}
+
 UserSerializer.new.to_h(user, context: {current_user: user}) # same
+# => {:email=>"email@example.com"}
 ```
 
 ## Configuration
@@ -252,20 +324,25 @@ This is initial config options, other config options can be added by plugins
 ```ruby
 class AppSerializer < Serega
   # Configure adapter to serialize to JSON.
-  # It is `JSON.dump` by default. When Oj gem is loaded then default is `Oj.dump(data, mode: :compat)`
+  # It is `JSON.dump` by default. When Oj gem is loaded then default is
+  # `Oj.dump(data, mode: :compat)`
   config.to_json = ->(data) { Oj.dump(data, mode: :compat) }
 
-  # Configure adapter to de-serialize JSON. De-serialization is used only for `#as_json` method.
-  # It is `JSON.parse` by default. When Oj gem is loaded then default is `Oj.load(data)`
+  # Configure adapter to de-serialize JSON.
+  # De-serialization is used only for `#as_json` method.
+  # It is `JSON.parse` by default.
+  # When Oj gem is loaded then default is `Oj.load(data)`
   config.from_json = ->(data) { Oj.load(data) }
 
   # Disable/enable validation of modifiers params `:with`, `:except`, `:only`
-  # By default it is enabled. After disabling, when provided not existed attribute it will be just skipped.
+  # By default it is enabled. After disabling,
+  # when provided not existed attribute it will be just skipped.
   config.check_initiate_params = false # default is true, enabled
 
-  # Stores in memory prepared `maps` of serialized attributes during serialization.
-  # Next time serialization happens with same modifiers (`:only, :except, :with`), we will use already prepared `map`.
-  # Setting defines storage size (count of stored `maps` with different modifiers).
+  # Stores in memory prepared `maps` of serialized attributes.
+  # Next time serialization happens with same modifiers (`only, except, with`),
+  # we will reuse already prepared `maps`.
+  # This defines storage size (count of stored `maps` with different modifiers).
   config.max_cached_map_per_serializer_count = 50 # default is 0, disabled
 end
 ```
@@ -278,6 +355,7 @@ Allows to define `:preloads` to attributes and then allows to merge preloads
 from serialized attributes and return single associations hash.
 
 Plugin accepts options:
+
 - `auto_preload_attributes_with_delegate` - default `false`
 - `auto_preload_attributes_with_serializer` - default `false`
 - `auto_hide_attributes_with_preload` - default `false`
@@ -285,7 +363,8 @@ Plugin accepts options:
 This options are very handy if you want to forget about finding preloads manually.
 
 Preloads can be disabled with `preload: false` attribute option option.
-Also automatically added preloads can be overwritten with manually specified `preload: :another_value`.
+Also automatically added preloads can be overwritten with manually specified
+`preload: :another_value`.
 
 Some examples, **please read comments in the code below**
 
@@ -301,13 +380,16 @@ class UserSerializer < AppSerializer
   # No preloads
   attribute :username
 
-  # Specify `preload: :user_stats` manually
-  attribute :followers_count, preload: :user_stats, value: proc { |user| user.user_stats.followers_count }
+  # `preload: :user_stats` added manually
+  attribute :followers_count, preload: :user_stats,
+    value: proc { |user| user.user_stats.followers_count }
 
-  # Automatically `preloads: :user_stats` as `auto_preload_attributes_with_delegate` option is true
+  # `preload: :user_stats` added automatically, as
+  # `auto_preload_attributes_with_delegate` option is true
   attribute :comments_count, delegate: { to: :user_stats }
 
-  # Automatically `preloads: :albums` as `auto_preload_attributes_with_serializer` option is true
+  # `preload: :albums` added automatically as
+  # `auto_preload_attributes_with_serializer` option is true
   attribute :albums, serializer: 'AlbumSerializer'
 end
 
@@ -315,14 +397,21 @@ class AlbumSerializer < AppSerializer
   attribute :images_count, delegate: { to: :album_stats }
 end
 
-# By default preloads are empty, as we specify `auto_hide_attributes_with_preload = true`,
-# and attributes with preloads will be not serialized
-UserSerializer.new.preloads # => {}
-UserSerializer.new.to_h(OpenStruct.new(username: 'foo')) # => {:username=>"foo"}
+# By default preloads are empty, as we specify `auto_hide_attributes_with_preload`
+# so attributes with preloads will be skipped so nothing should be preloaded
+UserSerializer.new.preloads
+# => {}
 
-UserSerializer.new(with: :followers_count).preloads # => {:user_stats=>{}}
-UserSerializer.new(with: %i[followers_count comments_count]).preloads # => {:user_stats=>{}}
-UserSerializer.new(with: [:followers_count, :comments_count, { albums: :images_count }]).preloads # => {:user_stats=>{}, :albums=>{:album_stats=>{}}}
+UserSerializer.new(with: :followers_count).preloads
+# => {:user_stats=>{}}
+
+UserSerializer.new(with: %i[followers_count comments_count]).preloads
+# => {:user_stats=>{}}
+
+UserSerializer.new(
+  with: [:followers_count, :comments_count, { albums: :images_count }]
+).preloads
+# => {:user_stats=>{}, :albums=>{:album_stats=>{}}}
 ```
 
 ---
@@ -331,7 +420,10 @@ One tricky case, that you will probably never see in real life:
 Manually you can preload multiple associations, like this:
 
 ```ruby
-attribute :image, serializer: ImageSerializer, preload: { attachment: :blob }, value: proc { |record| record.attachment }
+attribute :image,
+  serializer: ImageSerializer,
+  preload: { attachment: :blob },
+  value: proc { |record| record.attachment }
 ```
 
 In this case we mark last element (in this case it will be `blob`) as main,
@@ -340,12 +432,20 @@ If you need to preload them to `attachment`,
 please specify additionally `:preload_path` option like this:
 
 ```ruby
-attribute :image, serializer: ImageSerializer, preload: { attachment: :blob }, preload_path: %i[attachment], value: proc { |record| record.attachment }
+attribute :image,
+  serializer: ImageSerializer,
+  preload: { attachment: :blob },
+  preload_path: %i[attachment],
+  value: proc { |record| record.attachment }
 ```
+
 ---
 
-📌 Plugin `:preloads` only allows to group preloads together in single Hash, but they should be preloaded manually. For now there are only [activerecord_preloads][activerecord_preloads] plugin that can automatically preload associations.
+📌 Plugin `:preloads` only allows to group preloads together in single Hash, but
+they should be preloaded manually.
 
+There are only [activerecord_preloads][activerecord_preloads] plugin that can
+be used to preload this associations automatically.
 
 ### Plugin :activerecord_preloads
 
@@ -353,10 +453,9 @@ attribute :image, serializer: ImageSerializer, preload: { attachment: :blob }, p
 
 Automatically preloads associations to serialized objects.
 
-It takes all defined preloads from serialized attributes (including attributes from serialized relations),
-merges them into single associations hash and then uses ActiveRecord::Associations::Preloader
-to preload associations to serialized objects.
-
+It takes all defined preloads from serialized attributes (including attributes
+from serialized relations), merges them into single associations hash and then
+uses ActiveRecord::Associations::Preloader to preload associations to objects.
 
 ```ruby
 class AppSerializer < Serega
@@ -376,59 +475,78 @@ end
 
 class AlbumSerializer < AppSerializer
   attribute :title
-  attribute :downloads_count, preload: :downloads, value: proc { |album| album.downloads.count }
+  attribute :downloads_count, preload: :downloads,
+    value: proc { |album| album.downloads.count }
 end
 
-UserSerializer.to_h(user) # => preloads {users_stats: {}, albums: { downloads: {} }}
+UserSerializer.to_h(user)
+# => preloads {users_stats: {}, albums: { downloads: {} }}
 ```
 
 ### Plugin :batch
 
 Adds ability to load attributes values in batches.
 
-It can be used to omit N+1, to calculate counters for different objects in single query, to request any data from external storage.
+It can be used to omit N+1, to calculate counters for different objects in
+single query, to request any data from external storage.
 
 Added new `:batch` attribute option, example:
+
 ```
 attribute :name, batch: { key: :id, loader: :name_loader, default: '' }
 ```
 
 Attribute `:batch` option must be a hash with this keys:
-- `key` (required) [Symbol, Proc, callable] - Defines identifier of current object
-- `loader` (required) [Symbol, Proc, callable] - Defines how to fetch values for batch of keys. Accepts 3 parameters: keys, context, point.
-- `default` (optional) - Default value used when loader does not return value for current key. By default it is `nil` or `[]` when attribute has additional option `many: true` (ex: `attribute :name, many: true, batch: { ... }`).
 
-If `:loader` was defined using name (as Symbol) then batch loader must be defined using `config.batch_loaders.define(:loader_name) { ... }` method. Result of this block must be a Hash where keys are - provided keys, and values are - batch loaded values for according keys.
+- `key` (required) [Symbol, Proc, callable] - Defines current object identifier
+- `loader` (required) [Symbol, Proc, callable] - Defines how to fetch values for
+  batch of keys. Accepts 3 parameters: keys, context, point.
+- `default` (optional) - Default value for attribute.
+  By default it is `nil` or `[]` when attribute has option `many: true`
+  (ex: `attribute :tags, many: true, batch: { ... }`).
 
-Batch loader works well with [`activerecord_preloads`][activerecord_preloads] plugin.
+If `:loader` was defined using name (as Symbol) then batch loader must be
+defined using `config.batch_loaders.define(:loader_name) { ... }` method.
+Result of this block must be a Hash where keys are - provided keys, and values
+are - batch loaded values for according keys.
+
+Batch loader works well with [`activerecord_preloads`][activerecord_preloads]
+plugin.
 
 ```ruby
 class PostSerializer < Serega
   plugin :batch
 
-  # Define batch loader via callable class, it must accept three args (keys, context, nested_attributes)
-  attribute :comments_count, batch: { key: :id, loader: PostCommentsCountBatchLoader, default: 0}
+  # Define batch loader via callable class, it must accept three args
+  # (keys, context, nested_attributes)
+  attribute :comments_count,
+    batch: { key: :id, loader: CommentsCountBatchLoader, default: 0}
 
-  # Define batch loader via Symbol, later we should define this loader via config.batch_loaders.define(:posts_comments_counter) { ... }
-  attribute :comments_count, batch: { key: :id, loader: :posts_comments_counter, default: 0}
+  # Define batch loader via Symbol, later we should define this loader via
+  # config.batch_loaders.define(:posts_comments_counter) { ... }
+  attribute :comments_count,
+    batch: { key: :id, loader: :posts_comments_counter, default: 0}
 
   # Define batch loader with serializer
-  attribute :comments, serializer: CommentSerializer, batch: { key: :id, loader: :posts_comments, default: []}
+  attribute :comments,
+    serializer: CommentSerializer,
+    batch: { key: :id, loader: :posts_comments, default: []}
 
   # Resulted block must return hash like { key => value(s) }
   config.batch_loaders.define(:posts_comments_counter) do |keys|
     Comment.group(:post_id).where(post_id: keys).count
   end
 
-  # We can return objects that will be automatically serialized if attribute defined with :serializer
+  # We can return objects that will be automatically serialized if attribute
+  # defined with :serializer
   # Parameter `context` can be used when loading batch
-  # Parameter `point` can be used to find nested attributes  that will be serialized
+  # Parameter `point` can be used to find nested attributes to serialize
   config.batch_loaders.define(:posts_comments) do |keys, context, point|
-    # point.nested_points - if you need to manually check all nested attributes that will be serialized
-    # point.preloads - if you need to find nested preloads (works with :preloads plugin only)
+    # point.nested_points - if you need to manually check all nested attributes
+    # point.preloads - nested preloads (works with :preloads plugin only)
 
     Comment
-      .preload(point.preloads) # Can be skipped when used :activerecord_preloads plugin
+      .preload(point.preloads) # Skip if :activerecord_preloads plugin used
       .where(post_id: keys)
       .where(is_spam: false)
       .group_by(&:post_id)
@@ -441,11 +559,13 @@ end
 Allows to add root key to your serialized data
 
 Accepts options:
+
 - :root - specifies root for all responses
 - :root_one - specifies root for single object serialization only
 - :root_many - specifies root for multiple objects serialization only
 
 Adds additional config options:
+
 - config.root.one
 - config.root.many
 - config.root.one=
@@ -455,11 +575,12 @@ Default root is `:data`.
 
 Root also can be changed per serialization.
 
-Also root can be removed for all responses by providing `root: nil`. In this case no root will be added to response, but
-you still can to add it per serialization
+Also root can be removed for all responses by providing `root: nil`.
+In this case no root will be added to response, but you still can to add it per
+serialization
 
 ```ruby
- #@example Define plugin
+ #@example Define :root plugin with different options
 
  class UserSerializer < Serega
    plugin :root # default root is :data
@@ -497,7 +618,8 @@ Depends on: [`:root`][root] plugin, that must be loaded first
 Adds ability to describe metadata and adds it to serialized response
 
 Added class-level method `:meta_attribute`, to define metadata, it accepts:
-- *path [Array<Symbol>] - nested hash keys beginning from the root object.
+
+- *path [Array of Symbols] - nested hash keys.
 - **options [Hash] - defaults are `hide_nil: false, hide_empty: false`
 - &block [Proc] - describes value for current meta attribute
 
@@ -511,11 +633,16 @@ class AppSerializer < Serega
   meta_attribute(:meta, :paging, hide_nil: true) do |records, ctx|
     next unless records.respond_to?(:total_count)
 
-    { page: records.page, per_page: records.per_page, total_count: records.total_count }
+    {
+      page: records.page,
+      per_page: records.per_page,
+      total_count: records.total_count
+    }
   end
 end
 
-AppSerializer.to_h(nil) # => {:data=>nil, :version=>"1.2.3", :ab_tests=>{:names=>[:foo, :bar]}}
+AppSerializer.to_h(nil)
+# => {:data=>nil, :version=>"1.2.3", :ab_tests=>{:names=>[:foo, :bar]}}
 ```
 
 ### Plugin :context_metadata
@@ -524,9 +651,11 @@ Depends on: [`:root`][root] plugin, that must be loaded first
 
 Allows to provide metadata and attach it to serialized response.
 
-Accepts option `:context_metadata_key` with name of keyword that must be used to provide metadata. By default it is `:meta`
+Accepts option `:context_metadata_key` with name of keyword that must be used to
+provide metadata. By default it is `:meta`
 
-Key can be changed in children serializers using config `config.context_metadata.key=(value)`
+Key can be changed in children serializers using config
+`config.context_metadata.key=(value)`
 
 ```ruby
 class UserSerializer < Serega
@@ -548,7 +677,8 @@ Allows to define `formatters` and apply them on attributes.
 
 Config option `config.formatters.add` can be used to add formatters.
 
-Attribute option `:format` now can be used with name of formatter or with callable instance.
+Attribute option `:format` now can be used with name of formatter or with
+callable instance.
 
 ```ruby
 class AppSerializer < Serega
@@ -606,9 +736,10 @@ end
 
 Allows to specify modifiers as strings.
 
-Serialized attributes must be split with `,` and nested attributes must be defined inside brackets `(`, `)`.
+Serialized attributes must be split with `,` and nested attributes must be
+defined inside brackets `(`, `)`.
 
-Modifiers can still be provided old way with nested hashes or arrays.
+Modifiers can still be provided old way using nested hashes or arrays.
 
 ```ruby
 PostSerializer.plugin :string_modifiers
@@ -616,7 +747,7 @@ PostSerializer.new(only: "id,user(id,username)").to_h(post)
 PostSerializer.new(except: "user(username,email)").to_h(post)
 PostSerializer.new(with: "user(email)").to_h(post)
 
-# Modifiers can still be provided old way with nested hashes or arrays.
+# Modifiers can still be provided old way using nested hashes or arrays.
 PostSerializer.new(with: {user: %i[email, username]}).to_h(post)
 ```
 
@@ -625,46 +756,51 @@ PostSerializer.new(with: {user: %i[email, username]}).to_h(post)
 Plugin adds `:if`, `:unless`, `:if_value`, `:unless_value` options to
 attributes so we can remove attributes from response in various ways.
 
-Use `:if` and `:unless` when you want to hide attributes before finding attribute value,
-and use `:if_value` and `:unless_value` to hide attributes after we find final value.
+Use `:if` and `:unless` when you want to hide attributes before finding
+attribute value, and use `:if_value` and `:unless_value` to hide attributes
+after finding final value.
 
-Options `:if` and `:unless` accept currently serialized object and context as parameters.
-Options `:if_value` and `:unless_value` accept already found serialized value and context as parameters.
+Options `:if` and `:unless` accept currently serialized object and context as
+parameters. Options `:if_value` and `:unless_value` accept already found
+serialized value and context as parameters.
 
-Options `:if_value` and `:unless_value` cannot be used with :serializer option, as
-serialized objects have no "serialized value". Use `:if` and `:unless` in this case.
+Options `:if_value` and `:unless_value` cannot be used with :serializer option,
+as serialized objects have no "serialized value".
+Use `:if` and `:unless` in this case.
 
 See also a `:hide` option that is available without any plugins to hide
-attribute without conditions. Look at [select serialized fields](#selecting-fields) for `:hide` usage examples.
+attribute without conditions.
+Look at [select serialized fields](#selecting-fields) for `:hide` usage examples.
 
 ```ruby
  class UserSerializer < Serega
-   attribute :email, if: :active? # if user.active?
+   attribute :email, if: :active? # translates to `if user.active?`
    attribute :email, if: proc {|user| user.active?} # same
-   attribute :email, if: proc {|user, ctx| user == ctx[:current_user]} # using context
-   attribute :email, if: CustomPolicy.method(:view_email?) # You can provide own callable object
+   attribute :email, if: proc {|user, ctx| user == ctx[:current_user]}
+   attribute :email, if: CustomPolicy.method(:view_email?)
 
-   attribute :email, unless: :hidden? # unless user.hidden?
+   attribute :email, unless: :hidden? # translates to `unless user.hidden?`
    attribute :email, unless: proc {|user| user.hidden?} # same
-   attribute :email, unless: proc {|user, context| context[:show_emails]} # using context
-   attribute :email, unless: CustomPolicy.method(:hide_email?) # You can provide own callable object
+   attribute :email, unless: proc {|user, context| context[:show_emails]}
+   attribute :email, unless: CustomPolicy.method(:hide_email?)
 
    attribute :email, if_value: :present? # if email.present?
    attribute :email, if_value: proc {|email| email.present?} # same
-   attribute :email, if_value: proc {|email, ctx| ctx[:show_emails]} # using context
-   attribute :email, if_value: CustomPolicy.method(:view_email?) # You can provide own callable object
+   attribute :email, if_value: proc {|email, ctx| ctx[:show_emails]}
+   attribute :email, if_value: CustomPolicy.method(:view_email?)
 
    attribute :email, unless_value: :blank? # unless email.blank?
    attribute :email, unless_value: proc {|email| email.blank?} # same
-   attribute :email, unless_value: proc {|email, context| context[:show_emails]} # using context
-   attribute :email, unless_value: CustomPolicy.method(:hide_email?) # You can provide own callable object
+   attribute :email, unless_value: proc {|email, context| context[:show_emails]}
+   attribute :email, unless_value: CustomPolicy.method(:hide_email?)
  end
 ```
 
 ## Errors
 
 - `Serega::SeregaError` is a base error raised by this gem.
-- `Serega::AttributeNotExist` error is raised when validating attributes in `:only, :except, :with` modifiers
+- `Serega::AttributeNotExist` error is raised when validating attributes in
+  `:only, :except, :with` modifiers
 
 ## Release
 
@@ -686,7 +822,6 @@ Bug reports, pull requests and improvements ideas are very welcome!
 ## License
 
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
-
 
 [activerecord_preloads]: #plugin-activerecord_preloads
 [batch]: #plugin-batch

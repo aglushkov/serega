@@ -13,7 +13,6 @@ gem "rubocop-rake", "~> 0.6.0", require: false
 gem "rubocop-rspec", "~> 2.11", ">= 2.11.1", require: false
 gem "redcarpet", "~> 3.5", require: false
 gem "rspec-sqlimit", "~> 0.0.5", require: false
-
 # Can be used in test like:
 #  require 'allocation_stats'
 #
@@ -25,6 +24,7 @@ gem "rspec-sqlimit", "~> 0.0.5", require: false
 #
 gem "allocation_stats", require: false
 gem "yard", require: false
+gem "mdl", "~> 0.12.0", require: false
 
 if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("3.1")
   gem "debug", ">= 1.0.0"

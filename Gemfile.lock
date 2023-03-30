@@ -23,6 +23,8 @@ GEM
       tzinfo (~> 2.0)
     allocation_stats (0.1.5)
     ast (2.4.2)
+    chef-utils (18.1.29)
+      concurrent-ruby
     concurrent-ruby (1.2.2)
     debug (1.7.1)
       irb (>= 1.5.0)
@@ -38,8 +40,23 @@ GEM
     jdbc-sqlite3 (3.32.3.3)
     json (2.6.3)
     json (2.6.3-java)
+    kramdown (2.4.0)
+      rexml
+    kramdown-parser-gfm (1.1.0)
+      kramdown (~> 2.0)
     language_server-protocol (3.17.0.3)
+    mdl (0.12.0)
+      kramdown (~> 2.3)
+      kramdown-parser-gfm (~> 1.1)
+      mixlib-cli (~> 2.1, >= 2.1.1)
+      mixlib-config (>= 2.2.1, < 4)
+      mixlib-shellout
     minitest (5.18.0)
+    mixlib-cli (2.1.8)
+    mixlib-config (3.0.27)
+      tomlrb
+    mixlib-shellout (3.2.7)
+      chef-utils
     parallel (1.22.1)
     parser (3.2.1.1)
       ast (~> 2.4.1)
@@ -100,6 +117,7 @@ GEM
       language_server-protocol (~> 3.17.0.2)
       rubocop (~> 1.48.1)
       rubocop-performance (~> 1.16.0)
+    tomlrb (2.0.3)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     unicode-display_width (2.4.2)
@@ -116,6 +134,7 @@ DEPENDENCIES
   activerecord-jdbcsqlite3-adapter
   allocation_stats
   debug (>= 1.0.0)
+  mdl (~> 0.12.0)
   rake (~> 13.0)
   redcarpet (~> 3.5)
   rspec (~> 3.0)
