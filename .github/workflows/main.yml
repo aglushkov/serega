@@ -64,6 +64,10 @@ jobs:
       - name: Run Tests
         run: bundle exec rspec
 
+      - name: Markdown linter
+        if: startsWith(matrix.ruby, '3.2')
+        run: bundle exec mdl README.md CHANGELOG.md RELEASE.md
+
       # https://github.com/paambaati/codeclimate-action
       - name: Publish code coverage to code-climate
         uses: paambaati/codeclimate-action@v3.2

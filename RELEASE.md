@@ -1,64 +1,76 @@
 # Release process
 
 1. Check documentation
-```
-yard --no-cache --quiet && yard stats --list-undoc
-```
 
-2. Run and fix all warnings
-```
-bundle update \
-  && BUNDLE_GEMFILE=gemfiles/5.2.gemfile bundle update \
-  && BUNDLE_GEMFILE=gemfiles/6.1.gemfile bundle update \
-  && BUNDLE_GEMFILE=gemfiles/7.0.gemfile bundle update \
-  && bundle exec rspec \
-  && bundle exec rubocop -A \
-  && bundle exec rake examples
-```
+    ```
+    yard --no-cache --quiet && yard stats --list-undoc
+    ```
 
-3. Update version number in VERSION file
+1. Run and fix all warnings
 
-4. Checkout to new release branch
-```
-git co -b "v$(cat "VERSION")"
-```
+    ```
+    bundle update \
+      && BUNDLE_GEMFILE=gemfiles/5.2.gemfile bundle update \
+      && BUNDLE_GEMFILE=gemfiles/6.1.gemfile bundle update \
+      && BUNDLE_GEMFILE=gemfiles/7.0.gemfile bundle update \
+      && bundle exec rspec \
+      && bundle exec rubocop -A \
+      && bundle exec rake examples
+    ```
 
-5. Make local gem release
-```
-gem build serega.gemspec
-```
+1. Update version number in VERSION file
 
-6. Repeat
-```
-bundle update \
-  && BUNDLE_GEMFILE=gemfiles/5.2.gemfile bundle update \
-  && BUNDLE_GEMFILE=gemfiles/6.1.gemfile bundle update \
-  && BUNDLE_GEMFILE=gemfiles/7.0.gemfile bundle update \
-  && bundle exec rspec \
-  && bundle exec rubocop -A \
-  && bundle exec rake examples
-```
+1. Checkout to new release branch
 
-7. Add CHANGELOG, README notices.
+    ```
+    git co -b "v$(cat "VERSION")"
+    ```
 
-8. Commit all changes.
-```
-git add . && git commit -m "Release v$(cat "VERSION")"
-git push origin "v$(cat "VERSION")"
-```
+1. Make local gem release
 
-9. Merge PR when all checks pass.
+    ```
+    gem build serega.gemspec
+    ```
 
-10. Add tag
-```
-git checkout master
-git pull --rebase origin master
-git tag -a v$(cat "VERSION") -m v$(cat "VERSION")
-git push origin master
-git push origin --tags
-```
+1. Repeat
 
-11. Push new gem version
-```
-gem push serega-$(cat "VERSION").gem
-```
+    ```
+    bundle update \
+      && BUNDLE_GEMFILE=gemfiles/5.2.gemfile bundle update \
+      && BUNDLE_GEMFILE=gemfiles/6.1.gemfile bundle update \
+      && BUNDLE_GEMFILE=gemfiles/7.0.gemfile bundle update \
+      && bundle exec rspec \
+      && bundle exec rubocop -A \
+      && bundle exec rake examples
+    ```
+
+1. Add CHANGELOG, README notices, test them:
+
+    ```
+    mdl README.md  RELEASE.md CHANGELOG.md
+    ```
+
+1. Commit all changes.
+
+    ```
+    git add . && git commit -m "Release v$(cat "VERSION")"
+    git push origin "v$(cat "VERSION")"
+    ```
+
+1. Merge PR when all checks pass.
+
+1. Add tag
+
+    ```
+    git checkout master
+    git pull --rebase origin master
+    git tag -a v$(cat "VERSION") -m v$(cat "VERSION")
+    git push origin master
+    git push origin --tags
+    ```
+
+1. Push new gem version
+
+    ```
+    gem push serega-$(cat "VERSION").gem
+    ```
