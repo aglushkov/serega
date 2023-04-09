@@ -84,7 +84,7 @@ RSpec.describe Serega::SeregaUtils::ToHash do
   end
 
   context "with complex value test" do
-    let(:val) { [:a, "b", c: {"d" => [:e, "f"]}] }
+    let(:val) { [:a, "b", {c: {"d" => [:e, "f"]}}] }
 
     it "returns nested hash with symbol keys" do
       expect(result).to eq(

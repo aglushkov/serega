@@ -24,7 +24,7 @@ class Serega
           def call(preloads)
             return FROZEN_EMPTY_ARRAY if preloads.empty?
 
-            main_path(preloads)
+            main_path(preloads).freeze
           end
 
           private

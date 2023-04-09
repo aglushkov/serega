@@ -38,31 +38,39 @@ class Serega
         private
 
         def array_to_hash(values)
-          return Serega::FROZEN_EMPTY_HASH if values.empty?
+          return FROZEN_EMPTY_HASH if values.empty?
 
-          values.each_with_object({}) do |value, obj|
-            obj.merge!(call(value))
+          res = {}
+          values.each do |value|
+            case value
+            when String then res[value.to_sym] = FROZEN_EMPTY_HASH
+            when Symbol then res[value] = FROZEN_EMPTY_HASH
+            else res.merge!(call(value))
+            end
           end
+          res
         end
 
         def hash_to_hash(values)
-          return Serega::FROZEN_EMPTY_HASH if values.empty?
+          return FROZEN_EMPTY_HASH if values.empty?
 
-          values.each_with_object({}) do |(key, value), obj|
-            obj[key.to_sym] = call(value)
+          res = {}
+          values.each do |key, value|
+            res[key.to_sym] = call(value)
           end
+          res
         end
 
         def nil_to_hash(_value)
-          Serega::FROZEN_EMPTY_HASH
+          FROZEN_EMPTY_HASH
         end
 
         def string_to_hash(value)
-          symbol_to_hash(value.to_sym)
+          {value.to_sym => FROZEN_EMPTY_HASH}
         end
 
         def symbol_to_hash(value)
-          {value => Serega::FROZEN_EMPTY_HASH}
+          {value => FROZEN_EMPTY_HASH}
         end
       end
     end

@@ -256,9 +256,9 @@ class Serega
         end
 
         def get_preloads_path
-          path = Array(opts[:preload_path]).map!(&:to_sym)
+          path = Array(opts[:preload_path]).map!(&:to_sym).freeze
           path = MainPreloadPath.call(preloads) if path.empty?
-          EnumDeepFreeze.call(path)
+          path
         end
       end
 
