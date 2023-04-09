@@ -7,17 +7,6 @@ class Serega
       # Utility that helps to transform user provided preloads to hash
       #
       class FormatUserPreloads
-        METHODS = {
-          Array => :array_to_hash,
-          FalseClass => :nil_to_hash,
-          Hash => :hash_to_hash,
-          NilClass => :nil_to_hash,
-          String => :string_to_hash,
-          Symbol => :symbol_to_hash
-        }.freeze
-
-        private_constant :METHODS
-
         class << self
           #
           # Transforms user provided preloads to hash
@@ -27,7 +16,16 @@ class Serega
           # @return [Hash] preloads transformed to hash
           #
           def call(value)
-            send(METHODS.fetch(value.class), value)
+            case value
+            when Array then array_to_hash(value)
+            when FalseClass then nil_to_hash(value)
+            when Hash then hash_to_hash(value)
+            when NilClass then nil_to_hash(value)
+            when String then string_to_hash(value)
+            when Symbol then symbol_to_hash(value)
+            else raise Serega::SeregaError,
+              "Preload option value can consist from Symbols, Arrays, Hashes (#{value.class} #{value.inspect} was provided)"
+            end
           end
 
           private
@@ -49,7 +47,7 @@ class Serega
           end
 
           def string_to_hash(value)
-            symbol_to_hash(value.to_sym)
+            {value.to_sym => {}}
           end
 
           def symbol_to_hash(value)

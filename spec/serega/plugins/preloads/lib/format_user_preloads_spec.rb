@@ -42,4 +42,11 @@ RSpec.describe Serega::SeregaPlugins::Preloads::FormatUserPreloads do
     preloads = {"bar" => "bazz", :foo => [:bar, "bazz"]}
     expect(format.call(preloads)).to eq({bar: {bazz: {}}, foo: {bar: {}, bazz: {}}})
   end
+
+  it "raises error when invalid data added" do
+    val = 123
+    expect { format.call(val) }
+      .to raise_error Serega::SeregaError,
+        "Preload option value can consist from Symbols, Arrays, Hashes (#{val.class} #{val.inspect} was provided)"
+  end
 end

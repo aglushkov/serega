@@ -7,40 +7,40 @@ class Serega
   module SeregaUtils
     #
     # Duplicates nested hashes and arrays
+    # It does not duplicate any non-Array and non-Hash values
     #
     class EnumDeepDup
-      DUP = {
-        Hash => ->(data) { dup_hash_values(data) },
-        Array => ->(data) { dup_array_values(data) }
-      }.freeze
-      private_constant :DUP
-
       class << self
         #
-        # Deeply duplicate provided data
+        # Deeply duplicate provided Array or Hash data
+        # It does not duplicate any non-Array and non-Hash values
         #
         # @param data [Hash, Array] Data to duplicate
         #
         # @return [Hash, Array] Duplicated data
         #
         def call(data)
-          duplicate_data = data.dup
-          DUP.fetch(duplicate_data.class).call(duplicate_data)
-          duplicate_data
+          case data
+          when Hash
+            # https://github.com/fastruby/fast-ruby#hash-vs-hashdup-code
+            data = Hash[data] # rubocop:disable Style/HashConversion
+            dup_hash_values(data)
+          when Array
+            data = data.dup
+            dup_array_values(data)
+          end
+
+          data
         end
 
         private
 
-        def dup_hash_values(duplicate_data)
-          duplicate_data.each do |key, value|
-            duplicate_data[key] = call(value) if value.is_a?(Enumerable)
-          end
+        def dup_hash_values(data)
+          data.transform_values! { |value| call(value) }
         end
 
-        def dup_array_values(duplicate_data)
-          duplicate_data.map! do |value|
-            value.is_a?(Enumerable) ? call(value) : value
-          end
+        def dup_array_values(data)
+          data.map! { |value| call(value) }
         end
       end
     end

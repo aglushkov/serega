@@ -15,4 +15,10 @@ RSpec.describe Serega::SeregaPlugins::Preloads::EnumDeepFreeze do
     expect(hash[:key2][0]).to be_frozen
     expect(hash[:key2][0][:key22]).to be_frozen
   end
+
+  it "freezes regular Objects" do
+    obj = Object.new
+    described_class.call(obj)
+    expect(obj).to be_frozen
+  end
 end
