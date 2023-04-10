@@ -2,44 +2,44 @@
 
 class Serega
   #
-  # Constructs map of attributes that should be serialized.
-  # We will traverse this map to construct serialized response.
+  # Constructs plan - list of serialized attributes.
+  # We will traverse this plan to construct serialized response.
   #
-  class SeregaMap
+  class SeregaPlan
     #
-    # SeregaMap class methods
+    # SeregaPlan class methods
     #
     module ClassMethods
       #
-      # Constructs map of attributes that should be serialized.
+      # Constructs plan of attributes that should be serialized.
       #
       # @param opts Serialization parameters
       # @option opts [Hash] :only The only attributes to serialize
       # @option opts [Hash] :except Attributes to hide
       # @option opts [Hash] :with Attributes (usually hidden) to serialize additionally
       #
-      # @return [Array<Serega::SeregaMapPoint>] map
+      # @return [Array<Serega::SeregaPlanPoint>] plan
       #
       def call(opts)
-        max_cache_size = serializer_class.config.max_cached_map_per_serializer_count
-        return map_for(opts) if max_cache_size.zero?
+        max_cache_size = serializer_class.config.max_cached_plans_per_serializer_count
+        return plan_for(opts) if max_cache_size.zero?
 
-        cached_map_for(opts, max_cache_size)
+        cached_plan_for(opts, max_cache_size)
       end
 
       private
 
-      def map_for(opts)
-        construct_map(serializer_class, **modifiers(opts))
+      def plan_for(opts)
+        construct_plan(serializer_class, **modifiers(opts))
       end
 
-      def cached_map_for(opts, max_cache_size)
+      def cached_plan_for(opts, max_cache_size)
         @cache ||= {}
         cache_key = construct_cache_key(opts)
 
-        map = @cache[cache_key] ||= map_for(opts)
+        plan = @cache[cache_key] ||= plan_for(opts)
         @cache.shift if @cache.length > max_cache_size
-        map
+        plan
       end
 
       def modifiers(opts)
@@ -50,14 +50,14 @@ class Serega
         }
       end
 
-      def construct_map(serializer_class, only:, except:, with:)
-        map = []
+      def construct_plan(serializer_class, only:, except:, with:)
+        plan = []
         serializer_class.attributes.each do |name, attribute|
           next unless attribute.visible?(only: only, except: except, with: with)
 
           nested_points =
             if attribute.relation?
-              construct_map(
+              construct_plan(
                 attribute.serializer,
                 only: only[name] || FROZEN_EMPTY_HASH,
                 with: with[name] || FROZEN_EMPTY_HASH,
@@ -65,9 +65,9 @@ class Serega
               )
             end
 
-          map << serializer_class::SeregaMapPoint.new(attribute, nested_points)
+          plan << serializer_class::SeregaPlanPoint.new(attribute, nested_points)
         end
-        map
+        plan
       end
 
       def construct_cache_key(opts, cache_key = nil)

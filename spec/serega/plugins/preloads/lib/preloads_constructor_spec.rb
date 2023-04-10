@@ -13,26 +13,26 @@ RSpec.describe Serega::SeregaPlugins::Preloads::PreloadsConstructor do
   let(:profile_serializer) { Class.new(base) }
   let(:user_ser) { user_serializer.new }
 
-  def map(serializer)
-    serializer.send(:map)
+  def plan(serializer)
+    serializer.send(:plan)
   end
 
   it "returns empty hash when no attributes requested" do
-    result = described_class.call(map(user_ser))
+    result = described_class.call(plan(user_ser))
     expect(result).to eq({})
   end
 
   it "returns empty hash when no attributes with preloads requested" do
     user_serializer.attribute :name
 
-    result = described_class.call(map(user_ser))
+    result = described_class.call(plan(user_ser))
     expect(result).to eq({})
   end
 
   it "returns preloads for requested attributes" do
     user_serializer.attribute :name, preload: :profile
 
-    result = described_class.call(map(user_ser))
+    result = described_class.call(plan(user_ser))
     expect(result).to eq(profile: {})
   end
 
@@ -41,7 +41,7 @@ RSpec.describe Serega::SeregaPlugins::Preloads::PreloadsConstructor do
     user_serializer.attribute :phone, preload: {profile: :phones}
     user_serializer.attribute :email, preload: {profile: :emails}
 
-    result = described_class.call(map(user_ser))
+    result = described_class.call(plan(user_ser))
     expect(result).to eq(profile: {phones: {}, emails: {}})
   end
 
@@ -49,7 +49,7 @@ RSpec.describe Serega::SeregaPlugins::Preloads::PreloadsConstructor do
     user_serializer.config.preloads.auto_preload_attributes_with_serializer = true
     user_serializer.attribute :email, serializer: base
 
-    result = described_class.call(map(user_ser))
+    result = described_class.call(plan(user_ser))
     expect(result).to eq(email: {})
   end
 
@@ -57,7 +57,7 @@ RSpec.describe Serega::SeregaPlugins::Preloads::PreloadsConstructor do
     user_serializer.attribute :profile, serializer: profile_serializer, preload: nil
     profile_serializer.attribute :email, preload: :email # should not be preloaded
 
-    result = described_class.call(map(user_ser))
+    result = described_class.call(plan(user_ser))
     expect(result).to eq({})
   end
 
@@ -65,7 +65,7 @@ RSpec.describe Serega::SeregaPlugins::Preloads::PreloadsConstructor do
     user_serializer.attribute :profile, serializer: profile_serializer, preload: {}
     profile_serializer.attribute :email, preload: :email # should be preloaded to root
 
-    result = described_class.call(map(user_ser))
+    result = described_class.call(plan(user_ser))
     expect(result).to eq(email: {})
   end
 
@@ -73,7 +73,7 @@ RSpec.describe Serega::SeregaPlugins::Preloads::PreloadsConstructor do
     user_serializer.attribute :profile, serializer: profile_serializer, preload: []
     profile_serializer.attribute :email, preload: :email # should be preloaded to root
 
-    result = described_class.call(map(user_ser))
+    result = described_class.call(plan(user_ser))
     expect(result).to eq(email: {})
   end
 
@@ -81,7 +81,7 @@ RSpec.describe Serega::SeregaPlugins::Preloads::PreloadsConstructor do
     user_serializer.attribute :profile, preload: :profile, serializer: profile_serializer
     profile_serializer.attribute :email, preload: %i[confirmed_email unconfirmed_email]
 
-    result = described_class.call(map(user_ser))
+    result = described_class.call(plan(user_ser))
     expect(result).to eq(profile: {confirmed_email: {}, unconfirmed_email: {}})
   end
 
@@ -89,7 +89,7 @@ RSpec.describe Serega::SeregaPlugins::Preloads::PreloadsConstructor do
     user_serializer.attribute :profile, serializer: profile_serializer, preload: {company: :profile}
     profile_serializer.attribute :email, preload: %i[confirmed_email unconfirmed_email]
 
-    result = described_class.call(map(user_ser))
+    result = described_class.call(plan(user_ser))
     expect(result).to eq(company: {profile: {confirmed_email: {}, unconfirmed_email: {}}})
   end
 
@@ -100,7 +100,7 @@ RSpec.describe Serega::SeregaPlugins::Preloads::PreloadsConstructor do
 
     profile_serializer.attribute :email, preload: %i[confirmed_email unconfirmed_email]
 
-    result = described_class.call(map(user_ser))
+    result = described_class.call(plan(user_ser))
     expect(result).to eq(company: {profile: {}, confirmed_email: {}, unconfirmed_email: {}})
   end
 
@@ -112,11 +112,11 @@ RSpec.describe Serega::SeregaPlugins::Preloads::PreloadsConstructor do
     a1 = a.allocate
     a2 = a.allocate
 
-    a1.instance_variable_set(:@map, [a::SeregaMapPoint.new(attr1, nil), a::SeregaMapPoint.new(attr2, nil)])
-    a2.instance_variable_set(:@map, [a::SeregaMapPoint.new(attr2, nil), a::SeregaMapPoint.new(attr1, nil)])
+    a1.instance_variable_set(:@plan, [a::SeregaPlanPoint.new(attr1, nil), a::SeregaPlanPoint.new(attr2, nil)])
+    a2.instance_variable_set(:@plan, [a::SeregaPlanPoint.new(attr2, nil), a::SeregaPlanPoint.new(attr1, nil)])
 
-    result1 = described_class.call(map(a1))
-    result2 = described_class.call(map(a2))
+    result1 = described_class.call(plan(a1))
+    result2 = described_class.call(plan(a2))
 
     expect(result1).to eq(result2)
     expect(result1).to eq(foo: {bar: {bazz: {last: {}}, bazz1: {}, bazz2: {}}})

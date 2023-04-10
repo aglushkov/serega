@@ -41,8 +41,8 @@ require_relative "serega/validations/check_serialize_params"
 
 require_relative "serega/config"
 require_relative "serega/object_serializer"
-require_relative "serega/map_point"
-require_relative "serega/map"
+require_relative "serega/plan_point"
+require_relative "serega/plan"
 require_relative "serega/plugins"
 
 class Serega
@@ -227,13 +227,13 @@ class Serega
       attribute_class.serializer_class = subclass
       subclass.const_set(:SeregaAttribute, attribute_class)
 
-      map_class = Class.new(self::SeregaMap)
-      map_class.serializer_class = subclass
-      subclass.const_set(:SeregaMap, map_class)
+      plan_class = Class.new(self::SeregaPlan)
+      plan_class.serializer_class = subclass
+      subclass.const_set(:SeregaPlan, plan_class)
 
-      map_point_class = Class.new(self::SeregaMapPoint)
-      map_point_class.serializer_class = subclass
-      subclass.const_set(:SeregaMapPoint, map_point_class)
+      plan_point_class = Class.new(self::SeregaPlanPoint)
+      plan_point_class.serializer_class = subclass
+      subclass.const_set(:SeregaPlanPoint, plan_point_class)
 
       object_serializer_class = Class.new(self::SeregaObjectSerializer)
       object_serializer_class.serializer_class = subclass
@@ -333,11 +333,11 @@ class Serega
 
     #
     # Array of MapPoints, which are attributes combined with nested attributes.
-    # This map can be traversed to find currently serializing attributes.
+    # This plan can be traversed to find currently serializing attributes.
     #
-    # @return [Array<Serega::SeregaMapPoint>] map
-    def map
-      @map ||= self.class::SeregaMap.call(opts)
+    # @return [Array<Serega::SeregaPlanPoint>] plan
+    def plan
+      @plan ||= self.class::SeregaPlan.call(opts)
     end
 
     private
@@ -373,7 +373,7 @@ class Serega
     # - plugin :metadata (adds metadata to final result)
     def serialize(object, opts)
       self.class::SeregaObjectSerializer
-        .new(**opts, points: map)
+        .new(**opts, points: plan)
         .serialize(object)
     end
   end

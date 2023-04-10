@@ -61,7 +61,7 @@ class Serega
         require_relative "./validations/check_opt_unless"
         require_relative "./validations/check_opt_unless_value"
 
-        serializer_class::SeregaMapPoint.include(MapPointInstanceMethods)
+        serializer_class::SeregaPlanPoint.include(MapPointInstanceMethods)
         serializer_class::CheckAttributeParams.include(CheckAttributeParamsInstanceMethods)
         serializer_class::SeregaObjectSerializer.include(SeregaObjectSerializerInstanceMethods)
       end
@@ -79,9 +79,9 @@ class Serega
       end
 
       #
-      # Serega::SeregaMapPoint additional/patched instance methods
+      # Serega::SeregaPlanPoint additional/patched instance methods
       #
-      # @see Serega::SeregaMapPoint::InstanceMethods
+      # @see Serega::SeregaPlanPoint::InstanceMethods
       #
       module MapPointInstanceMethods
         #

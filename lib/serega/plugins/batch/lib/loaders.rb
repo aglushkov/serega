@@ -10,13 +10,13 @@ class Serega
           #
           # Initializes or fetches already initialized batch loader
           #
-          # @param map_point [Serega::SeregaMapPoint] current map point
+          # @param plan_point [Serega::SeregaPlanPoint] current plan point
           # @param object_serializer[Serega::SeregaObjectSerializer] current object serializer
           #
           # @return [Serega::SeregaPlugins::Batch::SeregaBatchLoader] Batch Loader
           #
-          def get(map_point, object_serializer)
-            batch_loaders[map_point] ||= self.class.serializer_class::SeregaBatchLoader.new(object_serializer, map_point)
+          def get(plan_point, object_serializer)
+            batch_loaders[plan_point] ||= self.class.serializer_class::SeregaBatchLoader.new(object_serializer, plan_point)
           end
 
           #

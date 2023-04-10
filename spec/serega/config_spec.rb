@@ -36,11 +36,11 @@ RSpec.describe Serega::SeregaConfig do
     end
   end
 
-  describe "#max_cached_map_per_serializer_count=" do
+  describe "#max_cached_plans_per_serializer_count=" do
     it "validates value is boolean" do
-      expect { config.max_cached_map_per_serializer_count = 10 }.not_to raise_error
-      expect { config.max_cached_map_per_serializer_count = 0 }.not_to raise_error
-      expect { config.max_cached_map_per_serializer_count = nil }
+      expect { config.max_cached_plans_per_serializer_count = 10 }.not_to raise_error
+      expect { config.max_cached_plans_per_serializer_count = 0 }.not_to raise_error
+      expect { config.max_cached_plans_per_serializer_count = nil }
         .to raise_error Serega::SeregaError, "Must have Integer value, #{nil.inspect} provided"
     end
   end

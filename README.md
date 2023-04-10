@@ -339,11 +339,11 @@ class AppSerializer < Serega
   # when provided not existed attribute it will be just skipped.
   config.check_initiate_params = false # default is true, enabled
 
-  # Stores in memory prepared `maps` of serialized attributes.
+  # Stores in memory prepared `plans` - list of serialized attributes.
   # Next time serialization happens with same modifiers (`only, except, with`),
-  # we will reuse already prepared `maps`.
-  # This defines storage size (count of stored `maps` with different modifiers).
-  config.max_cached_map_per_serializer_count = 50 # default is 0, disabled
+  # we will reuse already prepared `plans`.
+  # This defines storage size (count of stored `plans` with different modifiers).
+  config.max_cached_plans_per_serializer_count = 50 # default is 0, disabled
 end
 ```
 

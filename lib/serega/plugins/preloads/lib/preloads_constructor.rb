@@ -4,29 +4,29 @@ class Serega
   module SeregaPlugins
     module Preloads
       #
-      # Finds preloads for provided attributes map
+      # Finds preloads for provided attributes plan
       #
       class PreloadsConstructor
         class << self
           #
-          # Constructs preloads hash for given attributes map
+          # Constructs preloads hash for given attributes plan
           #
-          # @param map [Array<Serega::MapPoint>] Serialization map
+          # @param plan [Array<Serega::MapPoint>] Serialization plan
           #
           # @return [Hash]
           #
-          def call(map)
-            return FROZEN_EMPTY_HASH unless map
+          def call(plan)
+            return FROZEN_EMPTY_HASH unless plan
 
             preloads = {}
-            append_many(preloads, map)
+            append_many(preloads, plan)
             preloads
           end
 
           private
 
-          def append_many(preloads, map)
-            map.each do |point|
+          def append_many(preloads, plan)
+            plan.each do |point|
               current_preloads = point.attribute.preloads
               next unless current_preloads
 

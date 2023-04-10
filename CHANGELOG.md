@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+- Rename `SeregaMap` class to `SeregaPlan` and `SeregaMapPoint` to `SeregaPlanPoint`
+- Rename config option from `max_cached_map_per_serializer_count` to
+  `max_cached_plans_per_serializer_count`
+
 ## [0.10.0] - 2023-03-28
 
 - Less strict attribute name format. Allow attribute names to include chars
