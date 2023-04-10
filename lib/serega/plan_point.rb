@@ -4,9 +4,9 @@ class Serega
   #
   # Combines attribute and nested attributes
   #
-  class SeregaMapPoint
+  class SeregaPlanPoint
     #
-    # SeregaMapPoint instance methods
+    # SeregaPlanPoint instance methods
     #
     module InstanceMethods
       extend Forwardable
@@ -16,7 +16,7 @@ class Serega
       attr_reader :attribute
 
       # Shows nested points
-      # @return [NilClass, Array<Serega::SeregaMapPoint>] Nested points or nil
+      # @return [NilClass, Array<Serega::SeregaPlanPoint>] Nested points or nil
       attr_reader :nested_points
 
       # @!method name
@@ -31,12 +31,12 @@ class Serega
       def_delegators :@attribute, :name, :value, :many
 
       #
-      # Initializes map point
+      # Initializes plan point
       #
-      # @param attribute [Serega::SeregaAttribute] Attribute to construct map point
-      # @param nested_points [NilClass, Array<Serega::SeregaMapPoint>] Nested map points for provided attribute
+      # @param attribute [Serega::SeregaAttribute] Attribute to construct plan point
+      # @param nested_points [NilClass, Array<Serega::SeregaPlanPoint>] Nested plan points for provided attribute
       #
-      # @return [Serega::SeregaMapPoint] New map point
+      # @return [Serega::SeregaPlanPoint] New plan point
       #
       def initialize(attribute, nested_points)
         @attribute = attribute

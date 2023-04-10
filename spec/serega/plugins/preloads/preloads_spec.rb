@@ -61,9 +61,9 @@ RSpec.describe Serega::SeregaPlugins::Preloads do
     it "adds #preloads method as a delegator to #{described_class}::PreloadsConstructor" do
       serializer_class.plugin :preloads
       serializer = serializer_class.new
-      map = serializer.send(:map)
+      plan = serializer.send(:plan)
 
-      allow(described_class::PreloadsConstructor).to receive(:call).with(map).and_return("RES")
+      allow(described_class::PreloadsConstructor).to receive(:call).with(plan).and_return("RES")
 
       expect(serializer.preloads).to be "RES"
     end
@@ -73,14 +73,14 @@ RSpec.describe Serega::SeregaPlugins::Preloads do
     before { serializer_class.plugin :preloads }
 
     def point(attribute, nested_points)
-      attribute.class.serializer_class::SeregaMapPoint.new(attribute, nested_points)
+      attribute.class.serializer_class::SeregaPlanPoint.new(attribute, nested_points)
     end
 
     it "delegates #preloads_path to attribute" do
       attribute = serializer_class.attribute :foo, preload: :bar
       expect(attribute.preloads).to eq(bar: {})
 
-      point = serializer_class::SeregaMapPoint.new(attribute, nil)
+      point = serializer_class::SeregaPlanPoint.new(attribute, nil)
       expect(point.preloads_path).to eq([:bar])
     end
 

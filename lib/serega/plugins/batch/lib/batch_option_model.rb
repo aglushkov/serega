@@ -12,7 +12,7 @@ class Serega
         #
         # Initializes BatchOptionModel
         #
-        # @param map_point [Serega::SeregaMapPoint] Map point for attribute with :batch option
+        # @param plan_point [Serega::SeregaPlanPoint] Map point for attribute with :batch option
         # @param loaders [Array] Array of all loaders defined in serialize class
         # @param many [Boolean] Option :many, defined on attribute
         #

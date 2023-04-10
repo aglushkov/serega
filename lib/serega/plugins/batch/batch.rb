@@ -12,7 +12,7 @@ class Serega
     #   class PostSerializer < Serega
     #     plugin :batch
     #
-    #     # Define batch loader via callable class, it must accept three args (keys, context, map_point)
+    #     # Define batch loader via callable class, it must accept three args (keys, context, plan_point)
     #     attribute :comments_count, batch: { key: :id, loader: PostCommentsCountBatchLoader, default: 0}
     #
     #     # Define batch loader via Symbol, later we should define this loader via config.batch_loaders.define(:posts_comments_counter) { ... }
@@ -28,8 +28,8 @@ class Serega
     #
     #     # We can return objects that will be automatically serialized if attribute defined with :serializer
     #     # Parameter `context` can be used when loading batch
-    #     # Parameter `map_point` can be used to find nested attributes that will be serialized (`map_point.preloads`)
-    #     config.batch_loaders.define(:posts_comments) do |keys, context, map_point|
+    #     # Parameter `plan_point` can be used to find nested attributes that will be serialized (`plan_point.preloads`)
+    #     config.batch_loaders.define(:posts_comments) do |keys, context, plan_point|
     #       Comment.where(post_id: keys).where(is_spam: false).group_by(&:post_id)
     #     end
     #   end
@@ -61,7 +61,7 @@ class Serega
         serializer_class.include(InstanceMethods)
         serializer_class::CheckAttributeParams.include(CheckAttributeParamsInstanceMethods)
         serializer_class::SeregaAttribute.include(AttributeInstanceMethods)
-        serializer_class::SeregaMapPoint.include(MapPointInstanceMethods)
+        serializer_class::SeregaPlanPoint.include(MapPointInstanceMethods)
         serializer_class::SeregaObjectSerializer.include(SeregaObjectSerializerInstanceMethods)
       end
 
@@ -117,7 +117,7 @@ class Serega
         # Defines batch loader
         #
         # @param loader_name [Symbol] Batch loader name, that is used when defining attribute with batch loader.
-        # @param block [Proc] Block that can accept 3 parameters - keys, context, map_point
+        # @param block [Proc] Block that can accept 3 parameters - keys, context, plan_point
         #   and returns hash where ids are keys and values are batch loaded objects/
         #
         # @return [void]
@@ -128,7 +128,7 @@ class Serega
           end
 
           params = block.parameters
-          if params.count > 3 || !params.map!(&:first).all? { |type| (type == :req) || (type == :opt) }
+          if params.count > 3 || !params.all? { |param| (param[0] == :req) || (param[0] == :opt) }
             raise SeregaError, "Block can have maximum 3 regular parameters"
           end
 
@@ -213,7 +213,7 @@ class Serega
       end
 
       #
-      # Serega::SeregaMapPoint additional/patched class methods
+      # Serega::SeregaPlanPoint additional/patched class methods
       #
       # @see SeregaAttribute
       #

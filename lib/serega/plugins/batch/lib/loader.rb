@@ -12,7 +12,7 @@ class Serega
         # Batch Loader instance methods
         #
         module InstanceMethods
-          # @return [Serega::SeregaMapPoint]
+          # @return [Serega::SeregaPlanPoint]
           attr_reader :point
 
           # @return [Serega::SeregaObjectSerializer]
@@ -22,7 +22,7 @@ class Serega
           # Initializes new SeregaBatchLoader
           #
           # @param object_serializer [Serega::SeregaObjectSerializer]
-          # @param point [Serega::SeregaMapPoint]
+          # @param point [Serega::SeregaPlanPoint]
           #
           # @return [Serega::SeregaPlugins::Batch::SeregaBatchLoader]
           #

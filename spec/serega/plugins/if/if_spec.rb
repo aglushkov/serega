@@ -25,11 +25,11 @@ RSpec.describe Serega::SeregaPlugins::If do
     end
   end
 
-  describe "SeregaMapPoint methods" do
+  describe "SeregaPlanPoint methods" do
     before { serializer.plugin :if }
 
     def point(attribute)
-      attribute.class.serializer_class::SeregaMapPoint.new(attribute, nil)
+      attribute.class.serializer_class::SeregaPlanPoint.new(attribute, nil)
     end
 
     describe "#satisfy_if_conditions?" do

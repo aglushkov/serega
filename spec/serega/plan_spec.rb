@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Serega::SeregaMap do
+RSpec.describe Serega::SeregaPlan do
   let(:base_class) { Class.new(Serega) }
   let(:a) do
     ser = Class.new(base_class)
@@ -36,9 +36,9 @@ RSpec.describe Serega::SeregaMap do
     ser
   end
   let(:current_serializer) { a }
-  let(:described_class) { current_serializer::SeregaMap }
+  let(:described_class) { current_serializer::SeregaPlan }
 
-  # Allow to compare map points
+  # Allow to compare plan points
   before do
     comparable =
       Module.new do
@@ -47,20 +47,20 @@ RSpec.describe Serega::SeregaMap do
         end
       end
 
-    Serega::SeregaMapPoint.include(comparable)
+    Serega::SeregaPlanPoint.include(comparable)
   end
 
-  def map(opts)
-    current_serializer::SeregaMap.call(opts)
+  def plan(opts)
+    current_serializer::SeregaPlan.call(opts)
   end
 
   def point(attribute, nested_points)
-    attribute.class.serializer_class::SeregaMapPoint.new(attribute, nested_points)
+    attribute.class.serializer_class::SeregaPlanPoint.new(attribute, nested_points)
   end
 
   describe ".call" do
     it "returns all not hidden attributes by default" do
-      result = map({})
+      result = plan({})
       expected_result = [
         point(a.attributes[:a1], nil),
         point(a.attributes[:a2], nil),
@@ -71,7 +71,7 @@ RSpec.describe Serega::SeregaMap do
     end
 
     it "returns only attributes from :only option" do
-      result = map(only: {a2: {}, d: {d1: {}}}, except: {}, with: {})
+      result = plan(only: {a2: {}, d: {d1: {}}}, except: {}, with: {})
       expected_result = [
         point(a.attributes[:a2], nil),
         point(a.attributes[:d], [point(d.attributes[:d1], nil)])
@@ -81,7 +81,7 @@ RSpec.describe Serega::SeregaMap do
     end
 
     it "returns all not hidden attributes except provided in :except option" do
-      result = map(only: {}, except: {a2: {}, d: {d1: {}}}, with: {})
+      result = plan(only: {}, except: {a2: {}, d: {d1: {}}}, with: {})
       expected_result = [
         point(a.attributes[:a1], nil),
         point(a.attributes[:d], [point(d.attributes[:d2], nil)])
@@ -91,7 +91,7 @@ RSpec.describe Serega::SeregaMap do
     end
 
     it "returns all not hidden attributes and attributes defined in :with option" do
-      result = map(only: {}, except: {}, with: {a3: {}, b: {}, c: {c3: {}}})
+      result = plan(only: {}, except: {}, with: {a3: {}, b: {}, c: {c3: {}}})
       expected_result = [
         point(a.attributes[:a1], nil),
         point(a.attributes[:a2], nil),
@@ -105,33 +105,33 @@ RSpec.describe Serega::SeregaMap do
     end
   end
 
-  describe "saving maps to cache" do
-    it "does not save maps to cache when not configured to do so" do
-      result1 = map(only: {a1: {}})
-      result2 = map(only: {a1: {}})
+  describe "saving plans to cache" do
+    it "does not save plans to cache when not configured to do so" do
+      result1 = plan(only: {a1: {}})
+      result2 = plan(only: {a1: {}})
 
       expect(result1).to eq [point(a.attributes[:a1], nil)]
       expect(result2).to eq [point(a.attributes[:a1], nil)]
       expect(result1).not_to equal result2
     end
 
-    it "saves maps to cache and uses them when configured to use cache" do
-      current_serializer.config.max_cached_map_per_serializer_count = 1
-      result1 = map(only: {a1: {}})
-      result2 = map(only: {a1: {}})
+    it "saves plans to cache and uses them when configured to use cache" do
+      current_serializer.config.max_cached_plans_per_serializer_count = 1
+      result1 = plan(only: {a1: {}})
+      result2 = plan(only: {a1: {}})
 
       expect(result1).to eq [point(a.attributes[:a1], nil)]
       expect(result2).to eq [point(a.attributes[:a1], nil)]
       expect(result1).to equal result2
     end
 
-    it "removes from cache oldest maps if cached keys count more than configured" do
-      current_serializer.config.max_cached_map_per_serializer_count = 1
+    it "removes from cache oldest plans if cached keys count more than configured" do
+      current_serializer.config.max_cached_plans_per_serializer_count = 1
 
-      result1 = map(only: {a1: {}})
-      map(only: {a2: {}}) # replace cached result1
+      result1 = plan(only: {a1: {}})
+      plan(only: {a2: {}}) # replace cached result1
 
-      result2 = map(only: {a1: {}})
+      result2 = plan(only: {a1: {}})
 
       expect(result1).to eq [point(a.attributes[:a1], nil)]
       expect(result2).to eq [point(a.attributes[:a1], nil)]

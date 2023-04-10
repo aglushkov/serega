@@ -19,7 +19,7 @@ class Serega
       serialize_keys: %i[context many].freeze,
       check_attribute_name: true,
       check_initiate_params: true,
-      max_cached_map_per_serializer_count: 0,
+      max_cached_plans_per_serializer_count: 0,
       to_json: (SeregaJSON.adapter == :oj) ? SeregaJSON::OjDump : SeregaJSON::JSONDump,
       from_json: (SeregaJSON.adapter == :oj) ? SeregaJSON::OjLoad : SeregaJSON::JSONLoad
     }.freeze
@@ -87,20 +87,20 @@ class Serega
         opts[:check_initiate_params] = value
       end
 
-      # Returns :max_cached_map_per_serializer_count config option
-      # @return [Boolean] Current :max_cached_map_per_serializer_count config option
-      def max_cached_map_per_serializer_count
-        opts.fetch(:max_cached_map_per_serializer_count)
+      # Returns :max_cached_plans_per_serializer_count config option
+      # @return [Boolean] Current :max_cached_plans_per_serializer_count config option
+      def max_cached_plans_per_serializer_count
+        opts.fetch(:max_cached_plans_per_serializer_count)
       end
 
-      # Sets :max_cached_map_per_serializer_count config option
+      # Sets :max_cached_plans_per_serializer_count config option
       #
       # @param value [Boolean] Set :check_initiate_params config option
       #
-      # @return [Boolean] New :max_cached_map_per_serializer_count config option
-      def max_cached_map_per_serializer_count=(value)
+      # @return [Boolean] New :max_cached_plans_per_serializer_count config option
+      def max_cached_plans_per_serializer_count=(value)
         raise SeregaError, "Must have Integer value, #{value.inspect} provided" unless value.is_a?(Integer)
-        opts[:max_cached_map_per_serializer_count] = value
+        opts[:max_cached_plans_per_serializer_count] = value
       end
 
       # Returns whether attributes names check is disabled

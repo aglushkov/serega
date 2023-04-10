@@ -82,7 +82,7 @@ class Serega
         serializer_class.include(InstanceMethods)
         serializer_class::SeregaAttribute.include(AttributeInstanceMethods)
         serializer_class::SeregaConfig.include(ConfigInstanceMethods)
-        serializer_class::SeregaMapPoint.include(MapPointInstanceMethods)
+        serializer_class::SeregaPlanPoint.include(MapPointInstanceMethods)
 
         serializer_class::CheckAttributeParams.include(CheckAttributeParamsInstanceMethods)
 
@@ -122,7 +122,7 @@ class Serega
       module InstanceMethods
         # @return [Hash] merged preloads of all serialized attributes
         def preloads
-          @preloads ||= PreloadsConstructor.call(map)
+          @preloads ||= PreloadsConstructor.call(plan)
         end
       end
 
@@ -263,9 +263,9 @@ class Serega
       end
 
       #
-      # Serega::SeregaMapPoint additional/patched instance methods
+      # Serega::SeregaPlanPoint additional/patched instance methods
       #
-      # @see Serega::SeregaMapPoint::InstanceMethods
+      # @see Serega::SeregaPlanPoint::InstanceMethods
       #
       module MapPointInstanceMethods
         #

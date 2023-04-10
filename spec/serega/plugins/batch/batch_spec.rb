@@ -86,8 +86,8 @@ RSpec.describe Serega::SeregaPlugins::Batch do
       batch_loader = proc {}
       at1 = serializer.attribute :at1, many: true, batch: {key: :key, loader: batch_loader}
       at2 = serializer.attribute :bar
-      pt1 = serializer::SeregaMapPoint.new(at1, [])
-      pt2 = serializer::SeregaMapPoint.new(at2, [])
+      pt1 = serializer::SeregaPlanPoint.new(at1, [])
+      pt2 = serializer::SeregaPlanPoint.new(at2, [])
 
       batch = pt1.batch
       expect(batch).to be_a Serega::SeregaPlugins::Batch::BatchOptionModel
@@ -148,7 +148,7 @@ RSpec.describe Serega::SeregaPlugins::Batch do
       end
 
       it "works when caching enabled" do
-        user_serializer.config.max_cached_map_per_serializer_count = 10
+        user_serializer.config.max_cached_plans_per_serializer_count = 10
 
         first_result = user_serializer.to_h(users)
         second_result = user_serializer.to_h(users)
@@ -215,7 +215,7 @@ RSpec.describe Serega::SeregaPlugins::Batch do
       end
 
       it "works when caching enabled" do
-        user_serializer.config.max_cached_map_per_serializer_count = 10
+        user_serializer.config.max_cached_plans_per_serializer_count = 10
 
         first_result = user_serializer.to_h(users)
         second_result = user_serializer.to_h(users)
