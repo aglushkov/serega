@@ -75,10 +75,20 @@ class Serega
             name = attribute.to_sym
             attribute.clear
 
-            current_attrs = (!path_stack || path_stack.empty?) ? res : res.dig(*path_stack)
+            current_attrs = dig?(res, path_stack)
             current_attrs[name] = nested_attributes
 
             name
+          end
+
+          def dig?(hash, path)
+            return hash if !path || path.empty?
+
+            path.each do |point|
+              hash = hash[point]
+            end
+
+            hash
           end
         end
       end
