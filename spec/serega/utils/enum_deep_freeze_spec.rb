@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-load_plugin_code :preloads
-
-RSpec.describe Serega::SeregaPlugins::Preloads::EnumDeepFreeze do
+RSpec.describe Serega::SeregaUtils::EnumDeepFreeze do
   it "deeply freezes provided hash" do
     hash = {key1: {key11: {key111: :value111}}, key2: [{key22: {key222: :value222}}]}
     described_class.call(hash)
@@ -16,9 +14,9 @@ RSpec.describe Serega::SeregaPlugins::Preloads::EnumDeepFreeze do
     expect(hash[:key2][0][:key22]).to be_frozen
   end
 
-  it "freezes regular Objects" do
+  it "does not freeze non-hash and non-array objects" do
     obj = Object.new
     described_class.call(obj)
-    expect(obj).to be_frozen
+    expect(obj).not_to be_frozen
   end
 end

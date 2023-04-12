@@ -80,15 +80,6 @@ class Serega
       # @see Serega
       #
       module ClassMethods
-        # Overrides {Serega::ClassMethods#attribute} method, additionally adds method
-        # to Presenter to not hit {Serega::SeregaPlugins::Presenter::Presenter#method_missing}
-        # @see Serega::ClassMethods#attribute
-        def attribute(_name, **_opts, &_block)
-          super.tap do |attribute|
-            self::Presenter.def_delegator(:__getobj__, attribute.key) unless attribute.block
-          end
-        end
-
         private
 
         def inherited(subclass)

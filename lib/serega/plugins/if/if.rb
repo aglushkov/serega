@@ -61,6 +61,7 @@ class Serega
         require_relative "./validations/check_opt_unless"
         require_relative "./validations/check_opt_unless_value"
 
+        serializer_class::SeregaAttribute.include(SeregaAttributeInstanceMethods)
         serializer_class::SeregaPlanPoint.include(MapPointInstanceMethods)
         serializer_class::CheckAttributeParams.include(CheckAttributeParamsInstanceMethods)
         serializer_class::SeregaObjectSerializer.include(SeregaObjectSerializerInstanceMethods)
@@ -76,6 +77,23 @@ class Serega
       #
       def self.after_load_plugin(serializer_class, **opts)
         serializer_class.config.attribute_keys << :if << :if_value << :unless << :unless_value
+      end
+
+      #
+      # SeregaAttribute additional/patched instance methods
+      #
+      # @see Serega::SeregaAttribute
+      #
+      module SeregaAttributeInstanceMethods
+        # @return provided :if options
+        attr_reader :opt_if
+
+        private
+
+        def set_normalized_vars(normalizer)
+          super
+          @opt_if = initials[:opts].slice(:if, :if_value, :unless, :unless_value).freeze
+        end
       end
 
       #
@@ -103,8 +121,8 @@ class Serega
         private
 
         def check_if_unless(obj, ctx, opt_if_name, opt_unless_name)
-          opt_if = attribute.opts[opt_if_name]
-          opt_unless = attribute.opts[opt_unless_name]
+          opt_if = attribute.opt_if[opt_if_name]
+          opt_unless = attribute.opt_if[opt_unless_name]
           return true if opt_if.nil? && opt_unless.nil?
 
           res_if =

@@ -9,98 +9,63 @@ class Serega
     # Attribute instance methods
     #
     module AttributeInstanceMethods
-      # Returns attribute name
+      # Attribute initial params
+      # @return [Hash] Attribute initial params
+      attr_reader :initials
+
+      # Attribute name
       # @return [Symbol] Attribute name
       attr_reader :name
 
-      # Returns attribute options
-      # @return [Hash] Attribute options
-      attr_reader :opts
+      # Attribute :many option
+      # @return [Boolean, nil] Attribute :many option
+      attr_reader :many
 
-      # Returns attribute block
-      # @return [Proc] Attribute originally added block
-      attr_reader :block
+      # Attribute :hide option
+      # @return [Boolean nil] Attribute :hide option
+      attr_reader :hide
 
       #
       # Initializes new attribute
       #
       # @param name [Symbol, String] Name of attribute
-      #
       # @param opts [Hash] Attribute options
-      # @option opts [Symbol] :key Object instance method name to get attribute value
-      # @option opts [Boolean] :exposed Configures if we should serialize this attribute by default.
-      #  (by default is true for regular attributes and false for relationships)
+      # @option opts [Symbol] :key Object method name to fetch attribute value
+      # @option opts [Hash] :delegate Allows to fetch value from nested object
+      # @option opts [Boolean] :hide Specify `true` to not serialize this attribute by default
       # @option opts [Boolean] :many Specifies has_many relationship. By default is detected via object.is_a?(Enumerable)
-      # @option opts [Serega, Proc] :serializer Relationship serializer class. Use `proc { MySerializer }` if serializers have cross references.
-      #
-      # @param block [Proc] Proc that receives object and context and finds attribute value
+      # @option opts [Proc, #call] :value Custom block or callable to find attribute value
+      # @option opts [Serega, Proc] :serializer Relationship serializer class. Use `proc { MySerializer }` if serializers have cross references
+      # @param opts [Hash] Attribute options
+      # @param block [Proc] Custom block to find attribute value
       #
       def initialize(name:, opts: {}, block: nil)
-        self.class.serializer_class::CheckAttributeParams.new(name, opts, block).validate
+        serializer_class = self.class.serializer_class
+        serializer_class::CheckAttributeParams.new(name, opts, block).validate
 
-        @name = name.to_sym
-        @opts = SeregaUtils::EnumDeepDup.call(opts)
-        @block = block
-      end
+        @initials = SeregaUtils::EnumDeepFreeze.call(
+          name: name,
+          opts: SeregaUtils::EnumDeepDup.call(opts),
+          block: block
+        )
 
-      # Method name that will be used to get attribute value
-      #
-      # @return [Symbol] key
-      def key
-        @key ||= opts.key?(:key) ? opts[:key].to_sym : name
-      end
-
-      # Shows current opts[:hide] option
-      #
-      # Patched in:
-      # - plugin :preloads (returns true by default if config option auto_hide_attribute_with_preloads is enabled)
-      #
-      # @return [Boolean, nil] Attribute :hide option value
-      def hide
-        opts[:hide]
-      end
-
-      # Shows current opts[:many] option
-      # @return [Boolean, nil] Attribute :many option value
-      def many
-        opts[:many]
+        normalizer = serializer_class::SeregaAttributeNormalizer.new(initials)
+        set_normalized_vars(normalizer)
       end
 
       # Shows whether attribute has specified serializer
       # @return [Boolean] Checks if attribute is relationship (if :serializer option exists)
       def relation?
-        !opts[:serializer].nil?
+        !@serializer.nil?
       end
 
       # Shows specified serializer class
       # @return [Serega, nil] Attribute serializer if exists
       def serializer
-        return @serializer if instance_variable_defined?(:@serializer)
+        ser = @serializer
+        return ser if (ser.is_a?(Class) && (ser < Serega)) || !ser
 
-        serializer = opts[:serializer]
-        @serializer =
-          case serializer
-          when String then Object.const_get(serializer, false)
-          when Proc then serializer.call
-          else serializer
-          end
-      end
-
-      # Returns final block used to find attribute value
-      #
-      # Patched in:
-      # - plugin :formatters (wraps resulted block in formatter block and formats :const values)
-      #
-      # @return [Proc] Proc to find attribute value
-      def value_block
-        return @value_block if instance_variable_defined?(:@value_block)
-
-        @value_block =
-          block ||
-          opts[:value] ||
-          const_block ||
-          delegate_block ||
-          keyword_block
+        @serializer = ser.is_a?(String) ? Object.const_get(ser, false) : ser.call
       end
 
       #
@@ -135,46 +100,14 @@ class Serega
 
       private
 
-      def const_block
-        return unless opts.key?(:const)
+      attr_reader :value_block
 
-        const = opts[:const]
-        proc { const }
-      end
-
-      def keyword_block
-        key_method_name = key
-        proc do |object|
-          handle_no_method_error { object.public_send(key_method_name) }
-        end
-      end
-
-      def delegate_block
-        delegate = opts[:delegate]
-        return unless delegate
-
-        key_method_name = delegate[:key] || key
-        delegate_to = delegate[:to]
-
-        if delegate[:allow_nil]
-          proc do |object|
-            handle_no_method_error do
-              object.public_send(delegate_to)&.public_send(key_method_name)
-            end
-          end
-        else
-          proc do |object|
-            handle_no_method_error do
-              object.public_send(delegate_to).public_send(key_method_name)
-            end
-          end
-        end
-      end
-
-      def handle_no_method_error
-        yield
-      rescue NoMethodError => error
-        raise error, "NoMethodError when serializing '#{name}' attribute in #{self.class.serializer_class}\n\n#{error.message}", error.backtrace
+      def set_normalized_vars(normalizer)
+        @name = normalizer.name
+        @value_block = normalizer.value_block
+        @hide = normalizer.hide
+        @many = normalizer.many
+        @serializer = normalizer.serializer
       end
     end
 

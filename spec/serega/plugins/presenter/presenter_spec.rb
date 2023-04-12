@@ -20,21 +20,6 @@ RSpec.describe Serega::SeregaPlugins::Presenter do
     end
   end
 
-  it "adds presenter methods when adding attribute" do
-    serializer.attribute :length
-    expect(serializer::Presenter.instance_methods).to include(:length)
-  end
-
-  it "adds presenter methods when adding attribute with key" do
-    serializer.attribute :length, key: :size
-    expect(serializer::Presenter.instance_methods).to include(:size)
-  end
-
-  it "does not add presenter methods when adding attribute with block" do
-    serializer.attribute(:length) {}
-    expect(serializer::Presenter.instance_methods).not_to include(:length)
-  end
-
   it "adds presenter methods used in block after first serialization" do
     serializer.attribute(:length) { |obj| obj.size }
 
@@ -53,20 +38,6 @@ RSpec.describe Serega::SeregaPlugins::Presenter do
     serializer.attribute(:rev) { |obj| obj.rev }
     result = serializer.new.to_h("123")
     expect(result).to eq({rev: "321"})
-  end
-
-  it "allows to override attribute methods" do
-    serializer.attribute :value
-
-    expect(serializer::Presenter.instance_methods).to include(:value)
-    serializer::Presenter.class_exec do
-      def value
-        __getobj__
-      end
-    end
-
-    result = serializer.new.to_h(123)
-    expect(result).to eq({value: 123})
   end
 
   it "works for arrays" do

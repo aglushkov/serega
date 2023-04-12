@@ -16,11 +16,13 @@ end
 require_relative "serega/errors"
 require_relative "serega/helpers/serializer_class_helper"
 require_relative "serega/utils/enum_deep_dup"
+require_relative "serega/utils/enum_deep_freeze"
 require_relative "serega/utils/symbol_name"
 require_relative "serega/utils/to_hash"
 require_relative "serega/json/adapter"
 
 require_relative "serega/attribute"
+require_relative "serega/attribute_normalizer"
 require_relative "serega/validations/utils/check_allowed_keys"
 require_relative "serega/validations/utils/check_opt_is_bool"
 require_relative "serega/validations/utils/check_opt_is_hash"
@@ -227,6 +229,10 @@ class Serega
       attribute_class.serializer_class = subclass
       subclass.const_set(:SeregaAttribute, attribute_class)
 
+      attribute_normalizer_class = Class.new(self::SeregaAttributeNormalizer)
+      attribute_normalizer_class.serializer_class = subclass
+      subclass.const_set(:SeregaAttributeNormalizer, attribute_normalizer_class)
+
       plan_class = Class.new(self::SeregaPlan)
       plan_class.serializer_class = subclass
       subclass.const_set(:SeregaPlan, plan_class)
@@ -253,7 +259,8 @@ class Serega
 
       # Assign same attributes
       attributes.each_value do |attr|
-        subclass.attribute(attr.name, **attr.opts, &attr.block)
+        params = attr.initials
+        subclass.attribute(params[:name], **params[:opts], &params[:block])
       end
 
       super

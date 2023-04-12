@@ -14,14 +14,16 @@ class Serega
           #
           # Attribute additional/patched instance methods
           #
-          # @see Serega::SeregaPlugins::Preloads::AttributeInstanceMethods
+          # @see Serega::SeregaPlugins::Preloads::AttributeNormalizerInstanceMethods
           #
-          module AttributeInstanceMethods
+          module AttributeNormalizerInstanceMethods
             private
 
             # Do not add any preloads automatically when batch option provided
-            def get_preloads
-              return if batch && !opts.key?(:preload)
+            def prepare_preloads
+              opts = init_opts
+              return if opts.key?(:batch) && !opts.key?(:preload)
+
               super
             end
           end

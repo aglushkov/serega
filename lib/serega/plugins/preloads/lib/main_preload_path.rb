@@ -22,7 +22,7 @@ class Serega
           #
           # @return [Array<Symbol>] Preloads path to `main` element
           def call(preloads)
-            return FROZEN_EMPTY_ARRAY if preloads.empty?
+            return FROZEN_EMPTY_ARRAY if !preloads || preloads.empty?
 
             main_path(preloads).freeze
           end

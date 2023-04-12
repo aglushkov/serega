@@ -105,56 +105,80 @@ RSpec.describe Serega::SeregaPlugins::Preloads do
   describe "AttributeMethods" do
     before { serializer_class.plugin :preloads }
 
+    it "sets attribute normalized preloads" do
+      attribute = serializer_class.attribute :name, preload: :foo
+      expect(attribute.preloads).to eq(foo: {})
+      expect(attribute.preloads).to equal attribute.preloads
+    end
+
+    it "sets attribute normalized preloads_path" do
+      attribute = serializer_class.attribute :name, preload: :foo
+      expect(attribute.preloads_path).to eq([:foo])
+      expect(attribute.preloads_path).to equal attribute.preloads_path
+    end
+  end
+
+  describe "AttributeNormalizerMethods" do
+    before { serializer_class.plugin :preloads }
+
+    let(:normalizer_class) { serializer_class::SeregaAttributeNormalizer }
+    let(:initials) { {name: :foo, opts: opts, block: nil} }
+    let(:opts) { {} }
+    let(:norm) { normalizer_class.new(**initials) }
+
     describe "#preloads" do
       it "returns empty hash for regular attributes" do
-        attribute = serializer_class.attribute :foo
-        expect(attribute.preloads).to eq({})
+        expect(norm.preloads).to eq({})
       end
 
       it "returns nil when provided nil" do
-        attribute = serializer_class.attribute :foo, preload: nil
-        expect(attribute.preloads).to be_nil
+        opts[:preload] = nil
+        expect(norm.preloads).to be_nil
       end
 
       it "returns formatted provided preloads" do
-        attribute = serializer_class.attribute :foo, preload: :bar
-        expect(attribute.preloads).to eq(bar: {})
+        opts[:preload] = :bar
+        expect(norm.preloads).to eq(bar: {})
+        expect(norm.preloads).to equal norm.preloads
       end
 
       it "returns automatically found preloads when serializer provided" do
         serializer_class.config.preloads.auto_preload_attributes_with_serializer = true
-        attribute = serializer_class.attribute :foo, serializer: "bar"
-        expect(attribute.preloads).to eq(foo: {})
+        opts[:serializer] = "bar"
+        expect(norm.preloads).to eq(foo: {})
       end
 
       it "returns no preloads for attributes with serializer by default" do
-        attribute = serializer_class.attribute :foo, serializer: "bar"
-        expect(attribute.preloads).to eq({})
+        opts[:serializer] = "bar"
+        expect(norm.preloads).to eq({})
       end
 
       it "returns automatically found preloads when :delegate option provided" do
         serializer_class.config.preloads.auto_preload_attributes_with_delegate = true
-        attribute = serializer_class.attribute :foo, delegate: {to: :bar}
-        expect(attribute.preloads).to eq(bar: {})
+        opts[:delegate] = {to: :bar}
+        expect(norm.preloads).to eq(bar: {})
       end
 
       it "returns no preloads for attributes with :delegate option by default" do
-        attribute = serializer_class.attribute :foo, delegate: {to: :bar}
-        expect(attribute.preloads).to eq({})
+        opts[:delegate] = {to: :bar}
+        expect(norm.preloads).to eq({})
       end
     end
 
     describe "#preload_path" do
       it "returns constructed preload_path" do
-        attribute = serializer_class.attribute :foo, preload: :foo
-        expect(attribute.preloads_path).to eq([:foo])
-        expect(attribute.preloads_path).to be_frozen
+        opts[:preload] = :foo
+        expect(norm.preloads_path).to eq([:foo])
+        expect(norm.preloads_path).to be_frozen
+        expect(norm.preloads_path).to equal norm.preloads_path
       end
 
       it "returns provided preload_path" do
-        attribute = serializer_class.attribute :foo, serializer: "foo", preload: %i[bar bazz], preload_path: :bar
-        expect(attribute.preloads_path).to eq([:bar])
-        expect(attribute.preloads_path).to be_frozen
+        opts[:serializer] = "foo"
+        opts[:preload] = %i[bar bazz]
+        opts[:preload_path] = :bar
+        expect(norm.preloads_path).to eq([:bar])
+        expect(norm.preloads_path).to be_frozen
       end
     end
 
@@ -164,7 +188,7 @@ RSpec.describe Serega::SeregaPlugins::Preloads do
       it "validates options with CheckOptPreload" do
         allow(validator).to receive(:call).and_return(nil)
         attribute = serializer_class.attribute :foo
-        expect(validator).to have_received(:call).with(attribute.opts)
+        expect(validator).to have_received(:call).with(attribute.initials[:opts])
       end
     end
 
@@ -174,7 +198,7 @@ RSpec.describe Serega::SeregaPlugins::Preloads do
       it "validates options with CheckOptPreloadPath" do
         allow(validator).to receive(:call).and_return(nil)
         attribute = serializer_class.attribute :foo
-        expect(validator).to have_received(:call).with(attribute.opts)
+        expect(validator).to have_received(:call).with(attribute.initials[:opts])
       end
     end
 

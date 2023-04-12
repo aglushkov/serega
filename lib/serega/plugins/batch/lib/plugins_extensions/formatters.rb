@@ -29,6 +29,24 @@ class Serega
               data
             end
           end
+
+          #
+          # SeregaAttribute additional/patched instance methods
+          #
+          # @see Serega::SeregaAttribute
+          #
+          module SeregaAttributeInstanceMethods
+            # Normalized formatter block or callable instance
+            # @return [#call, nil] Normalized formatter block or callable instance
+            attr_reader :formatter
+
+            private
+
+            def set_normalized_vars(normalizer)
+              super
+              @formatter = normalizer.formatter
+            end
+          end
         end
       end
     end

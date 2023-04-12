@@ -95,11 +95,12 @@ class Serega
         if serializer_class.plugin_used?(:formatters)
           require_relative "./lib/plugins_extensions/formatters"
           serializer_class::SeregaBatchLoader.include(PluginsExtensions::Formatters::BatchLoaderInstanceMethods)
+          serializer_class::SeregaAttribute.include(PluginsExtensions::Formatters::SeregaAttributeInstanceMethods)
         end
 
         if serializer_class.plugin_used?(:preloads)
           require_relative "./lib/plugins_extensions/preloads"
-          serializer_class::SeregaAttribute.include(PluginsExtensions::Preloads::AttributeInstanceMethods)
+          serializer_class::SeregaAttributeNormalizer.include(PluginsExtensions::Preloads::AttributeNormalizerInstanceMethods)
         end
       end
 
@@ -207,8 +208,13 @@ class Serega
         #
         # @return [nil, Hash] :batch option
         #
-        def batch
-          opts[:batch]
+        attr_reader :batch
+
+        private
+
+        def set_normalized_vars(normalizer)
+          super
+          @batch = initials[:opts][:batch]
         end
       end
 
