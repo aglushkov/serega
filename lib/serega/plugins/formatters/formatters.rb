@@ -67,7 +67,7 @@ class Serega
       #
       def self.load_plugin(serializer_class, **_opts)
         serializer_class::SeregaConfig.include(ConfigInstanceMethods)
-        serializer_class::SeregaAttribute.include(AttributeInstanceMethods)
+        serializer_class::SeregaAttributeNormalizer.include(AttributeNormalizerInstanceMethods)
       end
 
       #
@@ -115,10 +115,10 @@ class Serega
       #
       # Config class additional/patched instance methods
       #
-      # @see Serega::SeregaConfig
+      # @see SeregaConfig
       #
       module ConfigInstanceMethods
-        # @return [Serega::SeregaPlugins::Formatters::FormattersConfig] current formatters config
+        # @return [SeregaPlugins::Formatters::FormattersConfig] current formatters config
         def formatters
           @formatters ||= FormattersConfig.new(opts.fetch(:formatters))
         end
@@ -127,46 +127,43 @@ class Serega
       #
       # Attribute class additional/patched instance methods
       #
-      # @see Serega::SeregaAttribute
+      # @see SeregaAttributeNormalizer
       #
-      module AttributeInstanceMethods
-        # @return [#call] callable formatter
+      module AttributeNormalizerInstanceMethods
+        # Block or callable instance that will format attribute values
+        # @return [Proc, #call, nil] Block or callable instance that will format attribute values
         def formatter
           return @formatter if instance_variable_defined?(:@formatter)
 
-          @formatter = formatter_resolved
-        end
-
-        # @return [#call] callable, that should be used to fetch attribute value
-        def value_block
-          return @value_block if instance_variable_defined?(:@value_block)
-          return @value_block = super unless formatter
-
-          new_value_block = formatted_block(formatter, super)
-
-          # Format :const value in advance
-          if opts.key?(:const)
-            const_value = new_value_block.call
-            new_value_block = proc { const_value }
-          end
-
-          @value_block = new_value_block
+          @formatter = prepare_formatter
         end
 
         private
 
-        def formatter_resolved
-          formatter = opts[:format]
-          return unless formatter
+        def prepare_value_block
+          return super unless formatter
 
-          formatter = self.class.serializer_class.config.formatters.opts.fetch(formatter) if formatter.is_a?(Symbol)
-          formatter
+          if init_opts.key?(:const)
+            # Format const value in advance
+            const_value = formatter.call(init_opts[:const])
+            proc { const_value }
+          else
+            # Wrap original block into formatter block
+            proc do |object, context|
+              value = super.call(object, context)
+              formatter.call(value)
+            end
+          end
         end
 
-        def formatted_block(formatter, original_block)
-          proc do |object, context|
-            value = original_block.call(object, context)
-            formatter.call(value)
+        def prepare_formatter
+          formatter = init_opts[:format]
+          return unless formatter
+
+          if formatter.is_a?(Symbol)
+            self.class.serializer_class.config.formatters.opts.fetch(formatter)
+          else
+            formatter # already callable
           end
         end
       end

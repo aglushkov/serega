@@ -61,10 +61,9 @@ RSpec.describe Serega::SeregaPlugins::Formatters do
 
       it "formats result of :const attribute value in advance" do
         attribute = serializer.attribute(:a, const: "123", format: :reverse)
-        attribute.value_block # precalculate
 
         allow(reverse).to receive(:call)
-        expect(attribute.value_block.call).to eq "321"
+        expect(attribute.value(nil, nil)).to eq "321"
         expect(reverse).not_to have_received(:call)
       end
 
@@ -82,13 +81,9 @@ RSpec.describe Serega::SeregaPlugins::Formatters do
         expect(attribute.value([1, 2, 3], nil)).to eq [3, 2, 1]
       end
 
-      it "formats result of :const attribute value in advance" do
+      it "formats result of :const attribute value" do
         attribute = serializer.attribute(:a, const: "123", format: reverse)
-        attribute.value_block # precalculate
-
-        allow(reverse).to receive(:call)
-        expect(attribute.value_block.call).to eq "321"
-        expect(reverse).not_to have_received(:call)
+        expect(attribute.value(nil, nil)).to eq "321"
       end
     end
   end

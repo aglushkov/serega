@@ -81,12 +81,12 @@ class Serega
       def self.load_plugin(serializer_class, **_opts)
         serializer_class.include(InstanceMethods)
         serializer_class::SeregaAttribute.include(AttributeInstanceMethods)
+        serializer_class::SeregaAttributeNormalizer.include(AttributeNormalizerInstanceMethods)
         serializer_class::SeregaConfig.include(ConfigInstanceMethods)
         serializer_class::SeregaPlanPoint.include(MapPointInstanceMethods)
 
         serializer_class::CheckAttributeParams.include(CheckAttributeParamsInstanceMethods)
 
-        require_relative "./lib/enum_deep_freeze"
         require_relative "./lib/format_user_preloads"
         require_relative "./lib/main_preload_path"
         require_relative "./lib/preloads_constructor"
@@ -199,50 +199,54 @@ class Serega
       # @see Serega::SeregaAttribute::AttributeInstanceMethods
       #
       module AttributeInstanceMethods
-        # @return [Hash,nil] formatted preloads of current attribute
+        # @return [Hash, nil] normalized preloads of current attribute
+        attr_reader :preloads
+
+        # @return [Array] normalized preloads_path of current attribute
+        attr_reader :preloads_path
+
+        private
+
+        def set_normalized_vars(normalizer)
+          super
+          @preloads = normalizer.preloads
+          @preloads_path = normalizer.preloads_path
+        end
+      end
+
+      #
+      # Serega::SeregaAttribute additional/patched instance methods
+      #
+      # @see Serega::SeregaAttribute::AttributeInstanceMethods
+      #
+      module AttributeNormalizerInstanceMethods
+        # @return [Hash,nil] normalized attribute preloads
         def preloads
-          return @preloads if defined?(@preloads)
+          return @preloads if instance_variable_defined?(:@preloads)
 
-          @preloads = get_preloads
+          @preloads = prepare_preloads
         end
 
-        # @return [Array] formatted preloads_path of current attribute
+        # @return [Array, nil] normalized attribute preloads path
         def preloads_path
-          return @preloads_path if defined?(@preloads_path)
+          return @preloads_path if instance_variable_defined?(:@preloads_path)
 
-          @preloads_path = get_preloads_path
-        end
-
-        # Patch for original `hide` method
-        #
-        # Marks attribute hidden if auto_hide_attribute_with_preloads option was set and attribute has preloads
-        #
-        # @return [Boolean, nil] if attribute is hidden
-        #
-        # @see Serega::SeregaAttribute::AttributeInstanceMethods#hide
-        #
-        def hide
-          res = super
-          return res unless res.nil?
-
-          auto_hide_attribute_with_preloads? || nil
+          @preloads_path = prepare_preloads_path
         end
 
         private
 
-        def auto_hide_attribute_with_preloads?
-          auto = self.class.serializer_class.config.preloads.auto_hide_attributes_with_preload
-          @auto_hide_attribute_with_preloads = auto && !preloads.nil? && (preloads != false) && (preloads != {})
-        end
-
+        #
         # Patched in:
         # - plugin :batch (extension :preloads - skips auto preloads when batch option provided)
-        def get_preloads
+        #
+        def prepare_preloads
+          opts = init_opts
           preloads_provided = opts.key?(:preload)
           preloads =
             if preloads_provided
               opts[:preload]
-            elsif relation? && self.class.serializer_class.config.preloads.auto_preload_attributes_with_serializer
+            elsif opts.key?(:serializer) && self.class.serializer_class.config.preloads.auto_preload_attributes_with_serializer
               key
             elsif opts.key?(:delegate) && self.class.serializer_class.config.preloads.auto_preload_attributes_with_delegate
               opts[:delegate].fetch(:to)
@@ -255,10 +259,25 @@ class Serega
           FormatUserPreloads.call(preloads)
         end
 
-        def get_preloads_path
+        def prepare_preloads_path
+          opts = init_opts
           path = Array(opts[:preload_path]).map!(&:to_sym).freeze
           path = MainPreloadPath.call(preloads) if path.empty?
           path
+        end
+
+        #
+        # Patch for original `prepare_hide` method
+        #
+        # Marks attribute hidden if auto_hide_attribute_with_preloads option was set and attribute has preloads
+        #
+        def prepare_hide
+          res = super
+          return res unless res.nil?
+
+          if preloads && !preloads.empty?
+            self.class.serializer_class.config.preloads.auto_hide_attributes_with_preload || nil
+          end
         end
       end
 
