@@ -5,6 +5,17 @@
 - Rename `SeregaMap` class to `SeregaPlan` and `SeregaMapPoint` to `SeregaPlanPoint`
 - Rename config option from `max_cached_map_per_serializer_count` to
   `max_cached_plans_per_serializer_count`
+- Rename config method from `config.batch_loaders` to `config.batch.loaders`
+- Rename config method from `config.batch_loaders.define` to `config.batch.define`
+- Add config method `config.batch.auto_hide=(bool)` to automatically mark as
+  hidden attributes having :batch option
+- Allow to define :batch plugin with :auth_hide option.
+
+```ruby
+class SomeSerializer < Serega
+  plugin :batch, auto_hide: true
+end
+```
 
 ## [0.10.0] - 2023-03-28
 

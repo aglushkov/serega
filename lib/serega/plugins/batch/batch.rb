@@ -15,21 +15,21 @@ class Serega
     #     # Define batch loader via callable class, it must accept three args (keys, context, plan_point)
     #     attribute :comments_count, batch: { key: :id, loader: PostCommentsCountBatchLoader, default: 0}
     #
-    #     # Define batch loader via Symbol, later we should define this loader via config.batch_loaders.define(:posts_comments_counter) { ... }
+    #     # Define batch loader via Symbol, later we should define this loader via config.batch.define(:posts_comments_counter) { ... }
     #     attribute :comments_count, batch: { key: :id, loader: :posts_comments_counter, default: 0}
     #
     #     # Define batch loader with serializer
     #     attribute :comments, serializer: CommentSerializer, batch: { key: :id, loader: :posts_comments, default: []}
     #
     #     # Resulted block must return hash like { key => value(s) }
-    #     config.batch_loaders.define(:posts_comments_counter) do |keys|
+    #     config.batch.define(:posts_comments_counter) do |keys|
     #       Comment.group(:post_id).where(post_id: keys).count
     #     end
     #
     #     # We can return objects that will be automatically serialized if attribute defined with :serializer
     #     # Parameter `context` can be used when loading batch
     #     # Parameter `plan_point` can be used to find nested attributes that will be serialized (`plan_point.preloads`)
-    #     config.batch_loaders.define(:posts_comments) do |keys, context, plan_point|
+    #     config.batch.define(:posts_comments) do |keys, context, plan_point|
     #       Comment.where(post_id: keys).where(is_spam: false).group_by(&:post_id)
     #     end
     #   end
@@ -61,6 +61,7 @@ class Serega
         serializer_class.include(InstanceMethods)
         serializer_class::CheckAttributeParams.include(CheckAttributeParamsInstanceMethods)
         serializer_class::SeregaAttribute.include(AttributeInstanceMethods)
+        serializer_class::SeregaAttributeNormalizer.include(AttributeNormalizerInstanceMethods)
         serializer_class::SeregaPlanPoint.include(MapPointInstanceMethods)
         serializer_class::SeregaObjectSerializer.include(SeregaObjectSerializerInstanceMethods)
       end
@@ -74,9 +75,6 @@ class Serega
       # @return [void]
       #
       def self.after_load_plugin(serializer_class, **opts)
-        config = serializer_class.config
-        config.attribute_keys << :batch
-        config.opts[:batch] = {loaders: {}}
         serializer_class::SeregaConfig.include(ConfigInstanceMethods)
 
         batch_loaders_class = Class.new(SeregaBatchLoaders)
@@ -102,12 +100,17 @@ class Serega
           require_relative "./lib/plugins_extensions/preloads"
           serializer_class::SeregaAttributeNormalizer.include(PluginsExtensions::Preloads::AttributeNormalizerInstanceMethods)
         end
+
+        config = serializer_class.config
+        config.attribute_keys << :batch
+        config.opts[:batch] = {loaders: {}}
+        config.batch.auto_hide = opts[:auto_hide] || false
       end
 
       #
       # Batch loader config
       #
-      class BatchLoadersConfig
+      class BatchConfig
         attr_reader :opts
 
         def initialize(opts)
@@ -125,7 +128,7 @@ class Serega
         #
         def define(loader_name, &block)
           unless block
-            raise SeregaError, "Block must be given to batch_loaders.define method"
+            raise SeregaError, "Block must be given to #define method"
           end
 
           params = block.parameters
@@ -133,7 +136,13 @@ class Serega
             raise SeregaError, "Block can have maximum 3 regular parameters"
           end
 
-          opts[loader_name] = block
+          loaders[loader_name] = block
+        end
+
+        # Shows defined loaders
+        # @return [Hash] defined loaders
+        def loaders
+          opts[:loaders]
         end
 
         #
@@ -142,8 +151,21 @@ class Serega
         # @param loader_name [Symbol]
         #
         # @return [Proc] batch loader block
-        def fetch(loader_name)
-          opts[loader_name] || (raise SeregaError, "Batch loader with name `#{loader_name.inspect}` was not defined. Define example: config.batch_loaders.define(:#{loader_name}) { |keys, ctx, points| ... }")
+        def fetch_loader(loader_name)
+          loaders[loader_name] || (raise SeregaError, "Batch loader with name `#{loader_name.inspect}` was not defined. Define example: config.batch.define(:#{loader_name}) { |keys, ctx, points| ... }")
+        end
+
+        # Shows option to auto hide attributes with :batch specified
+        # @return [Boolean, nil] option value
+        def auto_hide
+          opts.fetch(:auto_hide)
+        end
+
+        # @param value [Boolean] New :auto_hide option value
+        # @return [Boolean] New option value
+        def auto_hide=(value)
+          raise SeregaError, "Must have boolean value, #{value.inspect} provided" if (value != true) && (value != false)
+          opts[:auto_hide] = value
         end
       end
 
@@ -156,10 +178,10 @@ class Serega
         #
         # Returns all batch loaders registered for current serializer
         #
-        # @return [Serega::SeregaPlugins::Batch::BatchLoadersConfig] configuration for batch loaders
+        # @return [Serega::SeregaPlugins::Batch::BatchConfig] configuration for batch loaded attributes
         #
-        def batch_loaders
-          @batch_loaders ||= BatchLoadersConfig.new(opts.fetch(:batch).fetch(:loaders))
+        def batch
+          @batch ||= BatchConfig.new(opts.fetch(:batch))
         end
       end
 
@@ -214,7 +236,40 @@ class Serega
 
         def set_normalized_vars(normalizer)
           super
-          @batch = initials[:opts][:batch]
+          @batch = normalizer.batch
+        end
+      end
+
+      #
+      # SeregaAttributeNormalizer additional/patched instance methods
+      #
+      # @see SeregaAttributeNormalizer::AttributeInstanceMethods
+      #
+      module AttributeNormalizerInstanceMethods
+        def batch
+          return @batch if instance_variable_defined?(:@batch)
+
+          @batch = prepare_batch
+        end
+
+        private
+
+        #
+        # Patch for original `prepare_hide` method
+        #
+        # Marks attribute hidden if auto_hide option was set and attribute has batch loader
+        #
+        def prepare_hide
+          res = super
+          return res unless res.nil?
+
+          if batch
+            self.class.serializer_class.config.batch.auto_hide || nil
+          end
+        end
+
+        def prepare_batch
+          init_opts[:batch]
         end
       end
 
