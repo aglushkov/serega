@@ -127,6 +127,17 @@ RSpec.describe Serega::SeregaAttributeNormalizer do
       expect(block.call(object2)).to eq "NAME"
     end
 
+    it "does not raise error when :delegating object is nil and nil is allowed through config" do
+      object1 = double(foo: nil)
+      object2 = double(foo: double(name: "NAME"))
+      delegate = {to: :foo}
+      serializer_class.config.delegate_default_allow_nil = true
+      block = normalizer.new(name: :name, opts: {delegate: delegate}).send(:prepare_value_block)
+      expect(block).to be_a Proc
+      expect(block.call(object1)).to be_nil
+      expect(block.call(object2)).to eq "NAME"
+    end
+
     it "raises error with name of serializer and serialized attribute when delegating object is nil and nil is not allowed" do
       object = double(foo: nil)
       delegate = {to: :foo}

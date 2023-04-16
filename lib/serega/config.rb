@@ -19,6 +19,7 @@ class Serega
       serialize_keys: %i[context many].freeze,
       check_attribute_name: true,
       check_initiate_params: true,
+      delegate_default_allow_nil: false,
       max_cached_plans_per_serializer_count: 0,
       to_json: (SeregaJSON.adapter == :oj) ? SeregaJSON::OjDump : SeregaJSON::JSONDump,
       from_json: (SeregaJSON.adapter == :oj) ? SeregaJSON::OjLoad : SeregaJSON::JSONLoad
@@ -85,6 +86,22 @@ class Serega
       def check_initiate_params=(value)
         raise SeregaError, "Must have boolean value, #{value.inspect} provided" if (value != true) && (value != false)
         opts[:check_initiate_params] = value
+      end
+
+      # Returns :delegate_default_allow_nil config option
+      # @return [Boolean] Current :delegate_default_allow_nil config option
+      def delegate_default_allow_nil
+        opts.fetch(:delegate_default_allow_nil)
+      end
+
+      # Sets :delegate_default_allow_nil config option
+      #
+      # @param value [Boolean] Set :delegate_default_allow_nil config option
+      #
+      # @return [Boolean] :delegate_default_allow_nil config option
+      def delegate_default_allow_nil=(value)
+        raise SeregaError, "Must have boolean value, #{value.inspect} provided" if (value != true) && (value != false)
+        opts[:delegate_default_allow_nil] = value
       end
 
       # Returns :max_cached_plans_per_serializer_count config option

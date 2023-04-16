@@ -18,6 +18,7 @@ RSpec.describe Serega do
         attribute_keys
         check_attribute_name
         check_initiate_params
+        delegate_default_allow_nil
         max_cached_plans_per_serializer_count
         to_json
         from_json
@@ -29,6 +30,7 @@ RSpec.describe Serega do
       expect(config.attribute_keys).to match_array(%i[key value serializer many hide const delegate])
       expect(config.check_attribute_name).to be true
       expect(config.check_initiate_params).to be true
+      expect(config.delegate_default_allow_nil).to be false
       expect(config.max_cached_plans_per_serializer_count).to eq 0
       expect(config.to_json.call({})).to eq "{}"
     end

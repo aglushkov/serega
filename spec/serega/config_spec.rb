@@ -27,6 +27,15 @@ RSpec.describe Serega::SeregaConfig do
     end
   end
 
+  describe "#delegate_default_allow_nil=" do
+    it "validates value is boolean" do
+      expect { config.delegate_default_allow_nil = false }.not_to raise_error
+      expect { config.delegate_default_allow_nil = true }.not_to raise_error
+      expect { config.delegate_default_allow_nil = nil }
+        .to raise_error Serega::SeregaError, "Must have boolean value, #{nil.inspect} provided"
+    end
+  end
+
   describe "#check_initiate_params=" do
     it "validates value is boolean" do
       expect { config.check_initiate_params = false }.not_to raise_error
