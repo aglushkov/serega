@@ -20,7 +20,7 @@ class Serega
             private
 
             # Format values after they are prepared
-            def keys_values(*)
+            def keys_values
               data = super
 
               formatter = point.attribute.formatter

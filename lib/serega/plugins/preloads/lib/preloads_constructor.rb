@@ -35,7 +35,7 @@ class Serega
               append_current(preloads, current_preloads)
               next unless has_nested
 
-              nested_preloads = nested(preloads, point.preloads_path)
+              nested_preloads = dig?(preloads, point.preloads_path)
               append_many(nested_preloads, point.nested_points)
             end
           end
@@ -50,8 +50,14 @@ class Serega
             end
           end
 
-          def nested(preloads, path)
-            (!path || path.empty?) ? preloads : preloads.dig(*path)
+          def dig?(hash, path)
+            return hash if !path || path.empty?
+
+            path.each do |point|
+              hash = hash[point]
+            end
+
+            hash
           end
         end
       end
