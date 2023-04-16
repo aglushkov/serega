@@ -20,7 +20,7 @@ class Serega
             private
 
             # Preloads required associations to batch-loaded records
-            def keys_values(*)
+            def keys_values
               data = super
 
               if point.has_nested_points?
