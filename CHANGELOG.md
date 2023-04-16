@@ -17,6 +17,15 @@ class SomeSerializer < Serega
 end
 ```
 
+- Add `config.delegate_default_allow_nil=(bool)` config option to specify
+  default behavior when delegated object is nil. By default it is `false`
+
+```ruby
+class SomeSerializer < Serega
+  config.delegate_default_allow_nil = true
+end
+```
+
 ## [0.10.0] - 2023-03-28
 
 - Less strict attribute name format. Allow attribute names to include chars

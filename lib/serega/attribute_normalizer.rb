@@ -146,7 +146,9 @@ class Serega
         key_method_name = delegate[:key] || key
         delegate_to = delegate[:to]
 
-        if delegate[:allow_nil]
+        allow_nil = delegate.fetch(:allow_nil) { self.class.serializer_class.config.delegate_default_allow_nil }
+
+        if allow_nil
           proc do |object|
             handle_no_method_error do
               object.public_send(delegate_to)&.public_send(key_method_name)
