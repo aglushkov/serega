@@ -18,17 +18,20 @@ RSpec.describe Serega::SeregaPlugins::Batch::BatchOptionModel do
       it "returns loader found by Symbol name" do
         loader = proc {}
         attribute = serializer.attribute :foo, batch: {loader: :loader_name, key: :id}
-        serializer.config.batch_loaders.define(:loader_name, &loader)
+        serializer.config.batch.define(:loader_name, &loader)
         model = described_class.new(attribute)
 
         expect(model.loader).to eq loader
       end
 
       it "raises error when loader not defined" do
-        attribute = serializer.attribute :foo, batch: {loader: :loader_name, key: :id}
+        attribute = serializer.attribute :foo,
+          batch: {loader: :loader_name, key: :id}
+
         model = described_class.new(attribute)
 
-        expect { model.loader }.to raise_error Serega::SeregaError, start_with("Batch loader with name `:loader_name` was not defined")
+        expect { model.loader }.to raise_error Serega::SeregaError,
+          start_with("Batch loader with name `:loader_name` was not defined")
       end
     end
 

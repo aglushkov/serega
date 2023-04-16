@@ -14,7 +14,7 @@ RSpec.describe Serega::SeregaPlugins::Batch do
         attribute :post, batch: {key: :post_id, loader: :to_s}
         attribute :post_reverse, batch: {key: :post_id, loader: :to_s}, format: proc { |value| value.reverse }
 
-        config.batch_loaders.define(:to_s) do |keys|
+        config.batch.define(:to_s) do |keys|
           keys.zip(keys.map(&:to_s)).to_h
         end
       end

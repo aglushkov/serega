@@ -12,6 +12,17 @@ RSpec.describe Serega::SeregaPlugins::Batch do
       attribute_keys = serializer.config.attribute_keys
       expect(attribute_keys).to include :batch
     end
+
+    it "adds option :auto_hide false by default" do
+      auto_hide = serializer.config.batch.auto_hide
+      expect(auto_hide).to be false
+    end
+
+    it "allows to change :auto_hide option when defining plugin" do
+      serializer = Class.new(Serega) { plugin :batch, auto_hide: true }
+      auto_hide = serializer.config.batch.auto_hide
+      expect(auto_hide).to be true
+    end
   end
 
   describe ".inherited" do
@@ -40,43 +51,93 @@ RSpec.describe Serega::SeregaPlugins::Batch do
       expect(at1.batch).to eq({key: :key, loader: batch_loader})
       expect(at2.batch).to be_nil
     end
+
+    it "hides attributes with batch when auto_hide: true provided" do
+      serializer.config.batch.auto_hide = true
+      attribute = serializer.attribute :foo, batch: {key: :id, loader: proc {}}
+
+      expect(attribute.hide).to be true
+    end
+
+    it "does not overwrites attribute :hide option when auto_hide: true provided" do
+      serializer.config.batch.auto_hide = true
+      attribute = serializer.attribute :foo, batch: {key: :id, loader: proc {}}, hide: false
+
+      expect(attribute.hide).to be false
+    end
+
+    it "does not change default (nil) :hide option when :auto_hide is false" do
+      serializer.config.batch.auto_hide = false
+      attribute = serializer.attribute :foo, batch: {key: :id, loader: proc {}}
+
+      expect(attribute.hide).to be_nil
+    end
   end
 
-  describe "BatchLoadersConfig" do
-    let(:loaders_config) { Serega::SeregaPlugins::Batch::BatchLoadersConfig.new({}) }
+  describe "BatchConfig" do
+    let(:batch_config) { Serega::SeregaPlugins::Batch::BatchConfig.new({loaders: {}}) }
 
     describe "#define" do
       it "defines named loader" do
         loader = proc {}
-        loaders_config.define(:name, &loader)
-        expect(loaders_config.opts).to eq(name: loader)
+        batch_config.define(:name, &loader)
+        expect(batch_config.loaders).to eq(name: loader)
       end
 
       it "raises error when block not provided" do
-        expect { loaders_config.define(:name) }.to raise_error Serega::SeregaError, "Block must be given to batch_loaders.define method"
+        expect { batch_config.define(:name) }
+          .to raise_error Serega::SeregaError, "Block must be given to #define method"
       end
 
       it "raises error when provided incorrect params" do
-        expect { loaders_config.define(:name) {} }.not_to raise_error
-        expect { loaders_config.define(:name) { |a| } }.not_to raise_error
-        expect { loaders_config.define(:name) { |a, b| } }.not_to raise_error
-        expect { loaders_config.define(:name) { |a, b, c| } }.not_to raise_error
-        expect { loaders_config.define(:name) { |a, b, c, d| } }.to raise_error "Block can have maximum 3 regular parameters"
-        expect { loaders_config.define(:name) { |*a| } }.to raise_error "Block can have maximum 3 regular parameters"
-        expect { loaders_config.define(:name) { |a: nil| } }.to raise_error "Block can have maximum 3 regular parameters"
+        expect { batch_config.define(:name) {} }.not_to raise_error
+        expect { batch_config.define(:name) { |a| } }.not_to raise_error
+        expect { batch_config.define(:name) { |a, b| } }.not_to raise_error
+        expect { batch_config.define(:name) { |a, b, c| } }.not_to raise_error
+        expect { batch_config.define(:name) { |a, b, c, d| } }.to raise_error "Block can have maximum 3 regular parameters"
+        expect { batch_config.define(:name) { |*a| } }.to raise_error "Block can have maximum 3 regular parameters"
+        expect { batch_config.define(:name) { |a: nil| } }.to raise_error "Block can have maximum 3 regular parameters"
       end
     end
 
-    describe "#fetch" do
+    describe "#fetch_loader" do
       it "returns defined loader by name" do
         loader = proc {}
-        loaders_config.define(:name, &loader)
-        expect(loaders_config.fetch(:name)).to eq loader
+        batch_config.define(:name, &loader)
+        expect(batch_config.fetch_loader(:name)).to eq loader
       end
 
       it "raises error when loader was not found" do
-        expect { loaders_config.fetch(:name) }.to raise_error Serega::SeregaError,
-          "Batch loader with name `:name` was not defined. Define example: config.batch_loaders.define(:name) { |keys, ctx, points| ... }"
+        expect { batch_config.fetch_loader(:name) }.to raise_error Serega::SeregaError,
+          "Batch loader with name `:name` was not defined. Define example: config.batch.define(:name) { |keys, ctx, points| ... }"
+      end
+    end
+
+    describe "#loaders" do
+      it "returns defined loaders hash" do
+        loader = proc {}
+        batch_config.define(:name, &loader)
+        expect(batch_config.loaders).to eq(name: loader)
+      end
+    end
+
+    describe "#auto_hide" do
+      it "returns auto_hide option" do
+        batch_config.opts[:auto_hide] = "AUTO_HIDE"
+        expect(batch_config.auto_hide).to eq "AUTO_HIDE"
+      end
+    end
+
+    describe "#auto_hide=" do
+      it "changes auto_hide option" do
+        batch_config.opts[:auto_hide] = "AUTO_HIDE"
+        batch_config.auto_hide = true
+        expect(batch_config.auto_hide).to be true
+      end
+
+      it "validates argument" do
+        expect { batch_config.auto_hide = 1 }
+          .to raise_error Serega::SeregaError, "Must have boolean value, 1 provided"
       end
     end
   end
@@ -92,7 +153,7 @@ RSpec.describe Serega::SeregaPlugins::Batch do
       batch = pt1.batch
       expect(batch).to be_a Serega::SeregaPlugins::Batch::BatchOptionModel
       expect(batch.many).to be true
-      expect(batch.loaders).to be serializer.config.batch_loaders
+      expect(batch.batch_config).to be serializer.config.batch
       expect(batch.key).to be_a(Proc)
       expect(batch).to be pt1.batch # check stores value
 

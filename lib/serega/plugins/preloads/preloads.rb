@@ -215,9 +215,9 @@ class Serega
       end
 
       #
-      # Serega::SeregaAttribute additional/patched instance methods
+      # SeregaAttributeNormalizer additional/patched instance methods
       #
-      # @see Serega::SeregaAttribute::AttributeInstanceMethods
+      # @see SeregaAttributeNormalizer::AttributeInstanceMethods
       #
       module AttributeNormalizerInstanceMethods
         # @return [Hash,nil] normalized attribute preloads

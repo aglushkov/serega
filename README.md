@@ -506,7 +506,7 @@ Attribute `:batch` option must be a hash with this keys:
   (ex: `attribute :tags, many: true, batch: { ... }`).
 
 If `:loader` was defined using name (as Symbol) then batch loader must be
-defined using `config.batch_loaders.define(:loader_name) { ... }` method.
+defined using `config.batch.define(:loader_name) { ... }` method.
 Result of this block must be a Hash where keys are - provided keys, and values
 are - batch loaded values for according keys.
 
@@ -523,7 +523,7 @@ class PostSerializer < Serega
     batch: { key: :id, loader: CommentsCountBatchLoader, default: 0}
 
   # Define batch loader via Symbol, later we should define this loader via
-  # config.batch_loaders.define(:posts_comments_counter) { ... }
+  # config.batch.define(:posts_comments_counter) { ... }
   attribute :comments_count,
     batch: { key: :id, loader: :posts_comments_counter, default: 0}
 
@@ -533,7 +533,7 @@ class PostSerializer < Serega
     batch: { key: :id, loader: :posts_comments, default: []}
 
   # Resulted block must return hash like { key => value(s) }
-  config.batch_loaders.define(:posts_comments_counter) do |keys|
+  config.batch.define(:posts_comments_counter) do |keys|
     Comment.group(:post_id).where(post_id: keys).count
   end
 
@@ -541,7 +541,7 @@ class PostSerializer < Serega
   # defined with :serializer
   # Parameter `context` can be used when loading batch
   # Parameter `point` can be used to find nested attributes to serialize
-  config.batch_loaders.define(:posts_comments) do |keys, context, point|
+  config.batch.define(:posts_comments) do |keys, context, point|
     # point.nested_points - if you need to manually check all nested attributes
     # point.preloads - nested preloads (works with :preloads plugin only)
 

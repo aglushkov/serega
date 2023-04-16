@@ -7,20 +7,20 @@ class Serega
       # Combines options and methods needed to load batch for specific attribute
       #
       class BatchOptionModel
-        attr_reader :attribute, :opts, :loaders, :many
+        attr_reader :attribute, :opts, :batch_config, :many
 
         #
         # Initializes BatchOptionModel
         #
         # @param plan_point [Serega::SeregaPlanPoint] Map point for attribute with :batch option
-        # @param loaders [Array] Array of all loaders defined in serialize class
+        # @param batch_config [SeregaPlugins::Batch::BatchConfig] Batch plugin config fro attribute serializer
         # @param many [Boolean] Option :many, defined on attribute
         #
         # @return [void]
         def initialize(attribute)
           @attribute = attribute
           @opts = attribute.batch
-          @loaders = attribute.class.serializer_class.config.batch_loaders
+          @batch_config = attribute.class.serializer_class.config.batch
           @many = attribute.many
         end
 
@@ -29,7 +29,7 @@ class Serega
         def loader
           @batch_loader ||= begin
             loader = opts[:loader]
-            loader = loaders.fetch(loader) if loader.is_a?(Symbol)
+            loader = batch_config.fetch_loader(loader) if loader.is_a?(Symbol)
             loader
           end
         end

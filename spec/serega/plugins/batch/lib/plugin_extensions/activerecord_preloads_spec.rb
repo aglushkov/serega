@@ -48,7 +48,7 @@ RSpec.describe Serega::SeregaPlugins::Batch do
         attribute :last_name
         attribute :posts, serializer: p_serializer, batch: {key: :id, loader: :sorted_posts}
 
-        config.batch_loaders.define(:sorted_posts) do |ids|
+        config.batch.define(:sorted_posts) do |ids|
           groups.call(AR::Post.where(user_id: ids).order(:text), by: :user_id)
         end
       end
@@ -89,11 +89,11 @@ RSpec.describe Serega::SeregaPlugins::Batch do
         attribute :posts_count, batch: {key: :id, loader: :posts_count}
         attribute :comments_count, batch: {key: :id, loader: :comments_count}
 
-        config.batch_loaders.define(:posts_count) do |ids|
+        config.batch.define(:posts_count) do |ids|
           AR::Post.where(user_id: ids).group(:user_id).count
         end
 
-        config.batch_loaders.define(:comments_count) do |ids|
+        config.batch.define(:comments_count) do |ids|
           AR::Comment.joins(:post).where(posts: {user_id: ids}).group(:user_id).count
         end
       end
@@ -119,7 +119,7 @@ RSpec.describe Serega::SeregaPlugins::Batch do
         attribute :last_name
         attribute :posts, serializer: p_serializer, batch: {key: :id, loader: :sorted_posts}
 
-        config.batch_loaders.define(:sorted_posts) do |ids|
+        config.batch.define(:sorted_posts) do |ids|
           groups.call(AR::Post.where(user_id: ids).order(:text), by: :user_id)
         end
       end
@@ -132,7 +132,7 @@ RSpec.describe Serega::SeregaPlugins::Batch do
         attribute :text
         attribute :comments, serializer: c_serializer, batch: {key: :id, loader: :sorted_comments}
 
-        config.batch_loaders.define(:sorted_comments) do |ids|
+        config.batch.define(:sorted_comments) do |ids|
           groups.call(AR::Comment.where(post_id: ids).order(:text), by: :post_id)
         end
       end

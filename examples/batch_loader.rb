@@ -123,7 +123,7 @@ class UserSerializer < AppSerializer
   attribute :last_name
   attribute :posts, serializer: "PostSerializer", many: true, batch: {key: :id, loader: :users_posts}
 
-  config.batch_loaders.define(:users_posts) do |ids|
+  config.batch.define(:users_posts) do |ids|
     Post.where(user_id: ids).each_with_object({}) do |post, groups|
       key = post.user_id
 
@@ -140,7 +140,7 @@ class PostSerializer < AppSerializer
   attribute :text
   attribute :comments, serializer: "CommentSerializer", many: true, batch: {key: :id, loader: :posts_comments}
 
-  config.batch_loaders.define(:posts_comments) do |ids, _ctx, point|
+  config.batch.define(:posts_comments) do |ids, _ctx, point|
     scope = Comment.preload(point.preloads)
     scope = scope.where(post_id: ids)
     scope.each_with_object({}) do |comment, groups|
