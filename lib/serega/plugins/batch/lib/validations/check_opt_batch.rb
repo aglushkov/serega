@@ -17,7 +17,7 @@ class Serega
           #
           # @return [void]
           #
-          def call(opts, block)
+          def call(opts, block, serializer_class)
             return unless opts.key?(:batch)
 
             SeregaValidations::Utils::CheckOptIsHash.call(opts, :batch)
@@ -25,21 +25,25 @@ class Serega
             batch = opts[:batch]
             SeregaValidations::Utils::CheckAllowedKeys.call(batch, %i[key loader default])
 
-            check_batch_opt_key(batch[:key])
-            check_batch_opt_loader(batch[:loader])
+            check_batch_opt_key(batch, serializer_class)
+            check_batch_opt_loader(batch)
 
             check_usage_with_other_params(opts, block)
           end
 
           private
 
-          def check_batch_opt_key(key)
+          def check_batch_opt_key(batch, serializer_class)
+            return if !batch.key?(:key) && serializer_class.config.batch.default_key
+
+            key = batch[:key]
             raise SeregaError, "Option :key must present inside :batch option" unless key
 
             CheckBatchOptKey.call(key)
           end
 
-          def check_batch_opt_loader(loader)
+          def check_batch_opt_loader(batch)
+            loader = batch[:loader]
             raise SeregaError, "Option :loader must present inside :batch option" unless loader
 
             CheckBatchOptLoader.call(loader)

@@ -52,7 +52,7 @@ class Serega
             keys_values = keys_values()
 
             each_key do |key, container|
-              value = keys_values.fetch(key) { point.batch.default_value }
+              value = keys_values.fetch(key) { point.batch[:default] }
               final_value = object_serializer.__send__(:final_value, value, point)
               object_serializer.__send__(:attach_final_value, final_value, point, container)
             end
@@ -74,7 +74,7 @@ class Serega
           def keys_values
             ids = keys.keys
 
-            point.batch.loader.call(ids, object_serializer.context, point).tap do |vals|
+            point.batch[:loader].call(ids, object_serializer.context, point).tap do |vals|
               next if vals.is_a?(Hash)
 
               attribute_name = "#{point.class.serializer_class}.#{point.name}"

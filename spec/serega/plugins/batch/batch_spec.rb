@@ -43,13 +43,47 @@ RSpec.describe Serega::SeregaPlugins::Batch do
   end
 
   describe "Attribute methods" do
-    specify "#batch" do
-      batch_loader = proc { |_ids| }
-      at1 = serializer.attribute :at1, batch: {key: :key, loader: batch_loader}
-      at2 = serializer.attribute :at2
+    describe "#batch" do
+      it "returns provided options with transformed Symbol key to Proc" do
+        batch_loader = proc {}
+        at = serializer.attribute :at1, batch: {key: :id, loader: batch_loader, default: :default}
+        expect(at.batch).to include(loader: batch_loader)
+        expect(at.batch).to include(default: :default)
+        expect(at.batch).to include(key: be_a(Proc))
 
-      expect(at1.batch).to eq({key: :key, loader: batch_loader})
-      expect(at2.batch).to be_nil
+        object = double(id: "ID")
+        expect(at.batch[:key].call(object)).to eq "ID"
+      end
+
+      it "returns default key added in serializer config" do
+        serializer.config.batch.default_key = :id
+        at = serializer.attribute :at, batch: {loader: :loader}
+        expect(at.batch).to include({key: be_a(Proc)})
+
+        object = double(id: 1)
+        expect(at.batch[:key].call(object)).to eq 1
+      end
+
+      it "returns key without changes if non-Symbol provided" do
+        key = proc { :id }
+        at = serializer.attribute :at, batch: {loader: :loader, key: key}
+        expect(at.batch[:key]).to eq key
+      end
+
+      it "raises error with name of serializer and attribute when object does not respond to provided key" do
+        at = serializer.attribute :foo, batch: {loader: :loader_name, key: :ping}
+        expect { at.batch[:key].call(1) }.to raise_error start_with("NoMethodError when serializing 'foo' attribute in #{serializer}")
+      end
+
+      it "adds `default: nil` if attribute :many option not specified" do
+        at = serializer.attribute :at, batch: {key: :id, loader: :loader}
+        expect(at.batch).to include({default: nil})
+      end
+
+      it "adds `default: []` if attribute :many option is set" do
+        at = serializer.attribute :at, batch: {key: :id, loader: :loader}, many: true
+        expect(at.batch).to include({default: []})
+      end
     end
 
     it "hides attributes with batch when auto_hide: true provided" do
@@ -140,24 +174,59 @@ RSpec.describe Serega::SeregaPlugins::Batch do
           .to raise_error Serega::SeregaError, "Must have boolean value, 1 provided"
       end
     end
+
+    describe "#default_key" do
+      it "returns default_key option" do
+        batch_config.opts[:default_key] = "DEFAULT_KEY"
+        expect(batch_config.default_key).to eq "DEFAULT_KEY"
+      end
+    end
+
+    describe "#default_key=" do
+      it "changes default_key option" do
+        batch_config.opts[:default_key] = "DEFAULT_KEY"
+        batch_config.default_key = :foo
+        expect(batch_config.default_key).to eq :foo
+      end
+
+      it "validates argument" do
+        expect { batch_config.default_key = 1 }
+          .to raise_error Serega::SeregaError, "Must be a Symbol, 1 provided"
+      end
+    end
   end
 
   describe "MapPoint methods" do
-    specify "#batch" do
-      batch_loader = proc {}
-      at1 = serializer.attribute :at1, many: true, batch: {key: :key, loader: batch_loader}
-      at2 = serializer.attribute :bar
-      pt1 = serializer::SeregaPlanPoint.new(at1, [])
-      pt2 = serializer::SeregaPlanPoint.new(at2, [])
+    describe "#batch" do
+      it "returns provided attribute #batch option" do
+        loader = proc {}
+        attribute = serializer.attribute :foo,
+          batch: {loader: loader, key: :id}
 
-      batch = pt1.batch
-      expect(batch).to be_a Serega::SeregaPlugins::Batch::BatchOptionModel
-      expect(batch.many).to be true
-      expect(batch.batch_config).to be serializer.config.batch
-      expect(batch.key).to be_a(Proc)
-      expect(batch).to be pt1.batch # check stores value
+        batch = serializer::SeregaPlanPoint.new(attribute, []).batch
 
-      expect(pt2.batch).to be_nil
+        expect(batch).to eq attribute.batch
+      end
+
+      it "uses loader from serializer config when Symbol provided" do
+        loader = proc {}
+        serializer.config.batch.define(:loader_name, &loader)
+        attribute = serializer.attribute :foo,
+          batch: {loader: :loader_name, key: :id}
+
+        batch = serializer::SeregaPlanPoint.new(attribute, []).batch
+        expect(batch[:loader]).to eq loader
+      end
+
+      it "raises error when loader not defined" do
+        attribute = serializer.attribute :foo,
+          batch: {loader: :loader_name, key: :id}
+
+        point = serializer::SeregaPlanPoint.new(attribute, [])
+
+        expect { point.batch }.to raise_error Serega::SeregaError,
+          start_with("Batch loader with name `:loader_name` was not defined")
+      end
     end
   end
 
