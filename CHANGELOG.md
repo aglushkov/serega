@@ -9,11 +9,17 @@
 - Rename config method from `config.batch_loaders.define` to `config.batch.define`
 - Add config method `config.batch.auto_hide=(bool)` to automatically mark as
   hidden attributes having :batch option
-- Allow to define :batch plugin with :auth_hide option.
+- Allow to define :batch plugin with :auth_hide option
+- Allow to define :batch plugin with :default_key option
 
 ```ruby
 class SomeSerializer < Serega
-  plugin :batch, auto_hide: true
+  plugin :batch, auto_hide: true, default_key: :id
+
+  # or
+  plugin :batch
+  config.batch.auto_hide = true
+  config.batch.default_key = :id
 end
 ```
 
