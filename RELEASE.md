@@ -3,7 +3,7 @@
 1. Check documentation
 
     ```
-    yard --no-cache --quiet && yard stats --list-undoc
+    yard doc --no-cache --quiet && yard stats --list-undoc
     ```
 
 1. Run and fix all warnings
