@@ -62,7 +62,7 @@ class Serega
         require_relative "./validations/check_opt_unless_value"
 
         serializer_class::SeregaAttribute.include(SeregaAttributeInstanceMethods)
-        serializer_class::SeregaPlanPoint.include(MapPointInstanceMethods)
+        serializer_class::SeregaPlanPoint.include(PlanPointInstanceMethods)
         serializer_class::CheckAttributeParams.include(CheckAttributeParamsInstanceMethods)
         serializer_class::SeregaObjectSerializer.include(SeregaObjectSerializerInstanceMethods)
       end
@@ -101,7 +101,7 @@ class Serega
       #
       # @see Serega::SeregaPlanPoint::InstanceMethods
       #
-      module MapPointInstanceMethods
+      module PlanPointInstanceMethods
         #
         # @return [Boolean] Should we show attribute or not
         #   Conditions for this checks are specified by :if and :unless attribute options.

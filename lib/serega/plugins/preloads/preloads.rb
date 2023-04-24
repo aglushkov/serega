@@ -83,7 +83,7 @@ class Serega
         serializer_class::SeregaAttribute.include(AttributeInstanceMethods)
         serializer_class::SeregaAttributeNormalizer.include(AttributeNormalizerInstanceMethods)
         serializer_class::SeregaConfig.include(ConfigInstanceMethods)
-        serializer_class::SeregaPlanPoint.include(MapPointInstanceMethods)
+        serializer_class::SeregaPlanPoint.include(PlanPointInstanceMethods)
 
         serializer_class::CheckAttributeParams.include(CheckAttributeParamsInstanceMethods)
 
@@ -286,18 +286,31 @@ class Serega
       #
       # @see Serega::SeregaPlanPoint::InstanceMethods
       #
-      module MapPointInstanceMethods
+      module PlanPointInstanceMethods
         #
         # @return [Hash] preloads for nested attributes
         #
-        def preloads
-          @preloads ||= PreloadsConstructor.call(nested_points)
-        end
+        attr_reader :preloads
 
         #
         # @return [Array<Symbol>] preloads path for current attribute
         #
-        def preloads_path
+        attr_reader :preloads_path
+
+        private
+
+        def set_normalized_vars
+          super
+
+          @preloads = prepare_preloads
+          @preloads_path = prepare_preloads_path
+        end
+
+        def prepare_preloads
+          PreloadsConstructor.call(child_plan)
+        end
+
+        def prepare_preloads_path
           attribute.preloads_path
         end
       end

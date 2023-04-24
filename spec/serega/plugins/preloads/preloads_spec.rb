@@ -69,36 +69,36 @@ RSpec.describe Serega::SeregaPlugins::Preloads do
     end
   end
 
-  describe "MapPointMethods" do
+  describe "PlanPointMethods" do
     before { serializer_class.plugin :preloads }
 
-    def point(attribute, nested_points)
-      attribute.class.serializer_class::SeregaPlanPoint.new(attribute, nested_points)
+    def point(attribute, child_fields = nil)
+      attribute.class.serializer_class::SeregaPlanPoint.new(attribute, nil, child_fields)
     end
 
     it "delegates #preloads_path to attribute" do
       attribute = serializer_class.attribute :foo, preload: :bar
       expect(attribute.preloads).to eq(bar: {})
 
-      point = serializer_class::SeregaPlanPoint.new(attribute, nil)
+      point = serializer_class::SeregaPlanPoint.new(attribute, nil, nil)
       expect(point.preloads_path).to eq([:bar])
     end
 
     it "constructs #preloads for all nested preloads" do
-      foo = serializer_class.attribute :foo, preload: :foo, serializer: serializer_class
-      bar = serializer_class.attribute :bar, preload: :bar, serializer: serializer_class
+      foo = serializer_class.attribute :foo, preload: :foo1, serializer: serializer_class, hide: true
+      serializer_class.attribute :bar, preload: :bar1, serializer: serializer_class, hide: true
 
-      p = point(foo, nil)
+      p = point(foo)
       expect(p.preloads).to eq({})
 
-      p = point(foo, [point(foo, nil)])
-      expect(p.preloads).to eq({foo: {}})
+      p = point(foo, {with: {foo: {}}})
+      expect(p.preloads).to eq({foo1: {}})
 
-      p = point(foo, [point(foo, nil), point(bar, nil)])
-      expect(p.preloads).to eq({foo: {}, bar: {}})
+      p = point(foo, {with: {foo: {}, bar: {}}})
+      expect(p.preloads).to eq({foo1: {}, bar1: {}})
 
-      p = point(foo, [point(foo, nil), point(bar, [point(foo, nil)])])
-      expect(p.preloads).to eq({foo: {}, bar: {foo: {}}})
+      p = point(foo, {with: {foo: {}, bar: {foo: {}}}})
+      expect(p.preloads).to eq({foo1: {}, bar1: {foo1: {}}})
     end
   end
 

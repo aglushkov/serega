@@ -38,70 +38,62 @@ RSpec.describe Serega::SeregaPlan do
   let(:current_serializer) { a }
   let(:described_class) { current_serializer::SeregaPlan }
 
-  # Allow to compare plan points
-  before do
-    comparable =
-      Module.new do
-        def ==(other)
-          (other.attribute == attribute) && (other.nested_points == nested_points)
-        end
-      end
-
-    Serega::SeregaPlanPoint.include(comparable)
-  end
-
   def plan(opts)
     current_serializer::SeregaPlan.call(opts)
   end
 
-  def point(attribute, nested_points)
-    attribute.class.serializer_class::SeregaPlanPoint.new(attribute, nested_points)
+  def satisfy_attribute_names(names)
+    satisfy do |result|
+      expect(result.points.count).to eq names.count
+
+      names.each do |key, child_keys|
+        point = result.points.find { |point| point.name == key }
+        expect(point).not_to be_nil
+        expect(point.child_plan).to satisfy_attribute_names(child_keys) if child_keys
+      end
+    end
   end
 
   describe ".call" do
-    it "returns all not hidden attributes by default" do
+    it "returns plan with all not hidden attributes by default" do
       result = plan({})
-      expected_result = [
-        point(a.attributes[:a1], nil),
-        point(a.attributes[:a2], nil),
-        point(a.attributes[:d], [point(d.attributes[:d1], nil), point(d.attributes[:d2], nil)])
-      ]
 
-      expect(result).to eq expected_result
+      expect(result).to satisfy_attribute_names(
+        a1: nil,
+        a2: nil,
+        d: {d1: nil, d2: nil}
+      )
     end
 
     it "returns only attributes from :only option" do
       result = plan(only: {a2: {}, d: {d1: {}}}, except: {}, with: {})
-      expected_result = [
-        point(a.attributes[:a2], nil),
-        point(a.attributes[:d], [point(d.attributes[:d1], nil)])
-      ]
 
-      expect(result).to eq expected_result
+      expect(result).to satisfy_attribute_names(
+        a2: nil,
+        d: {d1: nil}
+      )
     end
 
     it "returns all not hidden attributes except provided in :except option" do
       result = plan(only: {}, except: {a2: {}, d: {d1: {}}}, with: {})
-      expected_result = [
-        point(a.attributes[:a1], nil),
-        point(a.attributes[:d], [point(d.attributes[:d2], nil)])
-      ]
 
-      expect(result).to eq expected_result
+      expect(result).to satisfy_attribute_names(
+        a1: nil,
+        d: {d2: nil}
+      )
     end
 
     it "returns all not hidden attributes and attributes defined in :with option" do
       result = plan(only: {}, except: {}, with: {a3: {}, b: {}, c: {c3: {}}})
-      expected_result = [
-        point(a.attributes[:a1], nil),
-        point(a.attributes[:a2], nil),
-        point(a.attributes[:a3], nil),
-        point(a.attributes[:b], [point(b.attributes[:b1], nil), point(b.attributes[:b2], nil)]),
-        point(a.attributes[:c], [point(c.attributes[:c1], nil), point(c.attributes[:c2], nil), point(c.attributes[:c3], nil)]),
-        point(a.attributes[:d], [point(d.attributes[:d1], nil), point(d.attributes[:d2], nil)])
-      ]
 
-      expect(result).to eq expected_result
+      expect(result).to satisfy_attribute_names(
+        a1: nil,
+        a2: nil,
+        a3: nil,
+        b: {b1: nil, b2: nil},
+        c: {c1: nil, c2: nil, c3: nil},
+        d: {d1: nil, d2: nil}
+      )
     end
   end
 
@@ -110,8 +102,8 @@ RSpec.describe Serega::SeregaPlan do
       result1 = plan(only: {a1: {}})
       result2 = plan(only: {a1: {}})
 
-      expect(result1).to eq [point(a.attributes[:a1], nil)]
-      expect(result2).to eq [point(a.attributes[:a1], nil)]
+      expect(result1).to satisfy_attribute_names(a1: nil)
+      expect(result2).to satisfy_attribute_names(a1: nil)
       expect(result1).not_to equal result2
     end
 
@@ -120,8 +112,8 @@ RSpec.describe Serega::SeregaPlan do
       result1 = plan(only: {a1: {}})
       result2 = plan(only: {a1: {}})
 
-      expect(result1).to eq [point(a.attributes[:a1], nil)]
-      expect(result2).to eq [point(a.attributes[:a1], nil)]
+      expect(result1).to satisfy_attribute_names(a1: nil)
+      expect(result2).to satisfy_attribute_names(a1: nil)
       expect(result1).to equal result2
     end
 
@@ -133,8 +125,8 @@ RSpec.describe Serega::SeregaPlan do
 
       result2 = plan(only: {a1: {}})
 
-      expect(result1).to eq [point(a.attributes[:a1], nil)]
-      expect(result2).to eq [point(a.attributes[:a1], nil)]
+      expect(result1).to satisfy_attribute_names(a1: nil)
+      expect(result2).to satisfy_attribute_names(a1: nil)
       expect(result1).not_to equal result2
     end
   end

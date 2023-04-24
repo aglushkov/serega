@@ -10,16 +10,17 @@ class Serega
     # SeregaObjectSerializer instance methods
     #
     module InstanceMethods
-      attr_reader :context, :points, :many, :opts
+      attr_reader :context, :plan, :many, :opts
 
+      # @param plan [SeregaPlan] Serialization plan
       # @param context [Hash] Serialization context
       # @param many [TrueClass|FalseClass] is object is enumerable
-      # @param points [Array<MapPoint>] Serialization points (attributes)
+      # @param opts [Hash] Any custom options
       #
       # @return [SeregaObjectSerializer] New SeregaObjectSerializer
-      def initialize(context:, points:, many: nil, **opts)
+      def initialize(context:, plan:, many: nil, **opts)
         @context = context
-        @points = points
+        @plan = plan
         @many = many
         @opts = opts
       end
@@ -44,7 +45,7 @@ class Serega
       # Patched in:
       # - plugin :presenter (makes presenter_object and serializes it)
       def serialize_object(object)
-        points.each_with_object({}) do |point, container|
+        plan.points.each_with_object({}) do |point, container|
           serialize_point(object, point, container)
         end
       end
@@ -70,14 +71,14 @@ class Serega
       end
 
       def final_value(value, point)
-        point.has_nested_points? ? relation_value(value, point) : value
+        point.child_plan ? relation_value(value, point) : value
       end
 
       def relation_value(value, point)
-        nested_points = point.nested_points
-        nested_serializer = point.nested_object_serializer
-        nested_many = point.many
-        serializer = nested_serializer.new(context: context, points: nested_points, many: nested_many, **opts)
+        child_plan = point.child_plan
+        child_serializer = point.child_object_serializer
+        child_many = point.many
+        serializer = child_serializer.new(context: context, plan: child_plan, many: child_many, **opts)
         serializer.serialize(value)
       end
 

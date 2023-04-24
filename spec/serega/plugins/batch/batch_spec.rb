@@ -196,7 +196,7 @@ RSpec.describe Serega::SeregaPlugins::Batch do
     end
   end
 
-  describe "MapPoint methods" do
+  describe "PlanPoint methods" do
     describe "#batch" do
       it "returns provided attribute #batch option" do
         loader = proc {}
@@ -222,9 +222,7 @@ RSpec.describe Serega::SeregaPlugins::Batch do
         attribute = serializer.attribute :foo,
           batch: {loader: :loader_name, key: :id}
 
-        point = serializer::SeregaPlanPoint.new(attribute, [])
-
-        expect { point.batch }.to raise_error Serega::SeregaError,
+        expect { serializer::SeregaPlanPoint.new(attribute) }.to raise_error Serega::SeregaError,
           start_with("Batch loader with name `:loader_name` was not defined")
       end
     end

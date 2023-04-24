@@ -23,7 +23,7 @@ class Serega
             def keys_values
               data = super
 
-              if point.has_nested_points?
+              if point.child_plan
                 associations = point.preloads
                 return data if associations.empty?
 
