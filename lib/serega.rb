@@ -339,8 +339,8 @@ class Serega
     end
 
     #
-    # Array of MapPoints, which are attributes combined with nested attributes.
-    # This plan can be traversed to find currently serializing attributes.
+    # Plan for serialization.
+    # This plan can be traversed to find serialized attributes and nested attributes.
     #
     # @return [Array<Serega::SeregaPlanPoint>] plan
     def plan
@@ -380,7 +380,7 @@ class Serega
     # - plugin :metadata (adds metadata to final result)
     def serialize(object, opts)
       self.class::SeregaObjectSerializer
-        .new(**opts, points: plan)
+        .new(**opts, plan: plan)
         .serialize(object)
     end
   end

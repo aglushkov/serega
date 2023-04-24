@@ -495,7 +495,7 @@ It can be used to find value for attributes in optimal way:
 
 After including plugin, attributes gain new `:batch` option:
 
-```
+```ruby
 attribute :name, batch: { key: :id, loader: :name_loader, default: nil }
 ```
 
@@ -524,26 +524,30 @@ Result of this `:loader` callable must be a **Hash** where:
 - `default_key: :id` - Set default object key (in this case :id) that will be
   used for all attributes with :batch option specified.
 
-```
+```ruby
   plugin :batch, auto_hide: true, default_key: :id
 ```
 
-This options (`auto_hide`, `default_key`) also can be set as config options in
-any nested serializer.
+Options `auto_hide` and `default_key` can be overwritten in nested serializers.
 
 ```ruby
 class AppSerializer
-  plugin :batch
+  plugin :batch, auto_hide: true, default_key: :id
 end
 
 class UserSerializer < AppSerializer
-  config.batch.auto_hide = true
-  config.batch.default_key = :id
+  config.batch.auto_hide = false
+  config.batch.default_key = :user_id
 end
 ```
 
-Batch loader works well with [`activerecord_preloads`][activerecord_preloads]
-plugin.
+---
+⚠️ ATTENTION: `Batch` plugin must be added to serializers which have no
+`:batch` attributes, but have nested serializers, that have some. For example
+when you serialize `User -> Album -> Song` and Song has `:batch` attribute, then
+`:batch` plugin must be added to the User serializer also. \
+Best way would be to create one parent `AppSerializer < Serega` for all your
+serializers and add `:batch` plugin only to this parent `AppSerializer`
 
 ```ruby
 class AppSerializer < Serega
@@ -554,13 +558,15 @@ class PostSerializer < AppSerializer
   attribute :comments_count,
     batch: {
       loader: CommentsCountBatchLoader, # callable(keys, context, plan_point)
-      key: :id,                         # can be skipped as same as :default_key
+      key: :id, # can be skipped (as :id value is same as configured :default_key)
       default: 0
     }
 
   # Define batch loader via Symbol, later we should define this loader via
   # `config.batch.define(:posts_comments_counter) { ... }`
-  # Batch keys here are :id (default key), and default value is nil
+  #
+  # Loader will receive array of ids, as `default_key: :id` plugin option was specified.
+  # Default value for not found counters is nil, as `:default` option not defined
   attribute :comments_count,
     batch: { loader: :posts_comments_counter }
 
@@ -579,7 +585,7 @@ class PostSerializer < AppSerializer
   # Parameter `context` can be used when loading batch
   # Parameter `point` can be used to find nested attributes to serialize
   config.batch.define(:posts_comments) do |keys, context, point|
-    # point.nested_points - if you need to manually check all nested attributes
+    # point.child_plan - if you need to manually check all nested attributes
     # point.preloads - nested preloads (works with :preloads plugin only)
 
     Comment

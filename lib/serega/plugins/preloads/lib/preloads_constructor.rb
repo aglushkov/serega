@@ -11,7 +11,7 @@ class Serega
           #
           # Constructs preloads hash for given attributes plan
           #
-          # @param plan [Array<Serega::MapPoint>] Serialization plan
+          # @param plan [Array<Serega::PlanPoint>] Serialization plan
           #
           # @return [Hash]
           #
@@ -26,17 +26,17 @@ class Serega
           private
 
           def append_many(preloads, plan)
-            plan.each do |point|
+            plan.points.each do |point|
               current_preloads = point.attribute.preloads
               next unless current_preloads
 
-              has_nested = point.has_nested_points?
-              current_preloads = SeregaUtils::EnumDeepDup.call(current_preloads) if has_nested
+              child_plan = point.child_plan
+              current_preloads = SeregaUtils::EnumDeepDup.call(current_preloads) if child_plan
               append_current(preloads, current_preloads)
-              next unless has_nested
+              next unless child_plan
 
-              nested_preloads = dig?(preloads, point.preloads_path)
-              append_many(nested_preloads, point.nested_points)
+              child_preloads = dig?(preloads, point.preloads_path)
+              append_many(child_preloads, child_plan)
             end
           end
 

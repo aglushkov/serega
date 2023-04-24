@@ -13,7 +13,7 @@ class Serega
       # @param mod [Module] Plugin module
       #
       # @example Register plugin
-      #   Serega::SeregaPlugins.register_plugin(:plugin_name, PluginModule)
+      #   SeregaPlugins.register_plugin(:plugin_name, PluginModule)
       #
       # @return [void]
       #
@@ -29,10 +29,10 @@ class Serega
       # @raise [SeregaError] Raises SeregaError when plugin was not found
       #
       # @example Find plugin when providing name
-      #   Serega::SeregaPlugins.find_plugin(:presenter) # => Serega::SeregaPlugins::Presenter
+      #   SeregaPlugins.find_plugin(:presenter) # => SeregaPlugins::Presenter
       #
       # @example Find plugin when providing plugin itself
-      #   Serega::SeregaPlugins.find_plugin(Presenter) # => Presenter
+      #   SeregaPlugins.find_plugin(Presenter) # => Presenter
       #
       # @return [Class<Module>] Plugin core module
       #

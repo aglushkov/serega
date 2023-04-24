@@ -106,17 +106,18 @@ RSpec.describe Serega::SeregaPlugins::Preloads::PreloadsConstructor do
 
   it "merges preloads the same way regardless of order of preloads" do
     a = Class.new(base)
-    attr1 = a.attribute :a1, preload: {foo: {bar: {bazz1: {}, bazz: {}}}}
-    attr2 = a.attribute :a2, preload: {foo: {bar: {bazz2: {}, bazz: {last: {}}}}}
+    a.attribute :a1, preload: {foo: {bar: {bazz1: {}, bazz: {}}}}
+    a.attribute :a2, preload: {foo: {bar: {bazz2: {}, bazz: {last: {}}}}}
 
-    a1 = a.allocate
-    a2 = a.allocate
+    b = Class.new(base)
+    b.attribute :a1, preload: {foo: {bar: {bazz2: {}, bazz: {last: {}}}}}
+    b.attribute :a2, preload: {foo: {bar: {bazz1: {}, bazz: {}}}}
 
-    a1.instance_variable_set(:@plan, [a::SeregaPlanPoint.new(attr1, nil), a::SeregaPlanPoint.new(attr2, nil)])
-    a2.instance_variable_set(:@plan, [a::SeregaPlanPoint.new(attr2, nil), a::SeregaPlanPoint.new(attr1, nil)])
+    plan_a = a.new.plan
+    plan_b = b.new.plan
 
-    result1 = described_class.call(plan(a1))
-    result2 = described_class.call(plan(a2))
+    result1 = described_class.call(plan_a)
+    result2 = described_class.call(plan_b)
 
     expect(result1).to eq(result2)
     expect(result1).to eq(foo: {bar: {bazz: {last: {}}, bazz1: {}, bazz2: {}}})

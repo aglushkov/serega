@@ -90,7 +90,7 @@ class Serega
         serializer_class::CheckAttributeParams.include(CheckAttributeParamsInstanceMethods)
         serializer_class::SeregaAttribute.include(AttributeInstanceMethods)
         serializer_class::SeregaAttributeNormalizer.include(AttributeNormalizerInstanceMethods)
-        serializer_class::SeregaPlanPoint.include(MapPointInstanceMethods)
+        serializer_class::SeregaPlanPoint.include(PlanPointInstanceMethods)
         serializer_class::SeregaObjectSerializer.include(SeregaObjectSerializerInstanceMethods)
       end
 
@@ -352,25 +352,30 @@ class Serega
       #
       # @see SeregaAttribute
       #
-      module MapPointInstanceMethods
+      module PlanPointInstanceMethods
         #
-        # Returns attribute :batch option with selected loader
+        # Returns attribute :batch option with prepared loader
         # @return [Hash] attribute :batch option
         #
-        def batch
-          return @batch if instance_variable_defined?(:@batch)
+        attr_reader :batch
 
-          @batch = begin
-            batch_option = attribute.batch
-            if batch_option
-              loader = batch_option[:loader]
-              if loader.is_a?(Symbol)
-                batch_config = attribute.class.serializer_class.config.batch
-                batch_option[:loader] = batch_config.fetch_loader(loader)
-              end
+        private
+
+        def set_normalized_vars
+          super
+          @batch = prepare_batch
+        end
+
+        def prepare_batch
+          batch = attribute.batch
+          if batch
+            loader = batch[:loader]
+            if loader.is_a?(Symbol)
+              batch_config = attribute.class.serializer_class.config.batch
+              batch[:loader] = batch_config.fetch_loader(loader)
             end
-            batch_option
           end
+          batch
         end
       end
 
