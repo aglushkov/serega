@@ -65,6 +65,9 @@ class Serega
       end
     end
 
+    #
+    # SeregaPlan instance methods
+    #
     module InstanceMethods
       # Parent plan point, if exists
       # @return [SeregaPlanPoint, nil]
@@ -90,6 +93,9 @@ class Serega
         @points = attributes_points(only: only, except: except, with: with)
       end
 
+      #
+      # Serializer class of current plan
+      #
       def serializer_class
         self.class.serializer_class
       end
