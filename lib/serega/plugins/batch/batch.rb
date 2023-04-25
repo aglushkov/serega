@@ -133,6 +133,7 @@ class Serega
         config.attribute_keys << :batch
         config.opts[:batch] = {loaders: {}, default_key: nil, auto_hide: false}
         config.batch.auto_hide = opts[:auto_hide] if opts.key?(:auto_hide)
+        config.batch.default_key = opts[:default_key] if opts.key?(:default_key)
       end
 
       #
