@@ -13,7 +13,7 @@ RSpec.describe Serega::SeregaPlugins::Batch do
       expect(attribute_keys).to include :batch
     end
 
-    it "adds option :auto_hide false by default" do
+    it "adds option :auto_hide (false by default)" do
       auto_hide = serializer.config.batch.auto_hide
       expect(auto_hide).to be false
     end
@@ -22,6 +22,17 @@ RSpec.describe Serega::SeregaPlugins::Batch do
       serializer = Class.new(Serega) { plugin :batch, auto_hide: true }
       auto_hide = serializer.config.batch.auto_hide
       expect(auto_hide).to be true
+    end
+
+    it "adds option :default_key (nil by default)" do
+      default_key = serializer.config.batch.default_key
+      expect(default_key).to be_nil
+    end
+
+    it "allows to change :default_key option when defining plugin" do
+      serializer = Class.new(Serega) { plugin :batch, default_key: :id }
+      default_key = serializer.config.batch.default_key
+      expect(default_key).to eq :id
     end
   end
 
