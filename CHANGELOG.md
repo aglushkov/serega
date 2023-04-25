@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+## [0.11.1] - 2023-04-25
+
+- Fix :default_key batch plugin option was set to nil when defined as
+  `plugin :batch, default_key: :id`
+
 ## [0.11.0] - 2023-04-24
 
 ### Breaking changes
