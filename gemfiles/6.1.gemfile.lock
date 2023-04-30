@@ -1,7 +1,7 @@
 PATH
   remote: ..
   specs:
-    serega (0.11.1)
+    serega (0.11.2)
 
 GEM
   remote: https://rubygems.org/
@@ -26,7 +26,7 @@ GEM
     concurrent-ruby (1.2.2)
     diff-lcs (1.5.0)
     docile (1.4.0)
-    i18n (1.12.0)
+    i18n (1.13.0)
       concurrent-ruby (~> 1.0)
     jdbc-sqlite3 (3.28.0)
     json (2.6.3)
@@ -101,7 +101,7 @@ GEM
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     unicode-display_width (2.4.2)
-    zeitwerk (2.6.7)
+    zeitwerk (2.6.8)
 
 PLATFORMS
   universal-java-11
