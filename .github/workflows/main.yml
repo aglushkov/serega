@@ -13,7 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # https://github.com/ruby/ruby-builder/releases
+          # https://github.com/ruby/setup-ruby
           - ruby: "head"
             activerecord: "7.0"
           - ruby: "3.2"
@@ -32,13 +32,13 @@ jobs:
             activerecord: "6.1"
           - ruby: "2.6"
             activerecord: "5.2"
-          - ruby: "jruby-9.4.0"
+          - ruby: "jruby-9.4.2"
             activerecord: "6.1"
-          - ruby: "jruby-9.4.0"
+          - ruby: "jruby-9.4.2"
             activerecord: "7.0"
-          - ruby: "truffleruby-22.3.0"
+          - ruby: "truffleruby-23.0.0-preview1"
             activerecord: "7.0"
-          - ruby: "truffleruby-22.3.0"
+          - ruby: "truffleruby-23.0.0-preview1"
             activerecord: "6.1"
 
     env:
