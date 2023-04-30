@@ -53,196 +53,10 @@ RSpec.describe Serega::SeregaPlugins::Batch do
     end
   end
 
-  describe "Attribute methods" do
-    describe "#batch" do
-      it "returns provided options with transformed Symbol key to Proc" do
-        batch_loader = proc {}
-        at = serializer.attribute :at1, batch: {key: :id, loader: batch_loader, default: :default}
-        expect(at.batch).to include(loader: batch_loader)
-        expect(at.batch).to include(default: :default)
-        expect(at.batch).to include(key: be_a(Proc))
-
-        object = double(id: "ID")
-        expect(at.batch[:key].call(object)).to eq "ID"
-      end
-
-      it "returns default key added in serializer config" do
-        serializer.config.batch.default_key = :id
-        at = serializer.attribute :at, batch: {loader: :loader}
-        expect(at.batch).to include({key: be_a(Proc)})
-
-        object = double(id: 1)
-        expect(at.batch[:key].call(object)).to eq 1
-      end
-
-      it "returns key without changes if non-Symbol provided" do
-        key = proc { :id }
-        at = serializer.attribute :at, batch: {loader: :loader, key: key}
-        expect(at.batch[:key]).to eq key
-      end
-
-      it "raises error with name of serializer and attribute when object does not respond to provided key" do
-        at = serializer.attribute :foo, batch: {loader: :loader_name, key: :ping}
-        expect { at.batch[:key].call(1) }.to raise_error start_with("NoMethodError when serializing 'foo' attribute in #{serializer}")
-      end
-
-      it "adds `default: nil` if attribute :many option not specified" do
-        at = serializer.attribute :at, batch: {key: :id, loader: :loader}
-        expect(at.batch).to include({default: nil})
-      end
-
-      it "adds `default: []` if attribute :many option is set" do
-        at = serializer.attribute :at, batch: {key: :id, loader: :loader}, many: true
-        expect(at.batch).to include({default: []})
-      end
-    end
-
-    it "hides attributes with batch when auto_hide: true provided" do
-      serializer.config.batch.auto_hide = true
-      attribute = serializer.attribute :foo, batch: {key: :id, loader: proc {}}
-
-      expect(attribute.hide).to be true
-    end
-
-    it "does not overwrites attribute :hide option when auto_hide: true provided" do
-      serializer.config.batch.auto_hide = true
-      attribute = serializer.attribute :foo, batch: {key: :id, loader: proc {}}, hide: false
-
-      expect(attribute.hide).to be false
-    end
-
-    it "does not change default (nil) :hide option when :auto_hide is false" do
-      serializer.config.batch.auto_hide = false
-      attribute = serializer.attribute :foo, batch: {key: :id, loader: proc {}}
-
-      expect(attribute.hide).to be_nil
-    end
-  end
-
-  describe "BatchConfig" do
-    let(:batch_config) { Serega::SeregaPlugins::Batch::BatchConfig.new({loaders: {}}) }
-
-    describe "#define" do
-      it "defines named loader" do
-        loader = proc {}
-        batch_config.define(:name, &loader)
-        expect(batch_config.loaders).to eq(name: loader)
-      end
-
-      it "raises error when block not provided" do
-        expect { batch_config.define(:name) }
-          .to raise_error Serega::SeregaError, "Block must be given to #define method"
-      end
-
-      it "raises error when provided incorrect params" do
-        expect { batch_config.define(:name) {} }.not_to raise_error
-        expect { batch_config.define(:name) { |a| } }.not_to raise_error
-        expect { batch_config.define(:name) { |a, b| } }.not_to raise_error
-        expect { batch_config.define(:name) { |a, b, c| } }.not_to raise_error
-        expect { batch_config.define(:name) { |a, b, c, d| } }.to raise_error "Block can have maximum 3 regular parameters"
-        expect { batch_config.define(:name) { |*a| } }.to raise_error "Block can have maximum 3 regular parameters"
-        expect { batch_config.define(:name) { |a: nil| } }.to raise_error "Block can have maximum 3 regular parameters"
-      end
-    end
-
-    describe "#fetch_loader" do
-      it "returns defined loader by name" do
-        loader = proc {}
-        batch_config.define(:name, &loader)
-        expect(batch_config.fetch_loader(:name)).to eq loader
-      end
-
-      it "raises error when loader was not found" do
-        expect { batch_config.fetch_loader(:name) }.to raise_error Serega::SeregaError,
-          "Batch loader with name `:name` was not defined. Define example: config.batch.define(:name) { |keys, ctx, points| ... }"
-      end
-    end
-
-    describe "#loaders" do
-      it "returns defined loaders hash" do
-        loader = proc {}
-        batch_config.define(:name, &loader)
-        expect(batch_config.loaders).to eq(name: loader)
-      end
-    end
-
-    describe "#auto_hide" do
-      it "returns auto_hide option" do
-        batch_config.opts[:auto_hide] = "AUTO_HIDE"
-        expect(batch_config.auto_hide).to eq "AUTO_HIDE"
-      end
-    end
-
-    describe "#auto_hide=" do
-      it "changes auto_hide option" do
-        batch_config.opts[:auto_hide] = "AUTO_HIDE"
-        batch_config.auto_hide = true
-        expect(batch_config.auto_hide).to be true
-      end
-
-      it "validates argument" do
-        expect { batch_config.auto_hide = 1 }
-          .to raise_error Serega::SeregaError, "Must have boolean value, 1 provided"
-      end
-    end
-
-    describe "#default_key" do
-      it "returns default_key option" do
-        batch_config.opts[:default_key] = "DEFAULT_KEY"
-        expect(batch_config.default_key).to eq "DEFAULT_KEY"
-      end
-    end
-
-    describe "#default_key=" do
-      it "changes default_key option" do
-        batch_config.opts[:default_key] = "DEFAULT_KEY"
-        batch_config.default_key = :foo
-        expect(batch_config.default_key).to eq :foo
-      end
-
-      it "validates argument" do
-        expect { batch_config.default_key = 1 }
-          .to raise_error Serega::SeregaError, "Must be a Symbol, 1 provided"
-      end
-    end
-  end
-
-  describe "PlanPoint methods" do
-    describe "#batch" do
-      it "returns provided attribute #batch option" do
-        loader = proc {}
-        attribute = serializer.attribute :foo,
-          batch: {loader: loader, key: :id}
-
-        batch = serializer::SeregaPlanPoint.new(attribute, []).batch
-
-        expect(batch).to eq attribute.batch
-      end
-
-      it "uses loader from serializer config when Symbol provided" do
-        loader = proc {}
-        serializer.config.batch.define(:loader_name, &loader)
-        attribute = serializer.attribute :foo,
-          batch: {loader: :loader_name, key: :id}
-
-        batch = serializer::SeregaPlanPoint.new(attribute, []).batch
-        expect(batch[:loader]).to eq loader
-      end
-
-      it "raises error when loader not defined" do
-        attribute = serializer.attribute :foo,
-          batch: {loader: :loader_name, key: :id}
-
-        expect { serializer::SeregaPlanPoint.new(attribute) }.to raise_error Serega::SeregaError,
-          start_with("Batch loader with name `:loader_name` was not defined")
-      end
-    end
-  end
-
   describe "serialization" do
-    subject(:result) { user_serializer.to_h(users) }
-
     context "when no batch loaded attributes" do
+      subject(:result) { user_serializer.to_h(user) }
+
       let(:user_serializer) do
         Class.new(Serega) do
           plugin :batch
@@ -250,7 +64,7 @@ RSpec.describe Serega::SeregaPlugins::Batch do
         end
       end
 
-      let(:users) { double(first_name: "USER") }
+      let(:user) { double(first_name: "USER") }
 
       it "does not raise errors" do
         expect(result).to eq({first_name: "USER"})
@@ -258,6 +72,8 @@ RSpec.describe Serega::SeregaPlugins::Batch do
     end
 
     context "with simple batch loaded value" do
+      subject(:result) { user_serializer.to_h(users) }
+
       let(:user_serializer) do
         Class.new(Serega) do
           plugin :batch
@@ -296,6 +112,8 @@ RSpec.describe Serega::SeregaPlugins::Batch do
     end
 
     context "when batch result is not a Hash" do
+      subject(:result) { user_serializer.to_h(user) }
+
       let(:user_serializer) do
         Class.new(Serega) do
           plugin :batch
@@ -306,12 +124,14 @@ RSpec.describe Serega::SeregaPlugins::Batch do
       let(:user) { double(first_name: "USER1", online_id: 1) }
 
       it "raises error" do
-        expect { user_serializer.to_h(user) }
+        expect { result }
           .to raise_error Serega::SeregaError, "Batch loader for `#{user_serializer}.online_time` must return Hash, but #{1.inspect} was returned"
       end
     end
 
     context "with batch loaded relation" do
+      subject(:result) { user_serializer.to_h(users) }
+
       let(:status_serializer) do
         Class.new(Serega) do
           attribute :text
@@ -363,6 +183,8 @@ RSpec.describe Serega::SeregaPlugins::Batch do
     end
 
     context "with batch load inside batch_load" do
+      subject(:result) { user_serializer.to_h(users) }
+
       let(:status_serializer) do
         Class.new(Serega) do
           plugin :batch
@@ -404,6 +226,37 @@ RSpec.describe Serega::SeregaPlugins::Batch do
             {first_name: "USER2", post: {status: {name: "published"}}}
           ]
         )
+      end
+    end
+
+    context "when :batch plugin not defined for top serializer" do
+      subject(:result) { user_serializer.to_h(user) }
+
+      let(:status_serializer) do
+        Class.new(Serega) do
+          plugin :batch
+          attribute :status,
+            batch: {
+              key: :id,
+              loader: proc {}
+            }
+        end
+      end
+
+      let(:user_serializer) do
+        statuses_serializer = status_serializer
+        Class.new(Serega) do
+          attribute :first_name
+          attribute :status, serializer: statuses_serializer
+        end
+      end
+
+      let(:user) { double(first_name: "USER1", status: double(id: 1)) }
+
+      it "raises error that batch plugin must be added to parent serializer" do
+        expect { result }.to raise_error Serega::SeregaError,
+          "Plugin :batch must be added to current serializer (#{user_serializer})" \
+          " to load attributes with :batch option in nested serializer (#{status_serializer})"
       end
     end
   end
