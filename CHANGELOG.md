@@ -2,6 +2,26 @@
 
 ## [Unreleased]
 
+## [0.11.2] - 2023-04-30
+
+- Raise meaningful error when :batch plugin not enabled for root serializer.
+  Workaround for issue <https://github.com/aglushkov/serega/issues/94> - it is
+  not a bug, it is how `batch` plugin works.
+
+```ruby
+# Before:
+# => NoMethodError:
+#    undefined method get for nil:NilClass in
+#    remember_key_for_batch_loading method
+#
+# After:
+# => Serega::SeregaError:
+#    Plugin :batch must be added to current serializer (#{current_serializer})
+#    to load attributes with :batch option in nested serializer
+#    (#{nested_serializer})
+#
+```
+
 ## [0.11.1] - 2023-04-25
 
 - Fix :default_key batch plugin option was set to nil when defined as
