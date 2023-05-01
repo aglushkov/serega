@@ -13,7 +13,7 @@ class Serega
 
       # Link to current plan this point belongs to
       # @return [SeregaAttribute] Current plan
-      attr_reader :plan
+      attr_accessor :plan
 
       # Shows current attribute
       # @return [SeregaAttribute] Current attribute
@@ -24,8 +24,8 @@ class Serega
       attr_reader :child_plan
 
       # Child fields to serialize
-      # @return [SeregaPlan, nil] Attribute serialization plan
-      attr_reader :child_fields
+      # @return [Hash] Attributes to serialize
+      attr_reader :modifiers
 
       # @!method name
       #   Attribute `name`
@@ -44,18 +44,18 @@ class Serega
       #
       # Initializes plan point
       #
-      # @param plan [SeregaPlan] Plan where this point belongs to.
       # @param attribute [SeregaAttribute] Attribute to construct plan point
-      # @param child_fields [Hash, nil] Child fields (:only, :with, :except)
+      # @param modifiers Serialization parameters
+      # @option modifiers [Hash] :only The only attributes to serialize
+      # @option modifiers [Hash] :except Attributes to hide
+      # @option modifiers [Hash] :with Hidden attributes to serialize additionally
       #
       # @return [SeregaPlanPoint] New plan point
       #
-      def initialize(attribute, plan = nil, child_fields = nil)
-        @plan = plan
+      def initialize(attribute, modifiers = nil)
         @attribute = attribute
-        @child_fields = child_fields
+        @modifiers = modifiers
         set_normalized_vars
-        freeze
       end
 
       #
@@ -77,14 +77,11 @@ class Serega
       def prepare_child_plan
         return unless serializer
 
-        fields = child_fields || FROZEN_EMPTY_HASH
+        fields = modifiers || FROZEN_EMPTY_HASH
 
-        serializer::SeregaPlan.new(
-          parent_plan_point: self,
-          only: fields[:only] || FROZEN_EMPTY_HASH,
-          with: fields[:with] || FROZEN_EMPTY_HASH,
-          except: fields[:except] || FROZEN_EMPTY_HASH
-        )
+        plan = serializer::SeregaPlan.new(fields)
+        plan.parent_plan_point = self
+        plan
       end
     end
 

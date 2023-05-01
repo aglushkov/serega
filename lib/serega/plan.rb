@@ -22,32 +22,20 @@ class Serega
       #
       def call(opts)
         max_cache_size = serializer_class.config.max_cached_plans_per_serializer_count
-        return plan_for(opts) if max_cache_size.zero?
+        return new(opts) if max_cache_size.zero?
 
         cached_plan_for(opts, max_cache_size)
       end
 
       private
 
-      def plan_for(opts)
-        new(**modifiers(opts))
-      end
-
       def cached_plan_for(opts, max_cache_size)
         @cache ||= {}
         cache_key = construct_cache_key(opts)
 
-        plan = @cache[cache_key] ||= plan_for(opts)
+        plan = @cache[cache_key] ||= new(opts)
         @cache.shift if @cache.length > max_cache_size
         plan
-      end
-
-      def modifiers(opts)
-        {
-          only: opts[:only] || FROZEN_EMPTY_HASH,
-          except: opts[:except] || FROZEN_EMPTY_HASH,
-          with: opts[:with] || FROZEN_EMPTY_HASH
-        }
       end
 
       def construct_cache_key(opts, cache_key = nil)
@@ -69,9 +57,13 @@ class Serega
     # SeregaPlan instance methods
     #
     module InstanceMethods
-      # Parent plan point, if exists
+      # Parent plan point
       # @return [SeregaPlanPoint, nil]
       attr_reader :parent_plan_point
+
+      # Sets new parent plan point
+      # @return [SeregaPlanPoint] new parent plan point
+      attr_writer :parent_plan_point
 
       # Serialization points
       # @return [Array<SeregaPlanPoint>] points to serialize
@@ -80,17 +72,15 @@ class Serega
       #
       # Instantiate new serialization plan.
       #
-      # @param opts Serialization parameters
-      # @option opts [Hash] :only The only attributes to serialize
-      # @option opts [Hash] :except Attributes to hide
-      # @option opts [Hash] :with Attributes (usually marked hide: true`) to serialize additionally
-      # @option opts [Hash] :with Attributes (usually marked hide: true`) to serialize additionally
+      # @param modifiers Serialization parameters
+      # @option modifiers [Hash] :only The only attributes to serialize
+      # @option modifiers [Hash] :except Attributes to hide
+      # @option modifiers [Hash] :with Hidden attributes to serialize additionally
       #
       # @return [SeregaPlan] Serialization plan
       #
-      def initialize(only:, except:, with:, parent_plan_point: nil)
-        @parent_plan_point = parent_plan_point
-        @points = attributes_points(only: only, except: except, with: with)
+      def initialize(modifiers)
+        @points = attributes_points(modifiers)
       end
 
       #
@@ -102,7 +92,10 @@ class Serega
 
       private
 
-      def attributes_points(only:, except:, with:)
+      def attributes_points(modifiers)
+        only = modifiers[:only] || FROZEN_EMPTY_HASH
+        except = modifiers[:except] || FROZEN_EMPTY_HASH
+        with = modifiers[:with] || FROZEN_EMPTY_HASH
         points = []
 
         serializer_class.attributes.each_value do |attribute|
@@ -114,7 +107,9 @@ class Serega
               {only: only[name], with: with[name], except: except[name]}
             end
 
-          points << serializer_class::SeregaPlanPoint.new(attribute, self, child_fields)
+          point = serializer_class::SeregaPlanPoint.new(attribute, child_fields)
+          point.plan = self
+          points << point.freeze
         end
 
         points.freeze

@@ -47,6 +47,10 @@ class Serega
       def serialize_object(object)
         plan.points.each_with_object({}) do |point, container|
           serialize_point(object, point, container)
+        rescue SeregaError
+          raise
+        rescue => error
+          reraise_with_serialized_attribute_details(error, point)
         end
       end
 
@@ -84,6 +88,13 @@ class Serega
 
       def array?(object, many)
         many.nil? ? object.is_a?(Enumerable) : many
+      end
+
+      def reraise_with_serialized_attribute_details(error, point)
+        raise error.exception(<<~MESSAGE.strip)
+          #{error.message}
+          (when serializing '#{point.name}' attribute in #{self.class.serializer_class})
+        MESSAGE
       end
     end
 

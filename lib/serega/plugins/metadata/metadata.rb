@@ -194,6 +194,11 @@ class Serega
             next unless metadata
 
             deep_merge_metadata(hash, metadata)
+          rescue => error
+            raise error.exception(<<~MESSAGE.strip)
+              #{error.message}
+              (when serializing meta_attribute #{meta_attribute.path.inspect} in #{self.class})
+            MESSAGE
           end
         end
 

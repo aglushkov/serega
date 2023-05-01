@@ -72,15 +72,15 @@ RSpec.describe Serega::SeregaPlugins::Preloads do
   describe "PlanPointMethods" do
     before { serializer_class.plugin :preloads }
 
-    def point(attribute, child_fields = nil)
-      attribute.class.serializer_class::SeregaPlanPoint.new(attribute, nil, child_fields)
+    def point(attribute, modifiers = nil)
+      attribute.class.serializer_class::SeregaPlanPoint.new(attribute, modifiers)
     end
 
     it "delegates #preloads_path to attribute" do
       attribute = serializer_class.attribute :foo, preload: :bar
       expect(attribute.preloads).to eq(bar: {})
 
-      point = serializer_class::SeregaPlanPoint.new(attribute, nil, nil)
+      point = serializer_class::SeregaPlanPoint.new(attribute, nil)
       expect(point.preloads_path).to eq([:bar])
     end
 
