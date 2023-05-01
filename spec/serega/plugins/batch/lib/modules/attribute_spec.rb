@@ -35,11 +35,6 @@ RSpec.describe Serega::SeregaPlugins::Batch do
         expect(at.batch[:key]).to eq key
       end
 
-      it "raises error with name of serializer and attribute when object does not respond to provided key" do
-        at = serializer.attribute :foo, batch: {loader: :loader_name, key: :ping}
-        expect { at.batch[:key].call(1) }.to raise_error start_with("NoMethodError when serializing 'foo' attribute in #{serializer}")
-      end
-
       it "adds `default: nil` if attribute :many option not specified" do
         at = serializer.attribute :at, batch: {key: :id, loader: :loader}
         expect(at.batch).to include({default: nil})

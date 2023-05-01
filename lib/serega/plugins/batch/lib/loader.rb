@@ -60,6 +60,10 @@ class Serega
 
           private
 
+          def keys
+            @keys ||= {}
+          end
+
           def each_key
             keys.each do |key, containers|
               containers.each do |container|
@@ -74,16 +78,30 @@ class Serega
           def keys_values
             ids = keys.keys
 
-            point.batch[:loader].call(ids, object_serializer.context, point).tap do |vals|
-              next if vals.is_a?(Hash)
+            keys_values = load_keys_values(ids)
+            validate(keys_values)
 
-              attribute_name = "#{point.class.serializer_class}.#{point.name}"
-              raise SeregaError, "Batch loader for `#{attribute_name}` must return Hash, but #{vals.inspect} was returned"
-            end
+            keys_values
           end
 
-          def keys
-            @keys ||= {}
+          def load_keys_values(ids)
+            point.batch[:loader].call(ids, object_serializer.context, point)
+          rescue => error
+            raise reraise_with_serialized_attribute_details(error, point)
+          end
+
+          def validate(keys_values)
+            return if keys_values.is_a?(Hash)
+
+            attribute_name = "#{point.class.serializer_class}.#{point.name}"
+            raise SeregaError, "Batch loader for `#{attribute_name}` must return Hash, but #{keys_values.inspect} was returned"
+          end
+
+          def reraise_with_serialized_attribute_details(error, point)
+            raise error.exception(<<~MESSAGE.strip)
+              #{error.message}
+              (when serializing '#{point.name}' attribute in #{self.class.serializer_class})
+            MESSAGE
           end
         end
 

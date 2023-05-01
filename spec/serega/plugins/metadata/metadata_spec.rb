@@ -158,6 +158,19 @@ RSpec.describe Serega::SeregaPlugins::Metadata do
       end
     end
 
+    describe "when metadata block raises error" do
+      let(:context) { {page: 2, per_page: 3} }
+
+      before do
+        user_serializer.meta_attribute(:version, :number) { foo }
+      end
+
+      it "raises error and additionally shows meta_attribute path" do
+        expect { response }.to raise_error NameError,
+          end_with("(when serializing meta_attribute [:version, :number] in #{user_serializer})")
+      end
+    end
+
     describe "hiding metadata attributes" do
       let(:context) { {page: 2, per_page: 3} }
 

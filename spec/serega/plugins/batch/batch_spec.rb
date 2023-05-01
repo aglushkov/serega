@@ -111,6 +111,26 @@ RSpec.describe Serega::SeregaPlugins::Batch do
       end
     end
 
+    context "with some error in batch loader" do
+      subject(:result) { user_serializer.to_h(user) }
+
+      let(:user_serializer) do
+        Class.new(Serega) do
+          plugin :batch, default_key: :online_id
+
+          attribute :first_name
+          attribute :online_time, batch: {loader: proc { foobar }}
+        end
+      end
+
+      let(:user) { double(first_name: "USER1", online_id: 1) }
+
+      it "raises error with specified attribute name and serializer class" do
+        expect { result }.to raise_error NameError,
+          end_with("(when serializing 'online_time' attribute in #{user_serializer})")
+      end
+    end
+
     context "when batch result is not a Hash" do
       subject(:result) { user_serializer.to_h(user) }
 

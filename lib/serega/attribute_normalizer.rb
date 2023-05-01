@@ -135,7 +135,7 @@ class Serega
       def prepare_keyword_block
         key_method_name = key
         proc do |object|
-          handle_no_method_error { object.public_send(key_method_name) }
+          object.public_send(key_method_name)
         end
       end
 
@@ -150,23 +150,13 @@ class Serega
 
         if allow_nil
           proc do |object|
-            handle_no_method_error do
-              object.public_send(delegate_to)&.public_send(key_method_name)
-            end
+            object.public_send(delegate_to)&.public_send(key_method_name)
           end
         else
           proc do |object|
-            handle_no_method_error do
-              object.public_send(delegate_to).public_send(key_method_name)
-            end
+            object.public_send(delegate_to).public_send(key_method_name)
           end
         end
-      end
-
-      def handle_no_method_error
-        yield
-      rescue NoMethodError => error
-        raise error, "NoMethodError when serializing '#{name}' attribute in #{self.class.serializer_class}\n\n#{error.message}", error.backtrace
       end
     end
 

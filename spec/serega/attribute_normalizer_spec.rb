@@ -137,21 +137,5 @@ RSpec.describe Serega::SeregaAttributeNormalizer do
       expect(block.call(object1)).to be_nil
       expect(block.call(object2)).to eq "NAME"
     end
-
-    it "raises error with name of serializer and serialized attribute when delegating object is nil and nil is not allowed" do
-      object = double(foo: nil)
-      delegate = {to: :foo}
-      block = normalizer.new(name: :name, opts: {delegate: delegate}).send(:prepare_value_block)
-      expect(block).to be_a Proc
-      expect { block.call(object) }.to raise_error NoMethodError, start_with("NoMethodError when serializing 'name' attribute in #{serializer_class}")
-    end
-
-    it "raises error with name of serializer and serialized attribute when delegating method not exists on object" do
-      object = "OBJECT"
-      delegate = {to: :foo}
-      block = normalizer.new(name: :name, opts: {delegate: delegate}).send(:prepare_value_block)
-      expect(block).to be_a Proc
-      expect { block.call(object) }.to raise_error NoMethodError, start_with("NoMethodError when serializing 'name' attribute in #{serializer_class}")
-    end
   end
 end
