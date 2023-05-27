@@ -107,6 +107,7 @@ class Serega
       #
       # Patched in:
       # - plugin :preloads (returns true by default if config option auto_hide_attribute_with_preloads is enabled)
+      # - plugin :batch (returns true by default if auto_hide option was set and attribute has batch loader)
       #
       def prepare_hide
         init_opts[:hide]

@@ -35,8 +35,9 @@ class Serega
               append_current(preloads, current_preloads)
               next unless child_plan
 
-              child_preloads = dig?(preloads, point.preloads_path)
-              append_many(child_preloads, child_plan)
+              each_child_preloads(preloads, point.preloads_path) do |child_preloads|
+                append_many(child_preloads, child_plan)
+              end
             end
           end
 
@@ -50,14 +51,26 @@ class Serega
             end
           end
 
-          def dig?(hash, path)
-            return hash if !path || path.empty?
+          def each_child_preloads(preloads, preloads_path)
+            return yield(preloads) if preloads_path.nil?
 
-            path.each do |point|
-              hash = hash[point]
+            if preloads_path[0].is_a?(Array)
+              preloads_path.each do |path|
+                yield dig_fetch(preloads, path)
+              end
+            else
+              yield dig_fetch(preloads, preloads_path)
+            end
+          end
+
+          def dig_fetch(preloads, preloads_path)
+            return preloads if !preloads_path || preloads_path.empty?
+
+            preloads_path.each do |path|
+              preloads = preloads.fetch(path)
             end
 
-            hash
+            preloads
           end
         end
       end
