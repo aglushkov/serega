@@ -415,29 +415,78 @@ UserSerializer.new(
 ```
 
 ---
-One tricky case, that you will probably never see in real life:
 
-Manually you can preload multiple associations, like this:
+#### SPECIFIC CASE #1: Serializing same object as association
+
+For example you decided to show your current user as "user" and "user_stats".
+Where stats rely on user fields and some other associations.
+You should specify `preload: nil` to preload nested associations, if any, to "user".
+
+```ruby
+class AppSerializer < Serega
+  plugin :preloads,
+    auto_preload_attributes_with_delegate: true,
+    auto_preload_attributes_with_serializer: true,
+    auto_hide_attributes_with_preload: true
+end
+
+class UserSerializer < AppSerializer
+  attribute :username
+  attribute :user_stats,
+    serializer: 'UserStatSerializer'
+    value: proc { |user| user },
+    preload: nil
+end
+```
+
+#### SPECIFIC CASE #2: Serializing multiple associations as single relation
+
+For example "user" has two relations - "new_profile", "old_profile", and also
+profiles have "avatar" association. And you decided to serialize profiles in one
+array. You can specify `preload_path: [[:new_profile], [:old_profile]]` to
+achieve this:
+
+```ruby
+class AppSerializer < Serega
+  plugin :preloads,
+    auto_preload_attributes_with_delegate: true,
+    auto_preload_attributes_with_serializer: true
+end
+
+class UserSerializer < AppSerializer
+  attribute :username
+  attribute :profiles,
+    serializer: 'ProfileSerializer',
+    value: proc { |user| [user.new_profile, user.old_profile] },
+    preload: [:new_profile, :old_profile],
+    preload_path: [[:new_profile], [:old_profile]] # <--- like here
+end
+
+class ProfileSerializer < AppSerializer
+  attribute :avatar, serializer: 'AvatarSerializer'
+end
+
+class AvatarSerializer < AppSerializer
+end
+
+UserSerializer.new.preloads
+# => {:new_profile=>{:avatar=>{}}, :old_profile=>{:avatar=>{}}}
+```
+
+#### SPECIFIC CASE #3: Preload association through another association
 
 ```ruby
 attribute :image,
+  preload: { attachment: :blob }, # <--------- like this one
+  value: proc { |record| record.attachment },
   serializer: ImageSerializer,
-  preload: { attachment: :blob },
-  value: proc { |record| record.attachment }
+  preload_path: [:attachment] # or preload_path: [:attachment, :blob]
 ```
 
-In this case we mark last element (in this case it will be `blob`) as main,
-so nested associations, if any, will be preloaded to this `blob`.
-If you need to preload them to `attachment`,
-please specify additionally `:preload_path` option like this:
-
-```ruby
-attribute :image,
-  serializer: ImageSerializer,
-  preload: { attachment: :blob },
-  preload_path: %i[attachment],
-  value: proc { |record| record.attachment }
-```
+In this case we don't know if preloads defined in ImageSerializer, should be
+preloaded to `attachment` or `blob`, so please specify `preload_path` manually.
+You can specify `preload_path: nil` if you are sure that there are no preloads
+inside ImageSerializer.
 
 ---
 

@@ -86,11 +86,27 @@ RSpec.describe Serega::SeregaPlugins::Preloads::PreloadsConstructor do
   end
 
   it "preloads nested relations for nested relation" do
-    user_serializer.attribute :profile, serializer: profile_serializer, preload: {company: :profile}
-    profile_serializer.attribute :email, preload: %i[confirmed_email unconfirmed_email]
+    user_serializer.attribute :profile,
+      serializer: profile_serializer,
+      preload: {company: :profile},
+      preload_path: %i[company profile]
+
+    profile_serializer.attribute :email,
+      preload: %i[confirmed_email unconfirmed_email]
 
     result = described_class.call(plan(user_ser))
     expect(result).to eq(company: {profile: {confirmed_email: {}, unconfirmed_email: {}}})
+  end
+
+  it "preloads nested relations to main resource if specified `preload_path` is nil" do
+    user_serializer.attribute :profile, serializer: profile_serializer,
+      preload: {company: :profile},
+      preload_path: nil
+
+    profile_serializer.attribute :email, preload: %i[confirmed_email unconfirmed_email]
+
+    result = described_class.call(plan(user_ser))
+    expect(result).to eq(company: {profile: {}}, confirmed_email: {}, unconfirmed_email: {})
   end
 
   it "preloads nested relations to main resource, specified by `preload_path`" do
@@ -102,6 +118,17 @@ RSpec.describe Serega::SeregaPlugins::Preloads::PreloadsConstructor do
 
     result = described_class.call(plan(user_ser))
     expect(result).to eq(company: {profile: {}, confirmed_email: {}, unconfirmed_email: {}})
+  end
+
+  it "preloads nested relations to multiple resources, specified by `preload_path`" do
+    user_serializer.attribute :videos, serializer: profile_serializer,
+      preload: [:profile1, :profile2],
+      preload_path: [[:profile1], [:profile2]]
+
+    profile_serializer.attribute :email, preload: :email
+
+    result = described_class.call(plan(user_ser))
+    expect(result).to eq(profile1: {email: {}}, profile2: {email: {}})
   end
 
   it "merges preloads the same way regardless of order of preloads" do
