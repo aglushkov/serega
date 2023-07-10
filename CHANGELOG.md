@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## [0.12.0] - 2023-07-10
+
+- Fix issue <https://github.com/aglushkov/serega/issues/85>
+  With this issue fixed we now require to provide `:preload_path` attribute
+  option when preloaded more than one association. Before this change we preload
+  nested associations only to the latest specified association. Please see
+  README `preload` plugin section for more details.
+
 ## [0.11.2] - 2023-04-30
 
 - Raise meaningful error when :batch plugin not enabled for root serializer.
