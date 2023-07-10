@@ -9,11 +9,7 @@ gem "sqlite3", "~> 1.5.4", platforms: [:ruby]
 gem "activerecord", "~> 5.2.3"
 
 gem "rake", "~> 13.0"
-gem "standard", "~> 1.12", ">= 1.12.1", require: false
 gem "rspec", "~> 3.11", require: false
-gem "simplecov", "~> 0.21.2", require: false
-gem "rubocop-rake", "~> 0.6.0", require: false
-gem "rubocop-rspec", "~> 2.11", ">= 2.11.1", require: false
 gem "rspec-sqlimit", "~> 0.0.5", require: false
 
 gemspec name: "serega", path: "../"
