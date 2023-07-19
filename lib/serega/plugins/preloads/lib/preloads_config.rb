@@ -11,11 +11,11 @@ class Serega
         attr_reader :opts
 
         #
-        # Initializes context_metadata config object
+        # Initializes PreloadsConfig object
         #
         # @param opts [Hash] options
         #
-        # @return [Serega::SeregaPlugins::Metadata::MetadataConfig]
+        # @return [Serega::SeregaPlugins::Preloads::PreloadsConfig]
         #
         def initialize(opts)
           @opts = opts
