@@ -24,6 +24,7 @@ It has some great features:
   [context_metadata][context_metadata] plugins)
 - Attributes formatters ([formatters][formatters] plugin)
 - Conditional attributes ([if][if] plugin)
+- OpenAPI schemas ([openapi][openapi] plugin)
 
 ## Installation
 
@@ -888,6 +889,67 @@ Look at [select serialized fields](#selecting-fields) for `:hide` usage examples
  end
 ```
 
+### Plugin :openapi
+
+Helps to build OpenAPI schemas
+
+This schemas can be easielty used with [rswag](https://github.com/rswag/rswag#referenced-parameters-and-schema-definitions)"
+gem by adding them to "config.swagger_docs"
+
+Schemas properties will have no any "type" or other limits specified by default,
+you should provide them as new attribute `:openapi` option.
+
+This plugin adds type "object" or "array" only for relationships and marks
+attributes as **required** if they have no `:hide` option set
+(manually or automatically).
+
+After enabling this plugin attributes with :serializer option will have
+to have `:many` option set to construct "object" or "array" openapi
+property type.
+
+- constructing all serializers schemas: `Serega::OpenAPI.schemas`
+- constructing specific serializers schemas: `Serega::OpenAPI.schemas(serializers_classes_array)`
+- constructing one serializer schema: `SomeSerializer.openapi_schema`
+
+```ruby
+   class BaseSerializer < Serega
+     plugin :openapi
+   end
+
+   class UserSerializer < BaseSerializer
+     attribute :name, openapi: { type: "string" }
+   end
+
+   class PostSerializer < BaseSerializer
+     attribute :text, openapi: { type: "string" }
+     attribute :user, serializer: UserSerializer, many: false
+     attribute :comments, serializer: PostSerializer, many: true, hide: true
+   end
+
+   puts Serega::OpenAPI.schemas
+   # =>
+   # {
+   #   "PostSerializer" => {
+   #     type: "object",
+   #     properties: {
+   #       text: {type: "string"},
+   #       user: {:$ref => "#/components/schemas/UserSerializer"},
+   #       comments: {type: "array", items: {:$ref => "#/components/schemas/PostSerializer"}}
+   #     },
+   #     required: [:text, :comments],
+   #     additionalProperties: false
+   #   },
+   #   "UserSerializer" => {
+   #     type: "object",
+   #     properties: {
+   #       name: {type: "string"}
+   #     },
+   #     required: [:name],
+   #     additionalProperties: false
+   #   }
+   # }
+```
+
 ## Errors
 
 - `Serega::SeregaError` is a base error raised by this gem.
@@ -925,3 +987,4 @@ The gem is available as open source under the terms of the [MIT License](https:/
 [root]: #plugin-root
 [string_modifiers]: #plugin-string_modifiers
 [if]: #plugin-if
+[openapi]: #plugin-openapi
