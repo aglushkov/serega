@@ -888,6 +888,107 @@ Look at [select serialized fields](#selecting-fields) for `:hide` usage examples
  end
 ```
 
+### Plugin :openapi
+
+Helps to build OpenAPI schemas
+
+This schemas can be easily used with [rswag](https://github.com/rswag/rswag#referenced-parameters-and-schema-definitions)"
+gem by adding them to "config.swagger_docs"
+
+Schemas properties will have no any "type" or other limits specified by default,
+you should provide them as new attribute `:openapi` option.
+
+This plugin adds type "object" or "array" only for relationships and marks
+attributes as **required** if they have no `:hide` option set
+(manually or automatically).
+
+After enabling this plugin attributes with :serializer option will have
+to have `:many` option set to construct "object" or "array" openapi
+property type.
+
+- constructing all serializers schemas:
+  `Serega::OpenAPI.schemas`
+- constructing specific serializers schemas:
+  `Serega::OpenAPI.schemas(Serega::OpenAPI.serializers - [MyBaseSerializer])`
+- constructing one serializer schema:
+  `SomeSerializer.openapi_schema`
+
+```ruby
+  class BaseSerializer < Serega
+    plugin :openapi
+  end
+
+  class UserSerializer < BaseSerializer
+    attribute :name, openapi: { type: "string" }
+
+    openapi_properties(
+      name: { type: :string }
+    )
+  end
+
+  class PostSerializer < BaseSerializer
+    attribute :text, openapi: { type: "string" }
+    attribute :user, serializer: UserSerializer, many: false
+    attribute :comments, serializer: PostSerializer, many: true, hide: true
+
+    openapi_properties(
+      text: { type: :string },
+      user: { type: 'object' }, # `$ref` added automatically
+      comments: { type: 'array' } # `items` option with `$ref` added automatically
+    )
+  end
+
+  puts Serega::OpenAPI.schemas
+  # =>
+  # {
+  #   "PostSerializer" => {
+  #     type: "object",
+  #     properties: {
+  #       text: {type: "string"},
+  #       user: {:$ref => "#/components/schemas/UserSerializer"},
+  #       comments: {type: "array", items: {:$ref => "#/components/schemas/PostSerializer"}}
+  #     },
+  #     required: [:text, :comments],
+  #     additionalProperties: false
+  #   },
+  #   "UserSerializer" => {
+  #     type: "object",
+  #     properties: {
+  #       name: {type: "string"}
+  #     },
+  #     required: [:name],
+  #     additionalProperties: false
+  #   }
+  # }
+```
+
+### Plugin :explicit_many_option
+
+Plugin requires to add :many option when adding relationships
+(relationships are attributes with :serializer option specified)
+
+Adding this plugin makes clearer to find if relationship returns array or single
+object
+
+Also plugin `:openapi` load this plugin automatically as it need to know if
+relationship is array
+
+```ruby
+  class BaseSerializer < Serega
+    plugin :explicit_many_option
+  end
+
+  class UserSerializer < BaseSerializer
+    attribute :name
+  end
+
+  class PostSerializer < BaseSerializer
+    attribute :text
+    attribute :user, serializer: UserSerializer, many: false
+    attribute :comments, serializer: PostSerializer, many: true
+  end
+```
+
 ## Errors
 
 - `Serega::SeregaError` is a base error raised by this gem.

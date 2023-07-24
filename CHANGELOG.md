@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+- Add :explicit_many_option plugin
+- Add '.openapi_properties' method to specify openapi_properties
+- Remove :openapi attribute option from :openapi plugin (replaced with openapi_properties)
+
+## [0.13.0] - 2023-07-20
+
+- Add :openapi gem that helps to construct OpenAPI schema for serializer.
+  It can help to construct response schemas and use with some OpenAPI tools
+  (for example with rswag gem). Look at README for more information
+
 ## [0.12.0] - 2023-07-10
 
 - Fix issue <https://github.com/aglushkov/serega/issues/85>

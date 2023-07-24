@@ -2,7 +2,7 @@
 
 class Serega
   module SeregaPlugins
-    module OpenAPI
+    module ExplicitManyOption
       #
       # Validator for attribute :many option
       #
@@ -26,8 +26,7 @@ class Serega
 
             raise SeregaError,
               "Attribute option :many [Boolean] must be provided" \
-              " for attributes with :serializer option" \
-              " when :openapi plugin added"
+              " for attributes with :serializer option"
           end
         end
       end
