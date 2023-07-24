@@ -108,7 +108,10 @@ class Serega
     #   }
     #
     module OpenAPI
+      # Builder for schema name (used is schemas list). Returns serializer class name
       DEFAULT_SCHEMA_NAME_BUILDER = ->(serializer_class) { serializer_class.name }
+
+      # Builder for $ref openapi property
       DEFAULT_REF_BUILDER = ->(serializer_class) { "#/components/schemas/#{serializer_class.openapi_schema_name}" }
 
       # @return [Symbol] Plugin name

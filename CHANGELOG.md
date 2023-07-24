@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.14.0] - 2023-07-24
+
 - Add :explicit_many_option plugin
 - Add '.openapi_properties' method to specify openapi_properties
 - Remove :openapi attribute option from :openapi plugin (replaced with openapi_properties)
