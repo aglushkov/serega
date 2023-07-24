@@ -1,7 +1,7 @@
 PATH
   remote: ..
   specs:
-    serega (0.12.0)
+    serega (0.14.0)
 
 GEM
   remote: https://rubygems.org/
@@ -38,7 +38,7 @@ GEM
     rspec-expectations (3.12.3)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.12.0)
-    rspec-mocks (3.12.5)
+    rspec-mocks (3.12.6)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.12.0)
     rspec-sqlimit (0.0.5)
