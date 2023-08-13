@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+- Remove :openapi plugin. It was wrong place to add this plugin.
+  Serializers should be good at one thing - serialization.
+  Serializers classes just don't know all needed context to build good schema.
+  You can use this gist as an example how to build OpenAPI schema for Serega
+  serializer for ActiveRecord objects: <https://gist.github.com/aglushkov/60e3ac1525a940cc6a144c92822556e5>
+
 ## [0.14.0] - 2023-07-24
 
 - Add :explicit_many_option plugin
