@@ -8,10 +8,7 @@ class Serega
     # Plugin requires to add :many option when adding relationships
     # (relationships are attributes with :serializer option specified)
     #
-    # Adding this plugin makes clearer to find if relationship returns array or single object
-    #
-    # Also some plugins like :openapi load this plugin automatically as they need to know if
-    # relationship is array
+    # Adding this plugin makes it clearer to find if relationship returns array or single object
     #
     # @example
     #   class BaseSerializer < Serega
