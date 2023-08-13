@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+- Add validation that option :many can only be added only together with :serializer
+  or :batch options, it is useless without them
+
 - Remove :openapi plugin. It was wrong place to add this plugin.
   Serializers should be good at one thing - serialization.
   Serializers classes just don't know all needed context to build good schema.

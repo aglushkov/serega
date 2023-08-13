@@ -18,7 +18,7 @@ RSpec.describe Serega::SeregaAttribute do
     end
 
     it "duplicates provided options" do
-      opts = {many: true}
+      opts = {serializer: "foo"}
       attr_opts = attribute_class.new(name: :name, opts: opts).initials[:opts]
       expect(opts).to eql attr_opts
       expect(attr_opts).not_to be(opts)
