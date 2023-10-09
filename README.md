@@ -22,8 +22,10 @@ It has some great features:
 - Built-in object presenter ([presenter][presenter] plugin)
 - Adding custom metadata (via [metadata][metadata] or
   [context_metadata][context_metadata] plugins)
-- Attributes formatters ([formatters][formatters] plugin)
+- Value formatters ([formatters][formatters] plugin) helps to transform
+  time, date, money, percentage and any other values same way keeping code dry
 - Conditional attributes ([if][if] plugin)
+- Auto camelCase keys [camel_case][camel_case] plugin
 
 ## Installation
 
@@ -282,7 +284,7 @@ UserSerializer.to_h(bruce, with: fields_as_string)
 
 # With not existing attribute
 fields = %i[first_name enemy]
-fields_as_string = 'first_name,enemy')
+fields_as_string = 'first_name,enemy'
 UserSerializer.new(only: fields).to_h(bruce)
 UserSerializer.to_h(bruce, only: fields)
 UserSerializer.to_h(bruce, only: fields_as_string)
@@ -433,7 +435,7 @@ end
 class UserSerializer < AppSerializer
   attribute :username
   attribute :user_stats,
-    serializer: 'UserStatSerializer'
+    serializer: 'UserStatSerializer',
     value: proc { |user| user },
     preload: nil
 end
@@ -545,15 +547,15 @@ It can be used to find value for attributes in optimal way:
 After including plugin, attributes gain new `:batch` option:
 
 ```ruby
-attribute :name, batch: { key: :id, loader: :name_loader, default: nil }
+attribute :name, batch: { loader: :name_loader, key: :id, default: nil }
 ```
 
 `:batch` option must be a hash with this keys:
 
-- `key` (required) [Symbol, Proc, callable] - Defines current object identifier.
-  Later `loader` will accept array of `keys` to detect this keys values.
 - `loader` (required) [Symbol, Proc, callable] - Defines how to fetch values for
   batch of keys. Receives 3 parameters: keys, context, plan_point.
+- `key` (required) [Symbol, Proc, callable] - Defines current object identifier.
+  Key is optional if plugin was defined with `default_key` option.
 - `default` (optional) - Default value for attribute.
   By default it is `nil` or `[]` when attribute has option `many: true`
   (ex: `attribute :tags, many: true, batch: { ... }`).
@@ -765,7 +767,7 @@ UserSerializer.to_h(nil, meta: { version: '1.0.1' })
 
 ### Plugin :formatters
 
-Allows to define `formatters` and apply them on attributes.
+Allows to define `formatters` and apply them on attribute values.
 
 Config option `config.formatters.add` can be used to add formatters.
 
@@ -888,6 +890,54 @@ Look at [select serialized fields](#selecting-fields) for `:hide` usage examples
  end
 ```
 
+### Plugin :camel_case
+
+By default when we add attribute like `attribute :first_name` this means:
+
+- adding a `:first_name` key to resulted hash
+- adding a `#first_name` method call result as value
+
+But its often desired to response with *camelCased* keys.
+By default this can be achieved by specifying attribute name and method directly
+for each attribute: `attribute :firstName, key: first_name`
+
+This plugin transforms all attribute names automatically.
+We use simple regular expression to replace `_x` to `X` for the whole string.
+We make this transformation only once when attribute is defined.
+
+You can provide your own callable transformation when defining plugin,
+for example `plugin :camel_case, transform: ->(name) { name.camelize }`
+
+For any attribute camelCase-behavior can be skipped when
+`camel_case: false` attribute option provided.
+
+This plugin transforms only attribute keys,
+without affecting `root`, `metadata`, `context_metadata` plugins keys.
+
+If you wish to [select serialized fields](#selecting-fields), you should
+provide them camelCased.
+
+```ruby
+class AppSerializer < Serega
+  plugin :camel_case
+end
+
+class UserSerializer < AppSerializer
+  attribute :first_name
+  attribute :last_name
+  attribute :full_name, camel_case: false,
+    value: proc { |user| [user.first_name, user.last_name].compact.join(" ") }
+end
+
+require "ostruct"
+user = OpenStruct.new(first_name: "Bruce", last_name: "Wayne")
+UserSerializer.to_h(user)
+# => {firstName: "Bruce", lastName: "Wayne", full_name: "Bruce Wayne"}
+
+UserSerializer.new(only: %i[firstName lastName]).to_h(user)
+# => {firstName: "Bruce", lastName: "Wayne"}
+```
+
 ### Plugin :explicit_many_option
 
 Plugin requires to add :many option when adding relationships
@@ -941,6 +991,7 @@ The gem is available as open source under the terms of the [MIT License](https:/
 
 [activerecord_preloads]: #plugin-activerecord_preloads
 [batch]: #plugin-batch
+[camel_case]: #plugin-camel_case
 [context_metadata]: #plugin-context_metadata
 [formatters]: #plugin-formatters
 [metadata]: #plugin-metadata

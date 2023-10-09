@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Add :camel_case plugin to automatically transform attribute keys to camelCase
+
 ## [0.15.0] - 2023-08-13
 
 - Add validation that option :many can only be added only together with :serializer
