@@ -11,7 +11,7 @@ class Serega
           #
           # Constructs preloads hash for given attributes plan
           #
-          # @param plan [Array<Serega::PlanPoint>] Serialization plan
+          # @param plan [Array<SeregaPlanPoint>] Serialization plan
           #
           # @return [Hash]
           #

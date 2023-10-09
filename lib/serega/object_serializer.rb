@@ -14,7 +14,7 @@ class Serega
 
       # @param plan [SeregaPlan] Serialization plan
       # @param context [Hash] Serialization context
-      # @param many [TrueClass|FalseClass] is object is enumerable
+      # @param many [Boolean] is object is enumerable
       # @param opts [Hash] Any custom options
       #
       # @return [SeregaObjectSerializer] New SeregaObjectSerializer

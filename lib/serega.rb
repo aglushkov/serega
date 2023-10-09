@@ -172,7 +172,20 @@ class Serega
       new(modifiers_opts).to_h(object, serialize_opts)
     end
 
-    # @see #call
+    #
+    # Serializes provided object to Hash
+    #
+    # @param object [Object] Serialized object
+    # @param opts [Hash, nil] Serializer modifiers and other instantiating options
+    # @option opts [Array, Hash, String, Symbol] :only The only attributes to serialize
+    # @option opts [Array, Hash, String, Symbol] :except Attributes to hide
+    # @option opts [Array, Hash, String, Symbol] :with Attributes (usually hidden) to serialize additionally
+    # @option opts [Boolean] :validate Validates provided modifiers (Default is true)
+    # @option opts [Hash] :context Serialization context
+    # @option opts [Boolean] :many Set true if provided multiple objects (Default `object.is_a?(Enumerable)`)
+    #
+    # @return [Hash] Serialization result
+    #
     def to_h(object, opts = nil)
       call(object, opts)
     end
