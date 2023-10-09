@@ -22,18 +22,25 @@ class Serega
           #
           # Transforms user provided preloads to array of paths
           #
-          # @param value [Array,Hash,String,Symbol,nil,false] preloads
+          # @param preloads [Array,Hash,String,Symbol,nil,false] association(s) to preload
           #
           # @return [Hash] preloads transformed to hash
           #
-          def call(preloads, path = [], result = [])
-            preloads = FormatUserPreloads.call(preloads)
+          def call(preloads)
+            formatted_preloads = FormatUserPreloads.call(preloads)
+            return FROZEN_EMPTY_ARRAY if formatted_preloads.empty?
 
-            preloads.each do |key, nested_preloads|
+            paths(formatted_preloads, [], [])
+          end
+
+          private
+
+          def paths(formatted_preloads, path, result)
+            formatted_preloads.each do |key, nested_preloads|
               path << key
               result << path.dup
 
-              call(nested_preloads, path, result)
+              paths(nested_preloads, path, result)
               path.pop
             end
 

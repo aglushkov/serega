@@ -22,7 +22,7 @@ class Serega
       attr_reader :many
 
       # Attribute :hide option
-      # @return [Boolean nil] Attribute :hide option
+      # @return [Boolean, nil] Attribute :hide option
       attr_reader :hide
 
       #
