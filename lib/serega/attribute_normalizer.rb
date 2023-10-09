@@ -122,8 +122,7 @@ class Serega
       end
 
       def prepare_key
-        key = init_opts[:key]
-        key ? key.to_sym : name
+        (init_opts[:key] || init_name).to_sym
       end
 
       def prepare_const_block

@@ -15,7 +15,7 @@ class Serega
     #
     # This options are very handy if you want to forget about finding preloads manually.
     #
-    # Preloads can be disabled with `preload: false` attribute option option.
+    # Preloads can be disabled with `preload: false` attribute option.
     # Also automatically added preloads can be overwritten with manually specified `preload: :another_value`.
     #
     # Some examples, **please read comments in the code below**
