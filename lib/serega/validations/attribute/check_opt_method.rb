@@ -4,12 +4,12 @@ class Serega
   module SeregaValidations
     module Attribute
       #
-      # Attribute `:key` option validator
+      # Attribute `:method` option validator
       #
-      class CheckOptKey
+      class CheckOptMethod
         class << self
           #
-          # Checks attribute :key option
+          # Checks attribute :method option
           #
           # @param opts [Hash] Attribute options
           #
@@ -18,18 +18,18 @@ class Serega
           # @return [void]
           #
           def call(opts, block = nil)
-            return unless opts.key?(:key)
+            return unless opts.key?(:method)
 
             check_usage_with_other_params(opts, block)
-            Utils::CheckOptIsStringOrSymbol.call(opts, :key)
+            Utils::CheckOptIsStringOrSymbol.call(opts, :method)
           end
 
           private
 
           def check_usage_with_other_params(opts, block)
-            raise SeregaError, "Option :key can not be used together with option :const" if opts.key?(:const)
-            raise SeregaError, "Option :key can not be used together with option :value" if opts.key?(:value)
-            raise SeregaError, "Option :key can not be used together with block" if block
+            raise SeregaError, "Option :method can not be used together with option :const" if opts.key?(:const)
+            raise SeregaError, "Option :method can not be used together with option :value" if opts.key?(:value)
+            raise SeregaError, "Option :method can not be used together with block" if block
           end
         end
       end

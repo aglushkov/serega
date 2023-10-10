@@ -66,8 +66,8 @@ class UserSerializer < Serega
   # Regular attribute
   attribute :first_name
 
-  # Option :key specifies method in object
-  attribute :first_name, key: :old_first_name
+  # Option :method specifies method that must be called on serialized object
+  attribute :first_name, method: :old_first_name
 
   # Block is used to define attribute value
   attribute(:first_name) { |user| user.profile&.first_name }
@@ -79,8 +79,9 @@ class UserSerializer < Serega
   # Sub-option :allow_nil by default is false
   attribute :first_name, delegate: { to: :profile, allow_nil: true }
 
-  # Option :delegate can be used with :key sub-option
-  attribute :first_name, delegate: { to: :profile, key: :fname }
+  # Option :delegate can be used with :method sub-option, so method chain here
+  # is user.profile.fname
+  attribute :first_name, delegate: { to: :profile, method: :fname }
 
   # Option :const specifies attribute with specific constant value
   attribute(:type, const: 'user')
@@ -899,7 +900,7 @@ By default when we add attribute like `attribute :first_name` this means:
 
 But its often desired to response with *camelCased* keys.
 By default this can be achieved by specifying attribute name and method directly
-for each attribute: `attribute :firstName, key: first_name`
+for each attribute: `attribute :firstName, method: first_name`
 
 This plugin transforms all attribute names automatically.
 We use simple regular expression to replace `_x` to `X` for the whole string.

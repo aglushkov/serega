@@ -51,10 +51,10 @@ RSpec.describe Serega::SeregaPlugins::Batch::CheckOptBatch do
     expect(Serega::SeregaPlugins::Batch::CheckBatchOptKey).to have_received(:call).with(:key_name)
   end
 
-  it "prohibits to use with :key opt" do
-    opts.merge!(batch: {key: :key, loader: :loader}, key: :key)
+  it "prohibits to use with :method opt" do
+    opts.merge!(batch: {key: :key, loader: :loader}, method: :method)
     expect { check }
-      .to raise_error Serega::SeregaError, "Option :batch can not be used together with option :key"
+      .to raise_error Serega::SeregaError, "Option :batch can not be used together with option :method"
   end
 
   it "prohibits to use with :value opt" do

@@ -37,7 +37,7 @@ RSpec.describe Serega::SeregaAttribute do
         many: nil,
         hide: nil,
         serializer: nil,
-        key: nil,
+        method: nil,
         value_block: nil
       )
 

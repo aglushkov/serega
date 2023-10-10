@@ -36,12 +36,12 @@ class Serega
       end
 
       #
-      # Symbolized initial attribute key or attribute name if key is empty
+      # Symbolized initial attribute method name
       #
-      # @return [Symbol] Attribute normalized name
+      # @return [Symbol] Attribute normalized method name
       #
-      def key
-        @key ||= prepare_key
+      def method_name
+        @method_name ||= prepare_method_name
       end
 
       #
@@ -121,8 +121,8 @@ class Serega
         init_opts[:serializer]
       end
 
-      def prepare_key
-        (init_opts[:key] || init_name).to_sym
+      def prepare_method_name
+        (init_opts[:method] || init_name).to_sym
       end
 
       def prepare_const_block
@@ -133,7 +133,7 @@ class Serega
       end
 
       def prepare_keyword_block
-        key_method_name = key
+        key_method_name = method_name
         proc do |object|
           object.public_send(key_method_name)
         end
@@ -143,7 +143,7 @@ class Serega
         delegate = init_opts[:delegate]
         return unless delegate
 
-        key_method_name = delegate[:key] || key
+        key_method_name = delegate[:method] || method_name
         delegate_to = delegate[:to]
 
         allow_nil = delegate.fetch(:allow_nil) { self.class.serializer_class.config.delegate_default_allow_nil }

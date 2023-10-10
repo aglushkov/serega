@@ -11,7 +11,7 @@ class Serega
     #
     # But its often desired to response with *camelCased* keys.
     # Earlier this can be achieved by specifying attribute name and method directly
-    # for each attribute: `attribute :firstName, key: first_name`
+    # for each attribute: `attribute :firstName, method: first_name`
     #
     # Now this plugin transforms all attribute names automatically.
     # We use simple regular expression to replace `_x` to `X` for the whole string.

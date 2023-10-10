@@ -4,9 +4,9 @@ RSpec.describe Serega::SeregaValidations::Attribute::CheckOptValue do
   let(:value_error) { "Option :value must be a Proc that is able to accept two parameters (no **keyword or *array args)" }
   let(:opts) { {} }
 
-  it "prohibits to use with :key opt" do
-    expect { described_class.call({value: proc {}, key: :foo}) }
-      .to raise_error Serega::SeregaError, "Option :value can not be used together with option :key"
+  it "prohibits to use with :method opt" do
+    expect { described_class.call({value: proc {}, method: :foo}) }
+      .to raise_error Serega::SeregaError, "Option :value can not be used together with option :method"
   end
 
   it "prohibits to use with :const opt" do
