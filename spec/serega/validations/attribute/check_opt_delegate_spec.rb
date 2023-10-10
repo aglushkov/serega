@@ -27,14 +27,14 @@ RSpec.describe Serega::SeregaValidations::Attribute::CheckOptDelegate do
       .to raise_error Serega::SeregaError, "Invalid option :allow_nil => 1. Must have a boolean value"
   end
 
-  it "checks option :key is a String or a Symbol" do
-    expect { described_class.call(delegate: {to: :foo, key: 123}) }
-      .to raise_error Serega::SeregaError, "Invalid option :key => 123. Must be a String or a Symbol"
+  it "checks option :method is a String or a Symbol" do
+    expect { described_class.call(delegate: {to: :foo, method: 123}) }
+      .to raise_error Serega::SeregaError, "Invalid option :method => 123. Must be a String or a Symbol"
   end
 
-  it "prohibits to use with :key opt" do
-    expect { described_class.call(delegate: {to: :foo}, key: :bar) }
-      .to raise_error Serega::SeregaError, "Option :delegate can not be used together with option :key"
+  it "prohibits to use with :method opt" do
+    expect { described_class.call(delegate: {to: :foo}, method: :bar) }
+      .to raise_error Serega::SeregaError, "Option :delegate can not be used together with option :method"
   end
 
   it "prohibits to use with :const opt" do

@@ -3,6 +3,8 @@
 ## [Unreleased]
 
 - Add :camel_case plugin to automatically transform attribute keys to camelCase
+- Rename attribute option `:key` to `:method`
+- Rename attribute `:delegate` sub-option `:key` to `:method`
 
 ## [0.15.0] - 2023-08-13
 

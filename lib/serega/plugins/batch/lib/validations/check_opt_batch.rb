@@ -50,7 +50,7 @@ class Serega
           end
 
           def check_usage_with_other_params(opts, block)
-            raise SeregaError, "Option :batch can not be used together with option :key" if opts.key?(:key)
+            raise SeregaError, "Option :batch can not be used together with option :method" if opts.key?(:method)
             raise SeregaError, "Option :batch can not be used together with option :value" if opts.key?(:value)
             raise SeregaError, "Option :batch can not be used together with option :const" if opts.key?(:const)
             raise SeregaError, "Option :batch can not be used together with option :delegate" if opts.key?(:delegate)

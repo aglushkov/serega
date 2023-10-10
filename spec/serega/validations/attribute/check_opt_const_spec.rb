@@ -6,9 +6,9 @@ RSpec.describe Serega::SeregaValidations::Attribute::CheckOptConst do
       .to raise_error Serega::SeregaError, "Option :const can not be used together with option :value"
   end
 
-  it "prohibits to use with :key opt" do
-    expect { described_class.call(key: :foo, const: 1) }
-      .to raise_error Serega::SeregaError, "Option :const can not be used together with option :key"
+  it "prohibits to use with :method opt" do
+    expect { described_class.call(method: :foo, const: 1) }
+      .to raise_error Serega::SeregaError, "Option :const can not be used together with option :method"
   end
 
   it "prohibits to use with block" do

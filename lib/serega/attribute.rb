@@ -30,7 +30,7 @@ class Serega
       #
       # @param name [Symbol, String] Name of attribute
       # @param opts [Hash] Attribute options
-      # @option opts [Symbol] :key Object method name to fetch attribute value
+      # @option opts [Symbol] :method Object method name to fetch attribute value
       # @option opts [Hash] :delegate Allows to fetch value from nested object
       # @option opts [Boolean] :hide Specify `true` to not serialize this attribute by default
       # @option opts [Boolean] :many Specifies has_many relationship. By default is detected via object.is_a?(Enumerable)

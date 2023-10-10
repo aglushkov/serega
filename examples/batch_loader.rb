@@ -115,13 +115,13 @@ class AppSerializer < Serega
     auto_hide_attributes_with_preload: false
 
   plugin :activerecord_preloads
-  plugin :batch
+  plugin :batch, default_key: :id
 end
 
 class UserSerializer < AppSerializer
   attribute :first_name
   attribute :last_name
-  attribute :posts, serializer: "PostSerializer", many: true, batch: {key: :id, loader: :users_posts}
+  attribute :posts, serializer: "PostSerializer", many: true, batch: {loader: :users_posts}
 
   config.batch.define(:users_posts) do |ids|
     Post.where(user_id: ids).each_with_object({}) do |post, groups|
@@ -138,7 +138,7 @@ end
 
 class PostSerializer < AppSerializer
   attribute :text
-  attribute :comments, serializer: "CommentSerializer", many: true, batch: {key: :id, loader: :posts_comments}
+  attribute :comments, serializer: "CommentSerializer", many: true, batch: {loader: :posts_comments}
 
   config.batch.define(:posts_comments) do |ids, _ctx, point|
     scope = Comment.preload(point.preloads)
@@ -157,7 +157,7 @@ end
 
 class CommentSerializer < AppSerializer
   attribute :text
-  attribute :views_count, delegate: {to: :view, key: :count}, preload: :view
+  attribute :views_count, delegate: {to: :view, method: :count}, preload: :view
 end
 
 def example(message, expected_queries_count:)

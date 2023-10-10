@@ -36,7 +36,7 @@ class Serega
             if preloads_provided
               opts[:preload]
             elsif opts.key?(:serializer) && self.class.serializer_class.config.preloads.auto_preload_attributes_with_serializer
-              key
+              method_name
             elsif opts.key?(:delegate) && self.class.serializer_class.config.preloads.auto_preload_attributes_with_delegate
               opts[:delegate].fetch(:to)
             end
