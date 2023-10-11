@@ -14,7 +14,7 @@ RSpec.describe Serega::SeregaPlugins::Batch do
         attribute = serializer.attribute :foo,
           batch: {loader: loader, key: :id}
 
-        batch = serializer::SeregaPlanPoint.new(attribute, []).batch
+        batch = serializer::SeregaPlanPoint.new("plan", attribute, []).batch
 
         expect(batch).to eq attribute.batch
       end
@@ -25,7 +25,7 @@ RSpec.describe Serega::SeregaPlugins::Batch do
         attribute = serializer.attribute :foo,
           batch: {loader: :loader_name, key: :id}
 
-        batch = serializer::SeregaPlanPoint.new(attribute, []).batch
+        batch = serializer::SeregaPlanPoint.new("plan", attribute, []).batch
         expect(batch[:loader]).to eq loader
       end
 
@@ -33,7 +33,7 @@ RSpec.describe Serega::SeregaPlugins::Batch do
         attribute = serializer.attribute :foo,
           batch: {loader: :loader_name, key: :id}
 
-        expect { serializer::SeregaPlanPoint.new(attribute) }.to raise_error Serega::SeregaError,
+        expect { serializer::SeregaPlanPoint.new("plan", attribute) }.to raise_error Serega::SeregaError,
           start_with("Batch loader with name `:loader_name` was not defined")
       end
     end

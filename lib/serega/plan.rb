@@ -22,7 +22,7 @@ class Serega
       #
       def call(opts)
         max_cache_size = serializer_class.config.max_cached_plans_per_serializer_count
-        return new(opts) if max_cache_size.zero?
+        return new(nil, opts) if max_cache_size.zero?
 
         cached_plan_for(opts, max_cache_size)
       end
@@ -33,7 +33,7 @@ class Serega
         @cache ||= {}
         cache_key = construct_cache_key(opts)
 
-        plan = @cache[cache_key] ||= new(opts)
+        plan = @cache[cache_key] ||= new(nil, opts)
         @cache.shift if @cache.length > max_cache_size
         plan
       end
@@ -61,10 +61,6 @@ class Serega
       # @return [SeregaPlanPoint, nil]
       attr_reader :parent_plan_point
 
-      # Sets new parent plan point
-      # @return [SeregaPlanPoint] new parent plan point
-      attr_writer :parent_plan_point
-
       # Serialization points
       # @return [Array<SeregaPlanPoint>] points to serialize
       attr_reader :points
@@ -72,14 +68,16 @@ class Serega
       #
       # Instantiate new serialization plan.
       #
-      # @param modifiers Serialization parameters
+      # @param parent_plan_point [SeregaPlanPoint, nil] Parent plan_point
+      # @param modifiers [Hash] Serialization parameters
       # @option modifiers [Hash] :only The only attributes to serialize
       # @option modifiers [Hash] :except Attributes to hide
       # @option modifiers [Hash] :with Hidden attributes to serialize additionally
       #
       # @return [SeregaPlan] Serialization plan
       #
-      def initialize(modifiers)
+      def initialize(parent_plan_point, modifiers)
+        @parent_plan_point = parent_plan_point
         @points = attributes_points(modifiers)
       end
 
@@ -107,8 +105,7 @@ class Serega
               {only: only[name], with: with[name], except: except[name]}
             end
 
-          point = serializer_class::SeregaPlanPoint.new(attribute, child_fields)
-          point.plan = self
+          point = serializer_class::SeregaPlanPoint.new(self, attribute, child_fields)
           points << point.freeze
         end
 

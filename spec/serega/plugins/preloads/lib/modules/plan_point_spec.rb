@@ -7,7 +7,7 @@ RSpec.describe Serega::SeregaPlugins::Preloads do
 
   describe "PlanPointMethods" do
     def plan_point(attribute, modifiers = nil)
-      attribute.class.serializer_class::SeregaPlanPoint.new(attribute, modifiers)
+      attribute.class.serializer_class::SeregaPlanPoint.new("plan", attribute, modifiers)
     end
 
     it "delegates #preloads_path to attribute" do
