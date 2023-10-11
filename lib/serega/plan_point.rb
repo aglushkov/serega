@@ -13,7 +13,7 @@ class Serega
 
       # Link to current plan this point belongs to
       # @return [SeregaAttribute] Current plan
-      attr_accessor :plan
+      attr_reader :plan
 
       # Shows current attribute
       # @return [SeregaAttribute] Current attribute
@@ -44,6 +44,7 @@ class Serega
       #
       # Initializes plan point
       #
+      # @param plan [SeregaPlan] Current plan this point belongs to
       # @param attribute [SeregaAttribute] Attribute to construct plan point
       # @param modifiers Serialization parameters
       # @option modifiers [Hash] :only The only attributes to serialize
@@ -52,7 +53,8 @@ class Serega
       #
       # @return [SeregaPlanPoint] New plan point
       #
-      def initialize(attribute, modifiers = nil)
+      def initialize(plan, attribute, modifiers = nil)
+        @plan = plan
         @attribute = attribute
         @modifiers = modifiers
         set_normalized_vars
@@ -79,9 +81,7 @@ class Serega
 
         fields = modifiers || FROZEN_EMPTY_HASH
 
-        plan = serializer::SeregaPlan.new(fields)
-        plan.parent_plan_point = self
-        plan
+        serializer::SeregaPlan.new(self, fields)
       end
     end
 

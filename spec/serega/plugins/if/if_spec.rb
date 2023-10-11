@@ -29,7 +29,7 @@ RSpec.describe Serega::SeregaPlugins::If do
     before { serializer.plugin :if }
 
     def point(attribute)
-      attribute.class.serializer_class::SeregaPlanPoint.new(attribute, nil)
+      attribute.class.serializer_class::SeregaPlanPoint.new("plan", attribute, nil)
     end
 
     describe "#satisfy_if_conditions?" do

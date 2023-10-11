@@ -23,7 +23,7 @@ RSpec.describe Serega::SeregaObjectSerializer do
     end
 
     context "when no nested serializers" do
-      let(:plan) { serializer_class::SeregaPlan.new({only: {foo: {}}}) }
+      let(:plan) { serializer_class::SeregaPlan.new(nil, {only: {foo: {}}}) }
 
       it "serializes object to hash" do
         expect(serialize(1)).to eq(foo: "bar")
@@ -42,7 +42,7 @@ RSpec.describe Serega::SeregaObjectSerializer do
     end
 
     context "with nested serializers" do
-      let(:plan) { serializer_class::SeregaPlan.new({only: {foo: {}, hash: {}, array: {}}}) }
+      let(:plan) { serializer_class::SeregaPlan.new(nil, {only: {foo: {}, hash: {}, array: {}}}) }
 
       before do
         serializer_class.attribute(:hash, serializer: serializer_class, const: 1, hide: true)
