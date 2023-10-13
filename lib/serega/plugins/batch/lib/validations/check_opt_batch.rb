@@ -23,7 +23,7 @@ class Serega
             SeregaValidations::Utils::CheckOptIsHash.call(opts, :batch)
 
             batch = opts[:batch]
-            SeregaValidations::Utils::CheckAllowedKeys.call(batch, %i[key loader default])
+            SeregaValidations::Utils::CheckAllowedKeys.call(batch, %i[key loader default], :batch)
 
             check_batch_opt_key(batch, serializer_class)
             check_batch_opt_loader(batch)

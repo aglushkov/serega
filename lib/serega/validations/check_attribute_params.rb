@@ -58,7 +58,7 @@ class Serega
         # - plugin :if (checks :if, :if_value, :unless, :unless_value options)
         # - plugin :preloads (checks :preload option)
         def check_opts
-          Utils::CheckAllowedKeys.call(opts, allowed_opts_keys)
+          Utils::CheckAllowedKeys.call(opts, allowed_opts_keys, :attribute)
 
           Attribute::CheckOptConst.call(opts, block)
           Attribute::CheckOptDelegate.call(opts, block)

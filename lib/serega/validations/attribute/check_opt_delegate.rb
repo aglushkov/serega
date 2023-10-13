@@ -34,6 +34,7 @@ class Serega
             check_opt_delegate_to(delegate_opts)
             check_opt_delegate_method(delegate_opts)
             check_opt_delegate_allow_nil(delegate_opts)
+            check_opt_delegate_extra_opts(delegate_opts)
           end
 
           def check_opt_delegate_to(delegate_opts)
@@ -49,6 +50,10 @@ class Serega
 
           def check_opt_delegate_allow_nil(delegate_opts)
             Utils::CheckOptIsBool.call(delegate_opts, :allow_nil)
+          end
+
+          def check_opt_delegate_extra_opts(delegate_opts)
+            Utils::CheckAllowedKeys.call(delegate_opts, %i[to method allow_nil], :delegate)
           end
 
           def check_usage_with_other_params(opts, block)
