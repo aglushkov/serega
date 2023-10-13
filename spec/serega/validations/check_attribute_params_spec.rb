@@ -24,7 +24,9 @@ RSpec.describe Serega::SeregaValidations::CheckAttributeParams do
 
   it "checks valid keys" do
     validate
-    expect(Serega::SeregaValidations::Utils::CheckAllowedKeys).to have_received(:call).with(opts, serializer.config.attribute_keys)
+
+    expect(Serega::SeregaValidations::Utils::CheckAllowedKeys)
+      .to have_received(:call).with(opts, serializer.config.attribute_keys, :attribute)
   end
 
   it "checks each option value" do

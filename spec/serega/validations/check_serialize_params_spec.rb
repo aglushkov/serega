@@ -17,7 +17,7 @@ RSpec.describe Serega::SeregaValidations::CheckSerializeParams do
 
   it "checks valid keys" do
     validate
-    expect(Serega::SeregaValidations::Utils::CheckAllowedKeys).to have_received(:call).with(opts, serializer.config.serialize_keys)
+    expect(Serega::SeregaValidations::Utils::CheckAllowedKeys).to have_received(:call).with(opts, serializer.config.serialize_keys, :serialize)
     expect(Serega::SeregaValidations::Utils::CheckOptIsHash).to have_received(:call).with(opts, :context)
     expect(Serega::SeregaValidations::Utils::CheckOptIsBool).to have_received(:call).with(opts, :many)
   end

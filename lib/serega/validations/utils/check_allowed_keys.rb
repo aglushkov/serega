@@ -18,11 +18,13 @@ class Serega
         # @raise [Serega::SeregaError] error when any hash key is not allowed
         #
         # @return [void]
-        def self.call(opts, allowed_keys)
+        def self.call(opts, allowed_keys, parameter_name)
           opts.each_key do |key|
             next if allowed_keys.include?(key)
 
-            raise SeregaError, "Invalid option #{key.inspect}. Allowed options are: #{allowed_keys.map(&:inspect).join(", ")}"
+            raise SeregaError,
+              "Invalid #{parameter_name} option #{key.inspect}." \
+              " Allowed options are: #{allowed_keys.map(&:inspect).sort.join(", ")}"
           end
         end
       end

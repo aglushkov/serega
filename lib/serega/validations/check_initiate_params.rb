@@ -35,7 +35,7 @@ class Serega
         private
 
         def check_allowed_keys
-          Utils::CheckAllowedKeys.call(opts, serializer_class.config.initiate_keys)
+          Utils::CheckAllowedKeys.call(opts, serializer_class.config.initiate_keys, :initiate)
         end
 
         def check_modifiers

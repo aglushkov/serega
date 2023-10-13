@@ -32,6 +32,15 @@ RSpec.describe Serega::SeregaValidations::Attribute::CheckOptDelegate do
       .to raise_error Serega::SeregaError, "Invalid option :method => 123. Must be a String or a Symbol"
   end
 
+  it "checks has no extra options" do
+    allow(Serega::SeregaValidations::Utils::CheckAllowedKeys).to receive(:call)
+
+    described_class.call(delegate: {to: :foo})
+    expect(Serega::SeregaValidations::Utils::CheckAllowedKeys)
+      .to have_received(:call)
+      .with({to: :foo}, %i[to method allow_nil], :delegate)
+  end
+
   it "prohibits to use with :method opt" do
     expect { described_class.call(delegate: {to: :foo}, method: :bar) }
       .to raise_error Serega::SeregaError, "Option :delegate can not be used together with option :method"

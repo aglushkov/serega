@@ -18,8 +18,10 @@ RSpec.describe Serega::SeregaValidations::CheckInitiateParams do
     validate
 
     expect(Serega::SeregaValidations::Utils::CheckAllowedKeys)
-      .to have_received(:call).with(opts, serializer.config.initiate_keys)
+      .to have_received(:call).with(opts, serializer.config.initiate_keys, :initiate)
 
-    expect(check_modifiers).to have_received(:call).with(serializer, {foo: {}}, {bazz: {}}, {bar: {}})
+    expect(check_modifiers)
+      .to have_received(:call)
+      .with(serializer, {foo: {}}, {bazz: {}}, {bar: {}})
   end
 end
