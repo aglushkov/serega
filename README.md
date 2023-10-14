@@ -1029,6 +1029,7 @@ The gem is available as open source under the terms of the [MIT License](https:/
 [batch]: #plugin-batch
 [camel_case]: #plugin-camel_case
 [context_metadata]: #plugin-context_metadata
+[depth_limit]: #plugin-depth_limit
 [formatters]: #plugin-formatters
 [metadata]: #plugin-metadata
 [preloads]: #plugin-preloads
