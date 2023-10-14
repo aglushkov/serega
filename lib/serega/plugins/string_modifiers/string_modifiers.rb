@@ -18,7 +18,7 @@ class Serega
       #
       def self.load_plugin(serializer_class, **_opts)
         serializer_class.include(InstanceMethods)
-        require_relative "./parse_string_modifiers"
+        require_relative "parse_string_modifiers"
       end
 
       #

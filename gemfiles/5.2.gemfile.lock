@@ -1,7 +1,7 @@
 PATH
   remote: ..
   specs:
-    serega (0.15.0)
+    serega (0.16.0)
 
 GEM
   remote: https://rubygems.org/
@@ -29,7 +29,7 @@ GEM
       concurrent-ruby (~> 1.0)
     jdbc-sqlite3 (3.28.0)
     mini_portile2 (2.8.4)
-    minitest (5.19.0)
+    minitest (5.20.0)
     rake (13.0.6)
     rspec (3.12.0)
       rspec-core (~> 3.12.0)
@@ -43,8 +43,8 @@ GEM
     rspec-mocks (3.12.6)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.12.0)
-    rspec-sqlimit (0.0.5)
-      activerecord (> 4.2, < 7.1)
+    rspec-sqlimit (0.0.6)
+      activerecord (>= 4.2.0, < 8)
       rspec (~> 3.0)
     rspec-support (3.12.1)
     sqlite3 (1.5.4)
