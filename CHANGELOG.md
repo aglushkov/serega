@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.16.0] - 2023-10-15
+
 - Add :depth_limit plugin that helps to secure from malicious queries that
   require to serialize too much or from accidental serializing of objects with
   cyclic relations

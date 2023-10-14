@@ -79,17 +79,17 @@ class Serega
       # @return [void]
       #
       def self.load_plugin(serializer_class, **_opts)
-        require_relative "./lib/format_user_preloads"
-        require_relative "./lib/modules/attribute"
-        require_relative "./lib/modules/attribute_normalizer"
-        require_relative "./lib/modules/check_attribute_params"
-        require_relative "./lib/modules/config"
-        require_relative "./lib/modules/plan_point"
-        require_relative "./lib/preload_paths"
-        require_relative "./lib/preloads_config"
-        require_relative "./lib/preloads_constructor"
-        require_relative "./validations/check_opt_preload"
-        require_relative "./validations/check_opt_preload_path"
+        require_relative "lib/format_user_preloads"
+        require_relative "lib/modules/attribute"
+        require_relative "lib/modules/attribute_normalizer"
+        require_relative "lib/modules/check_attribute_params"
+        require_relative "lib/modules/config"
+        require_relative "lib/modules/plan_point"
+        require_relative "lib/preload_paths"
+        require_relative "lib/preloads_config"
+        require_relative "lib/preloads_constructor"
+        require_relative "validations/check_opt_preload"
+        require_relative "validations/check_opt_preload_path"
 
         serializer_class.include(InstanceMethods)
         serializer_class::SeregaAttribute.include(AttributeInstanceMethods)

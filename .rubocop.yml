@@ -37,5 +37,8 @@ RSpec/MultipleMemoizedHelpers:
 RSpec/NestedGroups:
   Enabled: false
 
+RSpec/SpecFilePathFormat:
+  Enabled: false
+
 RSpec/VerifiedDoubles:
   Enabled: false

@@ -77,7 +77,7 @@ class Serega
       # @return [void]
       #
       def self.load_plugin(serializer_class, **_opts)
-        require_relative "./lib/preloader"
+        require_relative "lib/preloader"
 
         serializer_class.include(InstanceMethods)
       end

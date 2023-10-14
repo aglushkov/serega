@@ -56,10 +56,10 @@ class Serega
       # @return [void]
       #
       def self.load_plugin(serializer_class, **_opts)
-        require_relative "./validations/check_opt_if"
-        require_relative "./validations/check_opt_if_value"
-        require_relative "./validations/check_opt_unless"
-        require_relative "./validations/check_opt_unless_value"
+        require_relative "validations/check_opt_if"
+        require_relative "validations/check_opt_if_value"
+        require_relative "validations/check_opt_unless"
+        require_relative "validations/check_opt_unless_value"
 
         serializer_class::SeregaAttribute.include(SeregaAttributeInstanceMethods)
         serializer_class::SeregaPlanPoint.include(PlanPointInstanceMethods)

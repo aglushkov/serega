@@ -62,12 +62,12 @@ class Serega
         serializer_class.include(InstanceMethods)
         serializer_class::SeregaConfig.include(ConfigInstanceMethods)
 
-        require_relative "./meta_attribute"
-        require_relative "./validations/check_block"
-        require_relative "./validations/check_opt_hide_nil"
-        require_relative "./validations/check_opt_hide_empty"
-        require_relative "./validations/check_opts"
-        require_relative "./validations/check_path"
+        require_relative "meta_attribute"
+        require_relative "validations/check_block"
+        require_relative "validations/check_opt_hide_nil"
+        require_relative "validations/check_opt_hide_empty"
+        require_relative "validations/check_opts"
+        require_relative "validations/check_path"
 
         meta_attribute_class = Class.new(MetaAttribute)
         meta_attribute_class.serializer_class = serializer_class

@@ -40,7 +40,7 @@ class Serega
       # @return [void]
       #
       def self.load_plugin(serializer_class, **_opts)
-        require_relative "./validations/check_opt_many"
+        require_relative "validations/check_opt_many"
 
         serializer_class::CheckAttributeParams.include(CheckAttributeParamsInstanceMethods)
       end

@@ -79,18 +79,18 @@ class Serega
       # @return [void]
       #
       def self.load_plugin(serializer_class, **_opts)
-        require_relative "./lib/batch_config"
-        require_relative "./lib/loader"
-        require_relative "./lib/loaders"
-        require_relative "./lib/modules/attribute"
-        require_relative "./lib/modules/attribute_normalizer"
-        require_relative "./lib/modules/check_attribute_params"
-        require_relative "./lib/modules/config"
-        require_relative "./lib/modules/object_serializer"
-        require_relative "./lib/modules/plan_point"
-        require_relative "./lib/validations/check_batch_opt_key"
-        require_relative "./lib/validations/check_batch_opt_loader"
-        require_relative "./lib/validations/check_opt_batch"
+        require_relative "lib/batch_config"
+        require_relative "lib/loader"
+        require_relative "lib/loaders"
+        require_relative "lib/modules/attribute"
+        require_relative "lib/modules/attribute_normalizer"
+        require_relative "lib/modules/check_attribute_params"
+        require_relative "lib/modules/config"
+        require_relative "lib/modules/object_serializer"
+        require_relative "lib/modules/plan_point"
+        require_relative "lib/validations/check_batch_opt_key"
+        require_relative "lib/validations/check_batch_opt_loader"
+        require_relative "lib/validations/check_opt_batch"
 
         serializer_class.extend(ClassMethods)
         serializer_class.include(InstanceMethods)
@@ -121,18 +121,18 @@ class Serega
         serializer_class.const_set(:SeregaBatchLoader, batch_loader_class)
 
         if serializer_class.plugin_used?(:activerecord_preloads)
-          require_relative "./lib/plugins_extensions/activerecord_preloads"
+          require_relative "lib/plugins_extensions/activerecord_preloads"
           serializer_class::SeregaBatchLoader.include(PluginsExtensions::ActiveRecordPreloads::BatchLoaderInstanceMethods)
         end
 
         if serializer_class.plugin_used?(:formatters)
-          require_relative "./lib/plugins_extensions/formatters"
+          require_relative "lib/plugins_extensions/formatters"
           serializer_class::SeregaBatchLoader.include(PluginsExtensions::Formatters::BatchLoaderInstanceMethods)
           serializer_class::SeregaAttribute.include(PluginsExtensions::Formatters::SeregaAttributeInstanceMethods)
         end
 
         if serializer_class.plugin_used?(:preloads)
-          require_relative "./lib/plugins_extensions/preloads"
+          require_relative "lib/plugins_extensions/preloads"
           serializer_class::SeregaAttributeNormalizer.include(PluginsExtensions::Preloads::AttributeNormalizerInstanceMethods)
         end
 
