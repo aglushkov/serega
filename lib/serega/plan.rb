@@ -66,7 +66,10 @@ class Serega
       attr_reader :points
 
       #
-      # Instantiate new serialization plan.
+      # Instantiate new serialization plan
+      #
+      # Patched by
+      #  - depth_limit plugin, which checks depth limit is not exceeded when adding new plan
       #
       # @param parent_plan_point [SeregaPlanPoint, nil] Parent plan_point
       # @param modifiers [Hash] Serialization parameters

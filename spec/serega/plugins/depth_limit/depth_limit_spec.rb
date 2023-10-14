@@ -1,0 +1,91 @@
+# frozen_string_literal: true
+
+# Load plugin code
+Class.new(Serega).plugin :depth_limit, limit: 10
+
+RSpec.describe Serega::SeregaPlugins::DepthLimit do
+  describe "loading" do
+    let(:serializer) { Class.new(Serega) }
+
+    it "sets limit" do
+      serializer.plugin :depth_limit, limit: 3
+      expect(serializer.config.depth_limit.limit).to eq 3
+    end
+
+    it "requires to add limit during plugin initialization" do
+      expect { serializer.plugin :depth_limit }
+        .to raise_error Serega::SeregaError,
+          "Please provide :limit option. Example: `plugin :depth_limit, limit: 10`"
+    end
+  end
+
+  describe "configuration" do
+    let(:serializer) { Class.new(Serega) { plugin :depth_limit, limit: 1 } }
+
+    it "preserves depth_limit config" do
+      depth_limit1 = serializer.config.depth_limit
+      depth_limit2 = serializer.config.depth_limit
+      expect(depth_limit1).to be depth_limit2
+    end
+
+    it "allows to change depth_limit via #limit= methods" do
+      serializer.config.depth_limit.limit = 5
+      expect(serializer.config.depth_limit.limit).to eq 5
+    end
+
+    it "raises error when provided incorrect value" do
+      config = serializer.config.depth_limit
+      expect { config.limit = :one }.to raise_error "Depth limit must be an Integer"
+      expect { config.limit = true }.to raise_error "Depth limit must be an Integer"
+      expect { config.limit = nil }.to raise_error "Depth limit must be an Integer"
+    end
+  end
+
+  describe "serialization" do
+    let(:parent) do
+      Class.new(Serega) do
+        plugin :depth_limit, limit: 2
+      end
+    end
+
+    let(:posts_serializer) do
+      Class.new(parent) do
+      end
+    end
+
+    let(:comments_serializer) do
+      Class.new(parent) do
+        attribute :text
+      end
+    end
+
+    before do
+      posts_serializer.attribute :comments, serializer: comments_serializer
+      comments_serializer.attribute :post, serializer: posts_serializer
+    end
+
+    it "raises error if depth limit was exceeded when instantiating serializer" do
+      expect { posts_serializer.new }.to raise_error Serega::SeregaError, "Depth limit was exceeded"
+
+      fields = {only: {comments: :post}} # post -> comments -> post (depth is 3)
+      expect { posts_serializer.new(fields) }
+        .to raise_error Serega::SeregaError, "Depth limit was exceeded"
+    end
+
+    it "raises error when depth limit was exceeded accidentally for cyclic relations (without specifying fields)" do
+      # post -> comments -> post -> comments ... (depth is infinite)
+      expect { posts_serializer.new }.to raise_error Serega::DepthLimitError, "Depth limit was exceeded"
+    end
+
+    it "raises error that has additional #details method" do
+      expect { posts_serializer.new }.to raise_error do |err|
+        expect(err.details).to eq "#{posts_serializer} (depth limit: 2) -> comments -> post"
+      end
+    end
+
+    it "does not raise error if depth error was not exceeded" do
+      fields = {only: {comments: :text}} # post -> comments (depth is 2)
+      expect { posts_serializer.new(fields) }.not_to raise_error
+    end
+  end
+end
