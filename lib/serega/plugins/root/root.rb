@@ -127,7 +127,7 @@ class Serega
         # @option opts [Symbol, String, nil] :one root for single-object serialization
         # @option opts [Symbol, String, nil] :many root for many-objects serialization
         #
-        # @return [Serega::SeregaPlugins::Root::RootConfig] RootConfig object
+        # @return [SeregaPlugins::Root::RootConfig] RootConfig object
         #
         def initialize(opts)
           @opts = opts

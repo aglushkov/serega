@@ -17,6 +17,7 @@ objects and to serialize them to Hash or JSON.
 It has some great features:
 
 - Manually [select serialized fields](#selecting-fields)
+- Secure from malicious queries with [depth_limit][depth_limit] plugin
 - Solutions for N+1 problem (via [batch][batch], [preloads][preloads] or
   [activerecord_preloads][activerecord_preloads] plugins)
 - Built-in object presenter ([presenter][presenter] plugin)
@@ -24,8 +25,8 @@ It has some great features:
   [context_metadata][context_metadata] plugins)
 - Value formatters ([formatters][formatters] plugin) helps to transform
   time, date, money, percentage and any other values same way keeping code dry
-- Conditional attributes ([if][if] plugin)
-- Auto camelCase keys [camel_case][camel_case] plugin
+- Conditional attributes - ([if][if] plugin)
+- Auto camelCase keys - [camel_case][camel_case] plugin
 
 ## Installation
 
@@ -937,6 +938,40 @@ UserSerializer.to_h(user)
 
 UserSerializer.new(only: %i[firstName lastName]).to_h(user)
 # => {firstName: "Bruce", lastName: "Wayne"}
+```
+
+### Plugin :depth_limit
+
+Helps to secure from malicious queries that require to serialize too much
+or from accidental serializing of objects with cyclic relations.
+
+Depth limit is checked when constructing a serialization plan, that is when
+`#new` method is called, ex: `SomeSerializer.new(with: params[:with])`.
+It can be useful to instantiate serializer before any other business logic
+to get possible errors earlier.
+
+Any class-level serialization methods also check depth limit as they also
+instantiate serializer.
+
+When depth limit is exceeded `Serega::DepthLimitError` is raised.
+Depth limit error details can be found in additional
+`Serega::DepthLimitError#details` method
+
+Limit can be checked or changed with next config options:
+
+- `config.depth_limit.limit`
+- `config.depth_limit.limit=`
+
+There are no default limit, but it should be set when enabling plugin.
+
+```ruby
+class AppSerializer < Serega
+  plugin :depth_limit, limit: 10 # set limit for all child classes
+end
+
+class UserSerializer < AppSerializer
+  config.depth_limit.limit = 5 # overrides limit for UserSerializer
+end
 ```
 
 ### Plugin :explicit_many_option

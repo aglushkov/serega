@@ -2,9 +2,13 @@
 
 ## [Unreleased]
 
+- Add :depth_limit plugin that helps to secure from malicious queries that
+  require to serialize too much or from accidental serializing of objects with
+  cyclic relations
 - Add :camel_case plugin to automatically transform attribute keys to camelCase
 - Rename attribute option `:key` to `:method`
 - Rename attribute `:delegate` sub-option `:key` to `:method`
+- Validate there are no extra `:delegate` sub-options
 
 ## [0.15.0] - 2023-08-13
 

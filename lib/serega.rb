@@ -296,7 +296,16 @@ class Serega
     def initialize(opts = nil)
       @opts = (opts.nil? || opts.empty?) ? FROZEN_EMPTY_HASH : parse_modifiers(opts)
       self.class::CheckInitiateParams.new(@opts).validate if opts&.fetch(:check_initiate_params) { config.check_initiate_params }
+
+      @plan = self.class::SeregaPlan.call(@opts)
     end
+
+    #
+    # Plan for serialization.
+    # This plan can be traversed to find serialized attributes and nested attributes.
+    #
+    # @return [Serega::SeregaPlan] Serialization plan
+    attr_reader :plan
 
     #
     # Serializes provided object to Hash
@@ -349,15 +358,6 @@ class Serega
     def as_json(object, opts = nil)
       json = to_json(object, opts)
       config.from_json.call(json)
-    end
-
-    #
-    # Plan for serialization.
-    # This plan can be traversed to find serialized attributes and nested attributes.
-    #
-    # @return [Array<Serega::SeregaPlanPoint>] plan
-    def plan
-      @plan ||= self.class::SeregaPlan.call(opts)
     end
 
     private
