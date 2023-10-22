@@ -68,6 +68,7 @@ class Serega
       def self.load_plugin(serializer_class, **_opts)
         serializer_class::SeregaConfig.include(ConfigInstanceMethods)
         serializer_class::SeregaAttributeNormalizer.include(AttributeNormalizerInstanceMethods)
+        serializer_class::CheckAttributeParams.include(CheckAttributeParamsInstanceMethods)
       end
 
       #
@@ -107,6 +108,7 @@ class Serega
         # @return [void]
         def add(formatters)
           formatters.each_pair do |key, value|
+            CheckFormatter.call(key, value)
             opts[key] = value
           end
         end
@@ -121,6 +123,21 @@ class Serega
         # @return [SeregaPlugins::Formatters::FormattersConfig] current formatters config
         def formatters
           @formatters ||= FormattersConfig.new(opts.fetch(:formatters))
+        end
+      end
+
+      #
+      # Serega::SeregaValidations::CheckAttributeParams additional/patched class methods
+      #
+      # @see Serega::SeregaValidations::CheckAttributeParams
+      #
+      module CheckAttributeParamsInstanceMethods
+        private
+
+        def check_opts
+          super
+
+          CheckOptFormat.call(opts, self.class.serializer_class)
         end
       end
 
@@ -164,6 +181,68 @@ class Serega
             self.class.serializer_class.config.formatters.opts.fetch(formatter)
           else
             formatter # already callable
+          end
+        end
+      end
+
+      #
+      # Validator for attribute :format option
+      #
+      class CheckOptFormat
+        class << self
+          #
+          # Checks attribute :format option must be registered or valid callable with 1 arg
+          #
+          # @param opts [value] Attribute options
+          #
+          # @raise [SeregaError] Attribute validation error
+          #
+          # @return [void]
+          #
+          def call(opts, serializer_class)
+            return unless opts.key?(:format)
+
+            formatter = opts[:format]
+
+            if formatter.is_a?(Symbol)
+              check_formatter_defined(serializer_class, formatter)
+            else
+              CheckFormatter.call(:format, formatter)
+            end
+          end
+
+          private
+
+          def check_formatter_defined(serializer_class, formatter)
+            return if serializer_class.config.formatters.opts.key?(formatter)
+
+            raise Serega::SeregaError, "Formatter `#{formatter.inspect}` was not defined"
+          end
+        end
+      end
+
+      #
+      # Validator for formatters defined as config options or directly as attribute :format option
+      #
+      class CheckFormatter
+        class << self
+          #
+          # Check formatter type and parameters
+          #
+          # @param formatter_name [Symbol] Name of formatter
+          # @param formatter [#call] Formatter callable object
+          #
+          # @return [void]
+          #
+          def call(formatter_name, formatter)
+            raise Serega::SeregaError, "Option #{formatter_name.inspect} must have callable value" unless formatter.respond_to?(:call)
+
+            SeregaValidations::Utils::CheckExtraKeywordArg.call(formatter_name, formatter)
+            params_count = SeregaUtils::ParamsCount.call(formatter, max_count: 1)
+
+            if params_count != 1
+              raise SeregaError, "Formatter should have exactly 1 required parameter (value to format)"
+            end
           end
         end
       end

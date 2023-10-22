@@ -10,7 +10,7 @@ RSpec.describe Serega::SeregaPlugins::Batch do
   describe "Attribute methods" do
     describe "#batch" do
       it "returns provided options with transformed Symbol key to Proc" do
-        batch_loader = proc {}
+        batch_loader = proc { |*args| }
         at = serializer.attribute :at1, batch: {key: :id, loader: batch_loader, default: :default}
         expect(at.batch).to include(loader: batch_loader)
         expect(at.batch).to include(default: :default)
@@ -29,10 +29,17 @@ RSpec.describe Serega::SeregaPlugins::Batch do
         expect(at.batch[:key].call(object)).to eq 1
       end
 
-      it "returns key without changes if non-Symbol provided" do
-        key = proc { :id }
+      it "returns key without changes proc taht accepts 2 params provided" do
+        key = proc { |a, b| :id }
         at = serializer.attribute :at, batch: {loader: :loader, key: key}
         expect(at.batch[:key]).to eq key
+      end
+
+      it "returns normalized proc when single parameter callable provided" do
+        key = lambda { |a| :foo }
+        at = serializer.attribute :at, batch: {loader: :loader, key: key}
+        expect(at.batch[:key]).not_to eq key
+        expect(at.batch[:key].call(1)).to eq :foo
       end
 
       it "adds `default: nil` if attribute :many option not specified" do
@@ -48,21 +55,21 @@ RSpec.describe Serega::SeregaPlugins::Batch do
 
     it "hides attributes with batch when auto_hide: true provided" do
       serializer.config.batch.auto_hide = true
-      attribute = serializer.attribute :foo, batch: {key: :id, loader: proc {}}
+      attribute = serializer.attribute :foo, batch: {key: :id, loader: proc { |keys| }}
 
       expect(attribute.hide).to be true
     end
 
     it "does not overwrites attribute :hide option when auto_hide: true provided" do
       serializer.config.batch.auto_hide = true
-      attribute = serializer.attribute :foo, batch: {key: :id, loader: proc {}}, hide: false
+      attribute = serializer.attribute :foo, batch: {key: :id, loader: proc { |keys| }}, hide: false
 
       expect(attribute.hide).to be false
     end
 
     it "does not change default (nil) :hide option when :auto_hide is false" do
       serializer.config.batch.auto_hide = false
-      attribute = serializer.attribute :foo, batch: {key: :id, loader: proc {}}
+      attribute = serializer.attribute :foo, batch: {key: :id, loader: proc { |keys| }}
 
       expect(attribute.hide).to be_nil
     end

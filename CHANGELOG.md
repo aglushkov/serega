@@ -2,6 +2,24 @@
 
 ## [Unreleased]
 
+- Allow to provide callable/lambdas objects with 1-2 args as attribute
+  :value object
+- Allow to provide callable/lambdas with 1 arg as formatters
+- Allow to provide callable/lambdas with 0-2 args as :if plugin options
+- Allow to provide callable/lambdas with 1-3 args as :batch plugin options
+- Attribute :value option now require to have at least 1 argument
+- Attribute batch :loader option now requires to have at least 1 argument
+- Attribute :format option and associated configurated formatter
+  (from formatters plugin) must have 1 argument
+
+```ruby
+# Attributes with callable classes
+attribute :email, value: EmailFetcher
+attribute :email, if: EmailPolicy
+attribute :email, batch: {key: EmailKeyFetcher, loader: EmailBatchLoader }
+attribute :email, format: EmaileFormatter
+```
+
 ## [0.16.0] - 2023-10-15
 
 - Add :depth_limit plugin that helps to secure from malicious queries that

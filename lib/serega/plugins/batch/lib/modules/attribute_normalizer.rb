@@ -42,22 +42,32 @@ class Serega
           batch = init_opts[:batch]
           return unless batch
 
-          # take loader
-          loader = batch[:loader]
+          loader = prepare_batch_loader(batch[:loader])
 
-          # take key
           key = batch[:key] || self.class.serializer_class.config.batch.default_key
-          proc_key =
-            if key.is_a?(Symbol)
-              proc { |object| object.public_send(key) }
-            else
-              key
-            end
+          key = prepare_batch_key(key)
 
-          # take default value
           default = batch.fetch(:default) { many ? FROZEN_EMPTY_ARRAY : nil }
 
-          {loader: loader, key: proc_key, default: default}
+          {loader: loader, key: key, default: default}
+        end
+
+        def prepare_batch_key(key)
+          return proc { |object| object.public_send(key) } if key.is_a?(Symbol)
+
+          params_count = SeregaUtils::ParamsCount.call(key, max_count: 2)
+          (params_count == 1) ? proc { |obj, _ctx| key.call(obj) } : key
+        end
+
+        def prepare_batch_loader(loader)
+          return loader if loader.is_a?(Symbol)
+
+          params_count = SeregaUtils::ParamsCount.call(loader, max_count: 3)
+          case params_count
+          when 1 then proc { |obj, _ctx, _plan| loader.call(obj) }
+          when 2 then proc { |obj, ctx, _plan| loader.call(obj, ctx) }
+          else loader
+          end
         end
       end
     end

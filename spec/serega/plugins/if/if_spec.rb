@@ -25,6 +25,28 @@ RSpec.describe Serega::SeregaPlugins::If do
     end
   end
 
+  describe "attributes options" do
+    before { serializer.plugin :if }
+
+    it "allows to provide condition with 0 arguments" do
+      cond = lambda { 0 }
+      attribute = serializer.attribute :foo, if: cond
+      expect(attribute.opt_if[:if].call(1, 2)).to eq 0
+    end
+
+    it "allows to provide cond with 1 argument" do
+      cond = lambda { |a| a }
+      attribute = serializer.attribute :foo, if: cond
+      expect(attribute.opt_if[:if].call(1, 2)).to eq 1
+    end
+
+    it "allows to provide cond with 2 arguments" do
+      cond = lambda { |a, b| b }
+      attribute = serializer.attribute :foo, if: cond
+      expect(attribute.opt_if[:if].call(1, 2)).to eq 2
+    end
+  end
+
   describe "SeregaPlanPoint methods" do
     before { serializer.plugin :if }
 
@@ -185,11 +207,11 @@ RSpec.describe Serega::SeregaPlugins::If do
     it "hides attributes when :if condition matches" do
       serializer.plugin :if
 
-      serializer.attribute(:foo) { "foo" }
-      serializer.attribute(:bar1, if: proc { |obj, ctx| obj != 1 }) { 1 }
-      serializer.attribute(:bar2, if: proc { |obj, ctx| obj == 1 }) { 2 }
-      serializer.attribute(:bar3, if: proc { |obj, ctx| ctx[:keep] == false }) { 3 }
-      serializer.attribute(:bar4, if: proc { |obj, ctx| ctx[:keep] == true }) { 4 }
+      serializer.attribute(:foo, const: "foo")
+      serializer.attribute(:bar1, const: 1, if: proc { |obj, ctx| obj != 1 })
+      serializer.attribute(:bar2, const: 2, if: proc { |obj, ctx| obj == 1 })
+      serializer.attribute(:bar3, const: 3, if: proc { |obj, ctx| ctx[:keep] == false })
+      serializer.attribute(:bar4, const: 4, if: proc { |obj, ctx| ctx[:keep] == true })
 
       expect(serializer.new.to_h(1, context: {keep: true})).to eq(
         foo: "foo", bar2: 2, bar4: 4
@@ -199,11 +221,11 @@ RSpec.describe Serega::SeregaPlugins::If do
     it "hides attributes when :if_value condition matches" do
       serializer.plugin :if
 
-      serializer.attribute(:foo) { "foo" }
-      serializer.attribute(:bar1, if_value: proc { |val, ctx| val != 1 }) { 1 }
-      serializer.attribute(:bar2, if_value: proc { |val, ctx| val != 1 }) { 2 }
-      serializer.attribute(:bar3, if_value: proc { |val, ctx| ctx[:keep] == false }) { 3 }
-      serializer.attribute(:bar4, if_value: proc { |val, ctx| ctx[:keep] == true }) { 4 }
+      serializer.attribute(:foo, const: "foo")
+      serializer.attribute(:bar1, const: 1, if_value: proc { |val, ctx| val != 1 })
+      serializer.attribute(:bar2, const: 2, if_value: proc { |val, ctx| val != 1 })
+      serializer.attribute(:bar3, const: 3, if_value: proc { |val, ctx| ctx[:keep] == false })
+      serializer.attribute(:bar4, const: 4, if_value: proc { |val, ctx| ctx[:keep] == true })
 
       expect(serializer.new.to_h(1, context: {keep: true})).to eq(
         foo: "foo", bar2: 2, bar4: 4
@@ -220,7 +242,7 @@ RSpec.describe Serega::SeregaPlugins::If do
             attribute :id
             attribute :online_time,
               if: proc { |obj| obj.id != 1 },
-              batch: {key: :id, loader: proc { {1 => 10, 2 => 20} }}
+              batch: {key: :id, loader: proc { |_keys| {1 => 10, 2 => 20} }}
           end
         end
 
@@ -266,7 +288,7 @@ RSpec.describe Serega::SeregaPlugins::If do
               if: proc { |obj| obj.id != 1 }, # should skip status for user1
               batch: {
                 key: :id,
-                loader: proc do
+                loader: proc do |_keys|
                   {
                     1 => status1,
                     2 => status2,

@@ -22,17 +22,20 @@ class Serega
         #
         # @return [void]
         #
-        def define(loader_name, &block)
-          unless block
-            raise SeregaError, "Block must be given to #define method"
+        def define(loader_name, callable = nil, &block)
+          if (!callable && !block) || (callable && block)
+            raise SeregaError, "Batch loader can be specified with one of arguments - callable value or &block"
           end
 
-          params = block.parameters
-          if params.count > 3 || !params.all? { |param| (param[0] == :req) || (param[0] == :opt) }
-            raise SeregaError, "Block can have maximum 3 regular parameters"
+          callable ||= block
+          SeregaValidations::Utils::CheckExtraKeywordArg.call(loader_name, callable)
+          params_count = SeregaUtils::ParamsCount.call(callable, max_count: 3)
+
+          if params_count != 1 && params_count != 2 && params_count != 3
+            raise SeregaError, "Batch loader should have 1 to 3 parameters (keys, context, plan)"
           end
 
-          loaders[loader_name] = block
+          loaders[loader_name] = callable
         end
 
         # Shows defined loaders
@@ -48,7 +51,7 @@ class Serega
         #
         # @return [Proc] batch loader block
         def fetch_loader(loader_name)
-          loaders[loader_name] || (raise SeregaError, "Batch loader with name `#{loader_name.inspect}` was not defined. Define example: config.batch.define(:#{loader_name}) { |keys, ctx, points| ... }")
+          loaders[loader_name] || (raise SeregaError, "Batch loader with name `#{loader_name.inspect}` was not defined. Define example: config.batch.define(:#{loader_name}) { |keys| ... }")
         end
 
         # Shows option to auto hide attributes with :batch specified

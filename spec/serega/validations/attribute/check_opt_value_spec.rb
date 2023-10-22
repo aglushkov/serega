@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
 RSpec.describe Serega::SeregaValidations::Attribute::CheckOptValue do
-  let(:value_error) { "Option :value must be a Proc that is able to accept two parameters (no **keyword or *array args)" }
   let(:opts) { {} }
+
+  let(:type_error) { "Option :value value must be a Proc or respond to #call" }
+  let(:params_count_error) { "Option :value value must have 1 or 2 parameters (object, context)" }
 
   it "prohibits to use with :method opt" do
     expect { described_class.call({value: proc {}, method: :foo}) }
@@ -19,58 +21,30 @@ RSpec.describe Serega::SeregaValidations::Attribute::CheckOptValue do
       .to raise_error Serega::SeregaError, "Option :value can not be used together with block"
   end
 
-  it "allows value with no params" do
-    opts[:value] = proc {}
-    expect { described_class.call(opts) }.not_to raise_error
+  it "prohibits to use keyword as value" do
+    validator = Serega::SeregaValidations::Utils::CheckExtraKeywordArg
+    allow(validator).to receive(:call)
+
+    value = proc { |one| }
+    described_class.call(value: value)
+    expect(validator).to have_received(:call).with(:value, value)
   end
 
-  it "prohibits non-proc value" do
-    opts[:value] = :foo
-    expect { described_class.call(opts) }.to raise_error Serega::SeregaError, value_error
+  it "checks callable params_count is 1 or 2" do
+    value = proc { |one| }
+    counter = Serega::SeregaUtils::ParamsCount
+    allow(counter).to receive(:call).and_return(3, 0, 1, 2)
+
+    expect { described_class.call(value: value) }.to raise_error Serega::SeregaError, params_count_error
+    expect { described_class.call(value: value) }.to raise_error Serega::SeregaError, params_count_error
+    expect { described_class.call(value: value) }.not_to raise_error
+    expect { described_class.call(value: value) }.not_to raise_error
+
+    expect(counter).to have_received(:call).with(value, max_count: 2).exactly(4).times
   end
 
-  it "prohibits value defined as lambda without params" do
-    opts[:value] = -> {}
-    expect { described_class.call(opts) }.to raise_error Serega::SeregaError, value_error
-  end
-
-  it "allows value with one parameter" do
-    opts[:value] = proc { |_obj| }
-    expect { described_class.call(opts) }.not_to raise_error
-  end
-
-  it "prohibits lambda value with one parameter" do
-    opts[:value] = ->(_obj) {}
-    expect { described_class.call(opts) }.to raise_error Serega::SeregaError, value_error
-  end
-
-  it "allows value with two parameters" do
-    opts[:value] = proc { |_obj, _ctx| }
-    expect { described_class.call(opts) }.not_to raise_error
-  end
-
-  it "allows lambda value with two parameters" do
-    opts[:value] = ->(_obj, _ctx) {}
-    expect { described_class.call(opts) }.not_to raise_error
-  end
-
-  it "prohibits value with three parameters" do
-    opts[:value] = proc { |_obj, _ctx, _foo| }
-    expect { described_class.call(opts) }.to raise_error Serega::SeregaError, value_error
-  end
-
-  it "prohibits lambda value with three parameters" do
-    opts[:value] = ->(_obj, _ctx, _foo) {}
-    expect { described_class.call(opts) }.to raise_error Serega::SeregaError, value_error
-  end
-
-  it "prohibits lambda with *rest parameters" do
-    opts[:value] = ->(_obj, *_ctx) {}
-    expect { described_class.call(opts) }.to raise_error Serega::SeregaError, value_error
-  end
-
-  it "prohibits lambda with *keywords parameters" do
-    opts[:value] = ->(_obj, **_ctx) {}
-    expect { described_class.call(opts) }.to raise_error Serega::SeregaError, value_error
+  it "checks keyword value" do
+    expect { described_class.call({value: :value}) }
+      .to raise_error Serega::SeregaError, type_error
   end
 end

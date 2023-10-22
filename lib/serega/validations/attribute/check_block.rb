@@ -41,13 +41,34 @@ class Serega
 
           def check_block(block)
             params = block.parameters
-            return if (params.count <= 2) && params.all? { |par| par[0] == :opt }
+            params_count = count_and_check_parameters(params, max_count: 2)
+            return if (params_count == 1) || (params_count == 2)
 
             raise SeregaError, block_error
           end
 
+          def count_and_check_parameters(parameters, max_count:)
+            count = 0
+            parameters.each do |parameter|
+              param_type = parameter[0]
+
+              case param_type
+              when :req then count += 1
+              when :opt then count += 1 if count < max_count
+              when :rest then count += max_count - count if max_count > count
+              when :keyreq then raise Serega::SeregaError, keyword_error
+              end # else :opt, :key, :keyrest, :block - do nothing
+            end
+
+            count
+          end
+
           def block_error
-            "Block can have maximum two regular parameters (no **keyword or *array args)"
+            "Block must have one or two parameters (object, context)"
+          end
+
+          def keyword_error
+            "Block must must not have keyword parameters"
           end
         end
       end

@@ -73,7 +73,8 @@ class UserSerializer < Serega
   # Block is used to define attribute value
   attribute(:first_name) { |user| user.profile&.first_name }
 
-  # Option :value can be used with callable object to define attribute value
+  # Option :value can be used with proc or callable object to define attribute value
+  attribute :first_name, value: UserProfile.new # must have #call method
   attribute :first_name, value: proc { |user| user.profile&.first_name }
 
   # Option :delegate can be used to define attribute value.
@@ -555,7 +556,7 @@ attribute :name, batch: { loader: :name_loader, key: :id, default: nil }
 `:batch` option must be a hash with this keys:
 
 - `loader` (required) [Symbol, Proc, callable] - Defines how to fetch values for
-  batch of keys. Receives 3 parameters: keys, context, plan_point.
+  batch of keys. Receives 3 parameters: keys, context, plan.
 - `key` (required) [Symbol, Proc, callable] - Defines current object identifier.
   Key is optional if plugin was defined with `default_key` option.
 - `default` (optional) - Default value for attribute.

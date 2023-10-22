@@ -55,6 +55,7 @@ class Serega
         # Patched in:
         # - plugin :batch (checks :batch option)
         # - plugin :context_metadata (checks context metadata option which is :meta by default)
+        # - plugin :formatters (checks :format option)
         # - plugin :if (checks :if, :if_value, :unless, :unless_value options)
         # - plugin :preloads (checks :preload option)
         def check_opts

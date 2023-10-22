@@ -27,46 +27,14 @@ class Serega
 
           def check_type(value)
             return if value.is_a?(Symbol)
-
             raise SeregaError, must_be_callable unless value.respond_to?(:call)
 
-            if value.is_a?(Proc)
-              check_block(value)
-            else
-              check_callable(value)
+            SeregaValidations::Utils::CheckExtraKeywordArg.call(:if, value)
+            params_count = SeregaUtils::ParamsCount.call(value, max_count: 2)
+
+            if params_count > 2
+              raise SeregaError, "Option :if value should have up to 2 parameters (object, context)"
             end
-          end
-
-          def check_block(block)
-            return if valid_parameters?(block, accepted_count: 0..2)
-
-            raise SeregaError, block_parameters_error
-          end
-
-          def check_callable(callable)
-            return if valid_parameters?(callable.method(:call), accepted_count: 2..2)
-
-            raise SeregaError, callable_parameters_error
-          end
-
-          def valid_parameters?(data, accepted_count:)
-            params = data.parameters
-            accepted_count.include?(params.count) && valid_parameters_types?(params)
-          end
-
-          def valid_parameters_types?(params)
-            params.all? do |param|
-              type = param[0]
-              (type == :req) || (type == :opt)
-            end
-          end
-
-          def block_parameters_error
-            "Invalid attribute option :if. When it is a Proc it can have maximum two regular parameters (object, context)"
-          end
-
-          def callable_parameters_error
-            "Invalid attribute option :if. When it is a callable object it must have two regular parameters (object, context)"
           end
 
           def must_be_callable

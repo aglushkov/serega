@@ -18,7 +18,7 @@ RSpec.describe Serega::SeregaObjectSerializer do
 
     let(:serializer_class) do
       Class.new(Serega) do
-        attribute(:foo) { "bar" }
+        attribute(:foo, const: "bar")
       end
     end
 
