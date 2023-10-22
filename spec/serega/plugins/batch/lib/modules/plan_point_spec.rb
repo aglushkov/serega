@@ -10,7 +10,7 @@ RSpec.describe Serega::SeregaPlugins::Batch do
   describe "PlanPoint methods" do
     describe "#batch" do
       it "returns provided attribute #batch option" do
-        loader = proc {}
+        loader = proc { |_keys| }
         attribute = serializer.attribute :foo,
           batch: {loader: loader, key: :id}
 
@@ -20,7 +20,7 @@ RSpec.describe Serega::SeregaPlugins::Batch do
       end
 
       it "uses loader from serializer config when Symbol provided" do
-        loader = proc {}
+        loader = proc { |_keys| }
         serializer.config.batch.define(:loader_name, &loader)
         attribute = serializer.attribute :foo,
           batch: {loader: :loader_name, key: :id}

@@ -22,45 +22,15 @@ class Serega
 
             raise SeregaError, must_be_callable unless key.respond_to?(:call)
 
-            if key.is_a?(Proc)
-              check_block(key)
-            else
-              check_callable(key)
-            end
+            SeregaValidations::Utils::CheckExtraKeywordArg.call(:key, key)
+            params_count = SeregaUtils::ParamsCount.call(key, max_count: 2)
+            raise SeregaError, params_count_error if (params_count != 1) && (params_count != 2)
           end
 
           private
 
-          def check_block(block)
-            return if valid_parameters?(block, accepted_count: 0..2)
-
-            raise SeregaError, block_parameters_error
-          end
-
-          def check_callable(callable)
-            return if valid_parameters?(callable.method(:call), accepted_count: 2..2)
-
-            raise SeregaError, callable_parameters_error
-          end
-
-          def valid_parameters?(data, accepted_count:)
-            params = data.parameters
-            accepted_count.include?(params.count) && valid_parameters_types?(params)
-          end
-
-          def valid_parameters_types?(params)
-            params.all? do |param|
-              type = param[0]
-              (type == :req) || (type == :opt)
-            end
-          end
-
-          def block_parameters_error
-            "Invalid :batch option :key. When it is a Proc it can have maximum two regular parameters (object, context)"
-          end
-
-          def callable_parameters_error
-            "Invalid :batch option :key. When it is a callable object it must have two regular parameters (object, context)"
+          def params_count_error
+            "Invalid :batch option :key. When it is a callable object it must have 1 or 2 parameters (object, context)"
           end
 
           def must_be_callable

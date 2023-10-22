@@ -1,40 +1,57 @@
 # frozen_string_literal: true
 
 RSpec.describe Serega::SeregaValidations::Attribute::CheckBlock do
-  let(:block_error) { "Block can have maximum two regular parameters (no **keyword or *array args)" }
+  let(:block_error) { "Block must have one or two parameters (object, context)" }
+  let(:keyword_error) { "Block must must not have keyword parameters" }
   let(:block) { nil }
 
   it "allows no block" do
     expect { described_class.call(nil) }.not_to raise_error
   end
 
-  it "allows block with no params" do
+  it "allows block as Proc (not lambda) with at least 1 parameter, except keyword params" do
     block = proc {}
-    expect { described_class.call(block) }.not_to raise_error
-  end
-
-  it "allows block with one parameter" do
-    block = proc { |_obj| }
-    expect { described_class.call(block) }.not_to raise_error
-  end
-
-  it "allows block with two parameters" do
-    block = proc { |_obj, _ctx| }
-    expect { described_class.call(block) }.not_to raise_error
-  end
-
-  it "prohibits block with three parameters" do
-    block = proc { |_obj, _ctx, _foo| }
     expect { described_class.call(block) }.to raise_error Serega::SeregaError, block_error
+
+    block = proc { |_one| }
+    expect { described_class.call(block) }.not_to raise_error
+
+    block = proc { |_one, _two| }
+    expect { described_class.call(block) }.not_to raise_error
+
+    block = proc { |_one, *rest| }
+    expect { described_class.call(block) }.not_to raise_error
+
+    block = proc { |*rest| }
+    expect { described_class.call(block) }.not_to raise_error
+
+    block = proc { |_one, _two, _three| }
+    expect { described_class.call(block) }.not_to raise_error
+
+    block = proc { |_one, _two, a = 3, *b, d: 4, **e, &block| }
+    expect { described_class.call(block) }.not_to raise_error
+
+    block = proc { |_one, ctx:| }
+    expect { described_class.call(block) }.to raise_error Serega::SeregaError, keyword_error
   end
 
-  it "prohibits *rest parameters" do
-    block = proc { |*_foo| }
+  it "allows block as lambda with 1-2 parameters" do
+    block = lambda {}
     expect { described_class.call(block) }.to raise_error Serega::SeregaError, block_error
-  end
 
-  it "prohibits **keywords parameters" do
-    block = proc { |**_foo| }
+    block = lambda { |_one| }
+    expect { described_class.call(block) }.not_to raise_error
+
+    block = lambda { |_one, _two| }
+    expect { described_class.call(block) }.not_to raise_error
+
+    block = lambda { |_one, _two, _three| }
     expect { described_class.call(block) }.to raise_error Serega::SeregaError, block_error
+
+    block = lambda { |_one, _two, a = 3, *b, d: 4, **e, &block| }
+    expect { described_class.call(block) }.not_to raise_error
+
+    block = lambda { |_one, ctx:| }
+    expect { described_class.call(block) }.to raise_error Serega::SeregaError, keyword_error
   end
 end

@@ -21,7 +21,8 @@ class Serega
             return unless opts.key?(:value)
 
             check_usage_with_other_params(opts, block)
-            check_proc(opts[:value])
+
+            check_value(opts[:value])
           end
 
           private
@@ -32,22 +33,25 @@ class Serega
             raise SeregaError, "Option :value can not be used together with block" if block
           end
 
-          def check_proc(value)
-            raise SeregaError, value_error unless value.is_a?(Proc)
+          def check_value(value)
+            check_value_type(value)
 
-            params = value.parameters
+            SeregaValidations::Utils::CheckExtraKeywordArg.call(:value, value)
+            params_count = SeregaUtils::ParamsCount.call(value, max_count: 2)
 
-            if value.lambda?
-              return if (params.count == 2) && params.all? { |par| par[0] == :req }
-            elsif (params.count <= 2) && params.all? { |par| par[0] == :opt }
-              return
-            end
-
-            raise SeregaError, value_error
+            raise SeregaError, params_count_error if (params_count != 1) && (params_count != 2)
           end
 
-          def value_error
-            "Option :value must be a Proc that is able to accept two parameters (no **keyword or *array args)"
+          def check_value_type(value)
+            raise SeregaError, type_error if !value.is_a?(Proc) && !value.respond_to?(:call)
+          end
+
+          def type_error
+            "Option :value value must be a Proc or respond to #call"
+          end
+
+          def params_count_error
+            "Option :value value must have 1 or 2 parameters (object, context)"
           end
         end
       end

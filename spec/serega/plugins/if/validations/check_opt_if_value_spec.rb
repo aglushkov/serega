@@ -3,16 +3,16 @@
 load_plugin_code :if
 
 RSpec.describe Serega::SeregaPlugins::If::CheckOptIfValue do
-  let(:block_parameters_error) do
-    "Invalid attribute option :if_value. When it is a Proc it can have maximum two regular parameters (object, context)"
-  end
-
   let(:callable_parameters_error) do
-    "Invalid attribute option :if_value. When it is a callable object it must have two regular parameters (object, context)"
+    "Option :if_value value should have up to 2 parameters (value, context)"
   end
 
   let(:must_be_callable) do
     "Invalid attribute option :if_value. It must be a Symbol, a Proc or respond to :call"
+  end
+
+  let(:keyword_error) do
+    "Option :if_value value should not accept keyword argument `a:`"
   end
 
   let(:no_serializer) do
@@ -32,50 +32,24 @@ RSpec.describe Serega::SeregaPlugins::If::CheckOptIfValue do
     expect { described_class.call(if_value: Object.new) }.to raise_error Serega::SeregaError, must_be_callable
   end
 
-  it "allows Proc with 0-2 regular args" do
-    expect { described_class.call(if_value: proc {}) }.not_to raise_error
-    expect { described_class.call(if_value: proc { |a| }) }.not_to raise_error
-    expect { described_class.call(if_value: proc { |a, b| }) }.not_to raise_error
-    expect { described_class.call(if_value: proc { |a, b, c| }) }.to raise_error Serega::SeregaError, block_parameters_error
-    expect { described_class.call(if_value: proc { |a:| }) }.to raise_error Serega::SeregaError, block_parameters_error
-    expect { described_class.call(if_value: proc { |*a| }) }.to raise_error Serega::SeregaError, block_parameters_error
+  it "checks extra keyword arguments" do
+    expect { described_class.call(if_value: proc { |a:| }) }.to raise_error Serega::SeregaError, keyword_error
+  end
+
+  it "checks callable params_count is 0, 1 or 2" do
+    value = proc {}
+    counter = Serega::SeregaUtils::ParamsCount
+    allow(counter).to receive(:call).and_return(0, 1, 2, 3)
+
+    expect { described_class.call(if_value: value) }.not_to raise_error
+    expect { described_class.call(if_value: value) }.not_to raise_error
+    expect { described_class.call(if_value: value) }.not_to raise_error
+    expect { described_class.call(if_value: value) }.to raise_error Serega::SeregaError, callable_parameters_error
+
+    expect(counter).to have_received(:call).with(value, max_count: 2).exactly(4).times
   end
 
   it "allows symbols" do
     expect { described_class.call(if_value: :foo) }.not_to raise_error
-  end
-
-  it "allows callable value with 2 regular args" do
-    callable0 = Class.new {
-      def self.call
-      end
-    }
-    callable1 = Class.new {
-      def self.call(a)
-      end
-    }
-    callable2 = Class.new {
-      def self.call(a, b)
-      end
-    }
-    callable3 = Class.new {
-      def self.call(a, b, c)
-      end
-    }
-    callable4 = Class.new {
-      def self.call(a:, b:, c:)
-      end
-    }
-    callable5 = Class.new {
-      def self.call(*a)
-      end
-    }
-
-    expect { described_class.call(if_value: callable0) }.to raise_error Serega::SeregaError, callable_parameters_error
-    expect { described_class.call(if_value: callable1) }.to raise_error Serega::SeregaError, callable_parameters_error
-    expect { described_class.call(if_value: callable2) }.not_to raise_error
-    expect { described_class.call(if_value: callable3) }.to raise_error Serega::SeregaError, callable_parameters_error
-    expect { described_class.call(if_value: callable4) }.to raise_error Serega::SeregaError, callable_parameters_error
-    expect { described_class.call(if_value: callable5) }.to raise_error Serega::SeregaError, callable_parameters_error
   end
 end

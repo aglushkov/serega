@@ -26,7 +26,7 @@ RSpec.describe Serega::SeregaAttribute do
 
     it "saves provided block" do
       expect(attribute_class.new(name: :name).initials[:block]).to be_nil
-      block = proc {}
+      block = proc { |obj| }
       expect(attribute_class.new(name: :name, block: block).initials[:block]).to eq block
     end
 
@@ -75,13 +75,23 @@ RSpec.describe Serega::SeregaAttribute do
   end
 
   describe "#value" do
-    it "takes value_block and executes it with two params (object, context)" do
-      obj = double(length: 3)
-      context = {foo: :bar}
-      block = proc { |object, ctx| [object.length, ctx[:foo]] }
+    context "with 1 arg" do
+      it "gets value" do
+        obj = double(name: "NAME")
+        block = proc { |obj| obj.name }
+        attribute = attribute_class.new(name: :name, block: block)
+        expect(attribute.value(obj, nil)).to eq "NAME"
+      end
+    end
 
-      attribute = attribute_class.new(name: :name, block: block)
-      expect(attribute.value(obj, context)).to eq [3, :bar]
+    context "with 2 args" do
+      it "gets value" do
+        obj = double(name: "NAME")
+        ctx = {foo: "CTX"}
+        block = proc { |obj, ctx| [obj.name, ctx[:foo]] }
+        attribute = attribute_class.new(name: :name, block: block)
+        expect(attribute.value(obj, ctx)).to eq ["NAME", "CTX"]
+      end
     end
 
     it "works when attribute has name with `-` sign" do

@@ -97,8 +97,8 @@ class Serega
       # - plugin :formatters (wraps resulted block in formatter block and formats :const values)
       #
       def prepare_value_block
-        init_block ||
-          init_opts[:value] ||
+        prepare_init_block ||
+          prepare_value_option_block ||
           prepare_const_block ||
           prepare_delegate_block ||
           prepare_keyword_block
@@ -137,6 +137,22 @@ class Serega
         proc do |object|
           object.public_send(key_method_name)
         end
+      end
+
+      def prepare_init_block
+        return unless init_block
+
+        params_count = SeregaUtils::ParamsCount.call(init_block, max_count: 2)
+        (params_count == 1) ? proc { |obj, _ctx| init_block.call(obj) } : init_block
+      end
+
+      def prepare_value_option_block
+        init_value = init_opts[:value]
+        return unless init_value
+
+        # We checked in advance in CheckOptValue that we have 1 or 2 parameters
+        params_count = SeregaUtils::ParamsCount.call(init_value, max_count: 2)
+        (params_count == 1) ? proc { |obj, _ctx| init_value.call(obj) } : init_value
       end
 
       def prepare_delegate_block

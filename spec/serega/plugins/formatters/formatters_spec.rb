@@ -17,8 +17,9 @@ RSpec.describe Serega::SeregaPlugins::Formatters do
     end
 
     it "allows to provide formatters when loading plugin" do
-      serializer.plugin :formatters, formatters: {foo: :bar}
-      expect(serializer.config.formatters.opts).to eq({foo: :bar})
+      formatter = proc { |*args| }
+      serializer.plugin :formatters, formatters: {foo: formatter}
+      expect(serializer.config.formatters.opts).to eq({foo: formatter})
     end
 
     it "raises error if loaded after :batch plugin" do
@@ -38,8 +39,52 @@ RSpec.describe Serega::SeregaPlugins::Formatters do
     end
 
     it "allows to add formatters" do
-      serializer.config.formatters.add({foo: :bar})
-      expect(serializer.config.formatters.opts).to eq({foo: :bar})
+      formatter = proc { |*args| }
+      serializer.config.formatters.add({foo: formatter})
+      expect(serializer.config.formatters.opts).to eq({foo: formatter})
+    end
+  end
+
+  describe "validations" do
+    let(:serializer) { Class.new(Serega) { plugin :formatters } }
+
+    it "checks formatter when defined as config option is callable" do
+      expect { serializer.config.formatters.add(foo: :bar) }.to raise_error Serega::SeregaError, "Option :foo must have callable value"
+    end
+
+    it "checks formatter params when defined as config option" do
+      formatter = proc {}
+      counter = Serega::SeregaUtils::ParamsCount
+      allow(counter).to receive(:call).and_return(0, 1, 2)
+
+      expect { serializer.config.formatters.add(foo: formatter) }
+        .to raise_error Serega::SeregaError, "Formatter should have exactly 1 required parameter (value to format)"
+      expect { serializer.config.formatters.add(foo: formatter) }
+        .not_to raise_error
+      expect { serializer.config.formatters.add(foo: formatter) }
+        .to raise_error Serega::SeregaError, "Formatter should have exactly 1 required parameter (value to format)"
+
+      expect(counter).to have_received(:call).with(formatter, max_count: 1).exactly(3).times
+    end
+
+    it "checks formatter is defined when adding attribute" do
+      expect { serializer.attribute :foo, format: :some }
+        .to raise_error Serega::SeregaError, "Formatter `:some` was not defined"
+    end
+
+    it "checks formatter is callable when adding attribute" do
+      formatter = proc {}
+      counter = Serega::SeregaUtils::ParamsCount
+      allow(counter).to receive(:call).and_return(0, 1, 2)
+
+      expect { serializer.attribute :foo, format: formatter }
+        .to raise_error Serega::SeregaError, "Formatter should have exactly 1 required parameter (value to format)"
+      expect { serializer.attribute :foo, format: formatter }
+        .not_to raise_error
+      expect { serializer.attribute :foo, format: formatter }
+        .to raise_error Serega::SeregaError, "Formatter should have exactly 1 required parameter (value to format)"
+
+      expect(counter).to have_received(:call).with(formatter, max_count: 1).exactly(3).times
     end
   end
 

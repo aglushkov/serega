@@ -176,7 +176,7 @@ RSpec.describe Serega do
       Class.new(described_class) do
         attribute(:obj) { |obj| obj }
         attribute(:ctx) { |obj, ctx| ctx[:data] }
-        attribute(:except) { "EXCEPT" }
+        attribute(:except, const: "EXCEPT")
       end
     end
 

@@ -61,10 +61,11 @@ class Serega
         require_relative "validations/check_opt_unless"
         require_relative "validations/check_opt_unless_value"
 
-        serializer_class::SeregaAttribute.include(SeregaAttributeInstanceMethods)
+        serializer_class::SeregaAttribute.include(AttributeInstanceMethods)
+        serializer_class::SeregaAttributeNormalizer.include(AttributeNormalizerInstanceMethods)
         serializer_class::SeregaPlanPoint.include(PlanPointInstanceMethods)
         serializer_class::CheckAttributeParams.include(CheckAttributeParamsInstanceMethods)
-        serializer_class::SeregaObjectSerializer.include(SeregaObjectSerializerInstanceMethods)
+        serializer_class::SeregaObjectSerializer.include(ObjectSerializerInstanceMethods)
       end
 
       #
@@ -80,11 +81,46 @@ class Serega
       end
 
       #
+      # SeregaAttributeNormalizer additional/patched instance methods
+      #
+      # @see SeregaAttributeNormalizer::AttributeInstanceMethods
+      #
+      module AttributeNormalizerInstanceMethods
+        #
+        # Returns prepared attribute :if_options.
+        #
+        # @return [Hash] prepared options for :if plugin
+        #
+        def if_options
+          @if_options ||= {
+            if: prepare_if_option(init_opts[:if]),
+            unless: prepare_if_option(init_opts[:unless]),
+            if_value: prepare_if_option(init_opts[:if_value]),
+            unless_value: prepare_if_option(init_opts[:unless_value])
+          }.freeze
+        end
+
+        private
+
+        def prepare_if_option(if_option)
+          return unless if_option
+          return proc { |val| val.public_send(if_option) } if if_option.is_a?(Symbol)
+
+          params_count = SeregaUtils::ParamsCount.call(if_option, max_count: 2)
+          case params_count
+          when 0 then proc { if_option.call }
+          when 1 then proc { |obj| if_option.call(obj) }
+          else if_option
+          end
+        end
+      end
+
+      #
       # SeregaAttribute additional/patched instance methods
       #
       # @see Serega::SeregaAttribute
       #
-      module SeregaAttributeInstanceMethods
+      module AttributeInstanceMethods
         # @return provided :if options
         attr_reader :opt_if
 
@@ -92,7 +128,7 @@ class Serega
 
         def set_normalized_vars(normalizer)
           super
-          @opt_if = initials[:opts].slice(:if, :if_value, :unless, :unless_value).freeze
+          @opt_if = normalizer.if_options
         end
       end
 
@@ -125,20 +161,8 @@ class Serega
           opt_unless = attribute.opt_if[opt_unless_name]
           return true if opt_if.nil? && opt_unless.nil?
 
-          res_if =
-            case opt_if
-            when NilClass then true
-            when Symbol then obj.public_send(opt_if)
-            else opt_if.call(obj, ctx)
-            end
-
-          res_unless =
-            case opt_unless
-            when NilClass then true
-            when Symbol then !obj.public_send(opt_unless)
-            else !opt_unless.call(obj, ctx)
-            end
-
+          res_if = opt_if ? opt_if.call(obj, ctx) : true
+          res_unless = opt_unless ? !opt_unless.call(obj, ctx) : true
           res_if && res_unless
         end
       end
@@ -166,7 +190,7 @@ class Serega
       #
       # @see Serega::SeregaObjectSerializer
       #
-      module SeregaObjectSerializerInstanceMethods
+      module ObjectSerializerInstanceMethods
         private
 
         def serialize_point(object, point, _container)
