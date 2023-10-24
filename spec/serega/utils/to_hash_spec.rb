@@ -79,7 +79,7 @@ RSpec.describe Serega::SeregaUtils::ToHash do
     let(:val) { true }
 
     it "returns nested hash with symbol keys with frozen empty hash final value" do
-      expect { result }.to raise_error Serega::SeregaError, "Cant convert TrueClass class object to hash"
+      expect { result }.to raise_error Serega::SeregaError, "Can't convert TrueClass class object to hash"
     end
   end
 

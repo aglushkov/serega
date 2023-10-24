@@ -3,37 +3,37 @@
 RSpec.describe Serega::SeregaPlan do
   let(:base_class) { Class.new(Serega) }
   let(:a) do
-    ser = Class.new(base_class)
+    serializer = Class.new(base_class)
 
-    ser.attribute :a1
-    ser.attribute :a2
-    ser.attribute :a3, hide: true
+    serializer.attribute :a1
+    serializer.attribute :a2
+    serializer.attribute :a3, hide: true
 
-    ser.attribute :b, serializer: b, hide: true
-    ser.attribute :c, serializer: c, hide: true
-    ser.attribute :d, serializer: d
-    ser
+    serializer.attribute :b, serializer: b, hide: true
+    serializer.attribute :c, serializer: c, hide: true
+    serializer.attribute :d, serializer: d
+    serializer
   end
   let(:b) do
-    ser = Class.new(base_class)
-    ser.attribute :b1
-    ser.attribute :b2
-    ser.attribute :b3, hide: true
-    ser
+    serializer = Class.new(base_class)
+    serializer.attribute :b1
+    serializer.attribute :b2
+    serializer.attribute :b3, hide: true
+    serializer
   end
   let(:c) do
-    ser = Class.new(base_class)
-    ser.attribute :c1
-    ser.attribute :c2
-    ser.attribute :c3, hide: true
-    ser
+    serializer = Class.new(base_class)
+    serializer.attribute :c1
+    serializer.attribute :c2
+    serializer.attribute :c3, hide: true
+    serializer
   end
   let(:d) do
-    ser = Class.new(base_class)
-    ser.attribute :d1
-    ser.attribute :d2
-    ser.attribute :d3, hide: true
-    ser
+    serializer = Class.new(base_class)
+    serializer.attribute :d1
+    serializer.attribute :d2
+    serializer.attribute :d3, hide: true
+    serializer
   end
   let(:current_serializer) { a }
   let(:described_class) { current_serializer::SeregaPlan }

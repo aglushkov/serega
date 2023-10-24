@@ -56,6 +56,15 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
 
+      - name: Install codespell
+        if: startsWith(matrix.ruby, '3.2') && matrix.activerecord == '7.0'
+        run: |
+          python -m pip install --upgrade pip
+          pip install codespell==2.2.6
+      - name: Check spelling with codespell
+        if: startsWith(matrix.ruby, '3.2') && matrix.activerecord == '7.0'
+        run: codespell --skip="./sig,./doc,./coverage,./vendor" || exit 1
+
       # Check code standards only for latest MRI. It takes a lot of time for jruby or truffleruby
       - name: Check Code Standards
         if: startsWith(matrix.ruby, '3.2') && matrix.activerecord == '7.0'

@@ -61,10 +61,10 @@ class Serega
       # Shows specified serializer class
       # @return [Serega, nil] Attribute serializer if exists
       def serializer
-        ser = @serializer
-        return ser if (ser.is_a?(Class) && (ser < Serega)) || !ser
+        serializer = @serializer
+        return serializer if (serializer.is_a?(Class) && (serializer < Serega)) || !serializer
 
-        @serializer = ser.is_a?(String) ? Object.const_get(ser, false) : ser.call
+        @serializer = serializer.is_a?(String) ? Object.const_get(serializer, false) : serializer.call
       end
 
       #
