@@ -26,8 +26,8 @@ end
 require "serega"
 
 def load_plugin_code(*names)
-  ser = Class.new(Serega)
-  names.each { |name| ser.plugin(name) }
+  serializer_class = Class.new(Serega)
+  names.each { |name| serializer_class.plugin(name) }
 end
 
 RSpec.configure do |config|

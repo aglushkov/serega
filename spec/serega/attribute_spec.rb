@@ -57,20 +57,20 @@ RSpec.describe Serega::SeregaAttribute do
   end
 
   describe "#serializer" do
-    let(:ser) { Class.new(Serega) }
-    let(:proc_ser) { proc { ser } }
+    let(:serializer) { Class.new(Serega) }
+    let(:serializer_as_proc) { proc { serializer } }
 
     it "returns provided :serializer option" do
-      expect(attribute_class.new(name: :name, opts: {serializer: ser}).serializer).to eq ser
+      expect(attribute_class.new(name: :name, opts: {serializer: serializer}).serializer).to eq serializer
     end
 
     it "extracts provided :serializer from Proc" do
-      expect(attribute_class.new(name: :name, opts: {serializer: proc_ser}).serializer).to eq ser
+      expect(attribute_class.new(name: :name, opts: {serializer: serializer_as_proc}).serializer).to eq serializer
     end
 
     it "extracts provided :serializer from String" do
-      Object.const_set(:AAA, ser)
-      expect(attribute_class.new(name: :name, opts: {serializer: "AAA"}).serializer).to eq ser
+      Object.const_set(:AAA, serializer)
+      expect(attribute_class.new(name: :name, opts: {serializer: "AAA"}).serializer).to eq serializer
     end
   end
 

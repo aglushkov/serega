@@ -29,7 +29,7 @@ RSpec.describe Serega::SeregaPlugins::Batch do
         expect(at.batch[:key].call(object)).to eq 1
       end
 
-      it "returns key without changes proc taht accepts 2 params provided" do
+      it "returns provided key instance when it accepts 2 params" do
         key = proc { |a, b| :id }
         at = serializer.attribute :at, batch: {loader: :loader, key: key}
         expect(at.batch[:key]).to eq key

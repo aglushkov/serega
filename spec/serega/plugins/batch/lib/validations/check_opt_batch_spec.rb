@@ -3,9 +3,9 @@
 load_plugin_code :batch
 
 RSpec.describe Serega::SeregaPlugins::Batch::CheckOptBatch do
-  subject(:check) { described_class.call(opts, block, ser) }
+  subject(:check) { described_class.call(opts, block, serializer) }
 
-  let(:ser) { Class.new(Serega) { plugin :batch } }
+  let(:serializer) { Class.new(Serega) { plugin :batch } }
   let(:opts) { {} }
   let(:block) { nil }
 
@@ -30,7 +30,7 @@ RSpec.describe Serega::SeregaPlugins::Batch::CheckOptBatch do
   end
 
   it "allows to skip sub option :key if default key specified" do
-    ser.config.batch.default_key = :id
+    serializer.config.batch.default_key = :id
     opts[:batch] = {loader: :abc}
     expect { check }.not_to raise_error
   end
@@ -77,7 +77,7 @@ RSpec.describe Serega::SeregaPlugins::Batch::CheckOptBatch do
 
   it "prohibits to use with block" do
     opts[:batch] = {key: :key, loader: :loader}
-    expect { described_class.call(opts, proc {}, ser) }
+    expect { described_class.call(opts, proc {}, serializer) }
       .to raise_error Serega::SeregaError, "Option :batch can not be used together with block"
   end
 end
