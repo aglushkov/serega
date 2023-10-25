@@ -21,6 +21,9 @@ class Serega
         # @return [Integer] count of regular parameters
         #
         def call(object, max_count:)
+          # Procs (but not lambdas) can accept all provided parameters
+          return max_count if object.is_a?(Proc) && !object.lambda?
+
           parameters = object.is_a?(Proc) ? object.parameters : object.method(:call).parameters
           count = 0
 

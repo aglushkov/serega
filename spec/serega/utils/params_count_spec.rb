@@ -3,12 +3,12 @@
 RSpec.describe Serega::SeregaUtils::ParamsCount do
   it "counts regular parameters of proc" do
     callable = proc {}
-    expect(described_class.call(callable, max_count: 1)).to eq 0
+    expect(described_class.call(callable, max_count: 1)).to eq 1
 
     callable = proc { |one| }
     expect(described_class.call(callable, max_count: 0)).to eq 0
     expect(described_class.call(callable, max_count: 1)).to eq 1
-    expect(described_class.call(callable, max_count: 2)).to eq 1
+    expect(described_class.call(callable, max_count: 2)).to eq 2
 
     callable = proc { |*one| }
     expect(described_class.call(callable, max_count: 0)).to eq 0
@@ -19,7 +19,7 @@ RSpec.describe Serega::SeregaUtils::ParamsCount do
     expect(described_class.call(callable, max_count: 0)).to eq 0
     expect(described_class.call(callable, max_count: 1)).to eq 1
     expect(described_class.call(callable, max_count: 2)).to eq 2
-    expect(described_class.call(callable, max_count: 3)).to eq 2
+    expect(described_class.call(callable, max_count: 3)).to eq 3
 
     callable = proc { |one, *two| }
     expect(described_class.call(callable, max_count: 0)).to eq 0
@@ -35,7 +35,7 @@ RSpec.describe Serega::SeregaUtils::ParamsCount do
     expect(described_class.call(callable, max_count: 4)).to eq 4
 
     callable = proc { |one:, two: 2, **three, &block| }
-    expect(described_class.call(callable, max_count: 5)).to eq 0
+    expect(described_class.call(callable, max_count: 5)).to eq 5
   end
 
   it "counts regular parameters of lambdas" do
