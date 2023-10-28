@@ -237,7 +237,7 @@ class Serega
           def call(formatter_name, formatter)
             raise Serega::SeregaError, "Option #{formatter_name.inspect} must have callable value" unless formatter.respond_to?(:call)
 
-            SeregaValidations::Utils::CheckExtraKeywordArg.call(formatter_name, formatter)
+            SeregaValidations::Utils::CheckExtraKeywordArg.call(formatter, "#{formatter_name.inspect} value")
             params_count = SeregaUtils::ParamsCount.call(formatter, max_count: 1)
 
             if params_count != 1

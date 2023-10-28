@@ -22,15 +22,15 @@ class Serega
 
             raise SeregaError, must_be_callable unless key.respond_to?(:call)
 
-            SeregaValidations::Utils::CheckExtraKeywordArg.call(:key, key)
+            SeregaValidations::Utils::CheckExtraKeywordArg.call(key, "batch option :key")
             params_count = SeregaUtils::ParamsCount.call(key, max_count: 2)
-            raise SeregaError, params_count_error if (params_count != 1) && (params_count != 2)
+            raise SeregaError, params_count_error if params_count > 2
           end
 
           private
 
           def params_count_error
-            "Invalid :batch option :key. When it is a callable object it must have 1 or 2 parameters (object, context)"
+            "Invalid :batch option :key. It can accept maximum 2 parameters (object, context)"
           end
 
           def must_be_callable

@@ -12,7 +12,7 @@ RSpec.describe Serega::SeregaPlugins::If::CheckOptIfValue do
   end
 
   let(:keyword_error) do
-    "Option :if_value value should not accept keyword argument `a:`"
+    "Invalid :if_value option. It should not have any required keyword arguments"
   end
 
   let(:no_serializer) do

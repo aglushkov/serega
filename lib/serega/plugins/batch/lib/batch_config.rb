@@ -28,11 +28,11 @@ class Serega
           end
 
           callable ||= block
-          SeregaValidations::Utils::CheckExtraKeywordArg.call(loader_name, callable)
+          SeregaValidations::Utils::CheckExtraKeywordArg.call(callable, "batch loader `#{loader_name}`")
           params_count = SeregaUtils::ParamsCount.call(callable, max_count: 3)
 
-          if params_count != 1 && params_count != 2 && params_count != 3
-            raise SeregaError, "Batch loader should have 1 to 3 parameters (keys, context, plan)"
+          if params_count > 3
+            raise SeregaError, "Batch loader can have maximum 3 parameters (keys, context, plan)"
           end
 
           loaders[loader_name] = callable

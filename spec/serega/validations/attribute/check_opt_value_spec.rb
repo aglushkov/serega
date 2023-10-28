@@ -27,7 +27,7 @@ RSpec.describe Serega::SeregaValidations::Attribute::CheckOptValue do
 
     value = proc { |one| }
     described_class.call(value: value)
-    expect(validator).to have_received(:call).with(:value, value)
+    expect(validator).to have_received(:call).with(value, ":value option")
   end
 
   it "checks callable params_count is 1 or 2" do

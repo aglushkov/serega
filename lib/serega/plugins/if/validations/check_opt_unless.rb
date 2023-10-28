@@ -29,7 +29,7 @@ class Serega
             return if value.is_a?(Symbol)
             raise SeregaError, must_be_callable unless value.respond_to?(:call)
 
-            SeregaValidations::Utils::CheckExtraKeywordArg.call(:unless, value)
+            SeregaValidations::Utils::CheckExtraKeywordArg.call(value, ":unless option")
             params_count = SeregaUtils::ParamsCount.call(value, max_count: 2)
 
             if params_count > 2

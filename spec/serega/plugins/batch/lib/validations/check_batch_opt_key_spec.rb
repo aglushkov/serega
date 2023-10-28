@@ -4,7 +4,7 @@ load_plugin_code :batch
 
 RSpec.describe Serega::SeregaPlugins::Batch::CheckBatchOptKey do
   let(:callable_parameters_error) do
-    "Invalid :batch option :key. When it is a callable object it must have 1 or 2 parameters (object, context)"
+    "Invalid :batch option :key. It can accept maximum 2 parameters (object, context)"
   end
 
   let(:must_be_callable) do
@@ -24,12 +24,12 @@ RSpec.describe Serega::SeregaPlugins::Batch::CheckBatchOptKey do
     expect { described_class.call(:foo) }.not_to raise_error
   end
 
-  it "checks callable value params count is 1 or 2" do
+  it "checks callable value params with maximum 2 params" do
     value = proc {}
     counter = Serega::SeregaUtils::ParamsCount
     allow(counter).to receive(:call).and_return(0, 1, 2, 3)
 
-    expect { described_class.call(value) }.to raise_error Serega::SeregaError, callable_parameters_error
+    expect { described_class.call(value) }.not_to raise_error
     expect { described_class.call(value) }.not_to raise_error
     expect { described_class.call(value) }.not_to raise_error
     expect { described_class.call(value) }.to raise_error Serega::SeregaError, callable_parameters_error

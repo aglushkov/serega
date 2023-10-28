@@ -56,7 +56,11 @@ class Serega
           return proc { |object| object.public_send(key) } if key.is_a?(Symbol)
 
           params_count = SeregaUtils::ParamsCount.call(key, max_count: 2)
-          (params_count == 1) ? proc { |obj, _ctx| key.call(obj) } : key
+          case params_count
+          when 0 then proc { key.call }
+          when 1 then proc { |object| key.call(object) }
+          else key
+          end
         end
 
         def prepare_batch_loader(loader)
@@ -64,8 +68,9 @@ class Serega
 
           params_count = SeregaUtils::ParamsCount.call(loader, max_count: 3)
           case params_count
-          when 1 then proc { |obj, _ctx, _plan| loader.call(obj) }
-          when 2 then proc { |obj, ctx, _plan| loader.call(obj, ctx) }
+          when 0 then proc { loader.call }
+          when 1 then proc { |object| loader.call(object) }
+          when 2 then proc { |object, context| loader.call(object, context) }
           else loader
           end
         end
