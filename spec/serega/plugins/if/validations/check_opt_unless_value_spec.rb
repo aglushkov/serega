@@ -12,7 +12,7 @@ RSpec.describe Serega::SeregaPlugins::If::CheckOptUnlessValue do
   end
 
   let(:keyword_error) do
-    "Option :unless_value value should not accept keyword argument `a:`"
+    "Invalid :unless_value option. It should not have any required keyword arguments"
   end
 
   let(:no_serializer) do

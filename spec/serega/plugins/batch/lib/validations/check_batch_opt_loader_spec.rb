@@ -4,11 +4,11 @@ load_plugin_code :batch
 
 RSpec.describe Serega::SeregaPlugins::Batch::CheckBatchOptLoader do
   let(:params_count_error) do
-    "Invalid :batch option :loader. It must accept 1, 2 or 3 parameters (keys, context, plan)"
+    "Invalid :batch option :loader. It can accept maximum 3 parameters (keys, context, plan)"
   end
 
   let(:param_type_error) do
-    "Option :loader value should not accept keyword argument `a:`"
+    "Invalid :batch option :loader. It should not have any required keyword arguments"
   end
 
   let(:must_be_callable) do
@@ -29,12 +29,12 @@ RSpec.describe Serega::SeregaPlugins::Batch::CheckBatchOptLoader do
     expect { described_class.call(value) }.to raise_error Serega::SeregaError, param_type_error
   end
 
-  it "allows Proc with 1 to 3 args" do
+  it "allows loaders with maximum 3 args" do
     value = proc {}
     counter = Serega::SeregaUtils::ParamsCount
     allow(counter).to receive(:call).and_return(0, 1, 2, 3, 4)
 
-    expect { described_class.call(value) }.to raise_error Serega::SeregaError, params_count_error
+    expect { described_class.call(value) }.not_to raise_error
     expect { described_class.call(value) }.not_to raise_error
     expect { described_class.call(value) }.not_to raise_error
     expect { described_class.call(value) }.not_to raise_error

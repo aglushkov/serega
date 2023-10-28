@@ -12,7 +12,7 @@ RSpec.describe Serega::SeregaPlugins::If::CheckOptIf do
   end
 
   let(:keyword_error) do
-    "Option :if value should not accept keyword argument `a:`"
+    "Invalid :if option. It should not have any required keyword arguments"
   end
 
   it "prohibits non-proc, non-callable, non-symbol values" do

@@ -1,57 +1,28 @@
 # frozen_string_literal: true
 
 RSpec.describe Serega::SeregaValidations::Attribute::CheckBlock do
-  let(:block_error) { "Block must have one or two parameters (object, context)" }
-  let(:keyword_error) { "Block must must not have keyword parameters" }
+  let(:params_count_error) { "Block can have maximum two parameters (object, context)" }
+  let(:keyword_error) { "Invalid block. It should not have any required keyword arguments" }
   let(:block) { nil }
 
   it "allows no block" do
     expect { described_class.call(nil) }.not_to raise_error
   end
 
-  it "allows block as Proc (not lambda) with at least 1 parameter, except keyword params" do
-    block = proc {}
-    expect { described_class.call(block) }.to raise_error Serega::SeregaError, block_error
-
-    block = proc { |_one| }
-    expect { described_class.call(block) }.not_to raise_error
-
-    block = proc { |_one, _two| }
-    expect { described_class.call(block) }.not_to raise_error
-
-    block = proc { |_one, *rest| }
-    expect { described_class.call(block) }.not_to raise_error
-
-    block = proc { |*rest| }
-    expect { described_class.call(block) }.not_to raise_error
-
-    block = proc { |_one, _two, _three| }
-    expect { described_class.call(block) }.not_to raise_error
-
-    block = proc { |_one, _two, a = 3, *b, d: 4, **e, &block| }
-    expect { described_class.call(block) }.not_to raise_error
-
-    block = proc { |_one, ctx:| }
-    expect { described_class.call(block) }.to raise_error Serega::SeregaError, keyword_error
+  it "checks extra keyword arguments" do
+    expect { described_class.call(proc { |a:| }) }.to raise_error Serega::SeregaError, keyword_error
   end
 
-  it "allows block as lambda with 1-2 parameters" do
-    block = lambda {}
-    expect { described_class.call(block) }.to raise_error Serega::SeregaError, block_error
+  it "checks loader params_count is 1, 2 or 3" do
+    block = proc {}
+    counter = Serega::SeregaUtils::ParamsCount
+    allow(counter).to receive(:call).and_return(0, 1, 2, 3)
 
-    block = lambda { |_one| }
     expect { described_class.call(block) }.not_to raise_error
-
-    block = lambda { |_one, _two| }
     expect { described_class.call(block) }.not_to raise_error
-
-    block = lambda { |_one, _two, _three| }
-    expect { described_class.call(block) }.to raise_error Serega::SeregaError, block_error
-
-    block = lambda { |_one, _two, a = 3, *b, d: 4, **e, &block| }
     expect { described_class.call(block) }.not_to raise_error
+    expect { described_class.call(block) }.to raise_error Serega::SeregaError, params_count_error
 
-    block = lambda { |_one, ctx:| }
-    expect { described_class.call(block) }.to raise_error Serega::SeregaError, keyword_error
+    expect(counter).to have_received(:call).with(block, max_count: 2).exactly(4).times
   end
 end

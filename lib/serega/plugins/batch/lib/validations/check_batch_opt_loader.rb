@@ -22,15 +22,15 @@ class Serega
 
             raise SeregaError, must_be_callable unless loader.respond_to?(:call)
 
-            SeregaValidations::Utils::CheckExtraKeywordArg.call(:loader, loader)
+            SeregaValidations::Utils::CheckExtraKeywordArg.call(loader, ":batch option :loader")
             params_count = SeregaUtils::ParamsCount.call(loader, max_count: 3)
-            raise SeregaError, params_count_error if (params_count != 1) && (params_count != 2) && (params_count != 3)
+            raise SeregaError, params_count_error if params_count > 3
           end
 
           private
 
           def params_count_error
-            "Invalid :batch option :loader. It must accept 1, 2 or 3 parameters (keys, context, plan)"
+            "Invalid :batch option :loader. It can accept maximum 3 parameters (keys, context, plan)"
           end
 
           def must_be_callable

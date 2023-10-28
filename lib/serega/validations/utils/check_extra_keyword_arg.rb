@@ -12,19 +12,19 @@ class Serega
       class CheckExtraKeywordArg
         # Checks hash keys are allowed
         #
-        # @param option_name [Symbol] Option name
         # @param callable [#call] Callable object
+        # @param callable_description [Symbol] Callable object description
         #
         # @raise [Serega::SeregaError] error if callable accepts required keyword argument
         #
         # @return [void]
-        def self.call(option_name, callable)
+        def self.call(callable, callable_description)
           parameters = callable.is_a?(Proc) ? callable.parameters : callable.method(:call).parameters
 
           parameters.each do |parameter|
             next unless parameter[0] == :keyreq
 
-            raise Serega::SeregaError, "Option #{option_name.inspect} value should not accept keyword argument `#{parameter[1]}:`"
+            raise Serega::SeregaError, "Invalid #{callable_description}. It should not have any required keyword arguments"
           end
         end
       end

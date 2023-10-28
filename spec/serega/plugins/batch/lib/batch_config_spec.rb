@@ -7,6 +7,14 @@ load_plugin_code :batch
 RSpec.describe Serega::SeregaPlugins::Batch::BatchConfig do
   let(:batch_config) { described_class.new({loaders: {}}) }
 
+  let(:params_count_error) do
+    "Batch loader can have maximum 3 parameters (keys, context, plan)"
+  end
+
+  let(:keyword_error) do
+    "Invalid batch loader `name`. It should not have any required keyword arguments"
+  end
+
   describe "#define" do
     it "defines named loader" do
       loader = proc { |a| }
@@ -19,28 +27,22 @@ RSpec.describe Serega::SeregaPlugins::Batch::BatchConfig do
         .to raise_error Serega::SeregaError, "Batch loader can be specified with one of arguments - callable value or &block"
     end
 
-    it "raises error when provided incorrect params" do
-      expect { batch_config.define(:name) {} }.to raise_error "Batch loader should have 1 to 3 parameters (keys, context, plan)"
-      expect { batch_config.define(:name) { |a| } }.not_to raise_error
-      expect { batch_config.define(:name) { |a, b| } }.not_to raise_error
-      expect { batch_config.define(:name) { |a, b, c| } }.not_to raise_error
-      expect { batch_config.define(:name) { |a, b, c, d| } }.not_to raise_error
-      expect { batch_config.define(:name, &lambda { |a, b, c, d| }) }.to raise_error "Batch loader should have 1 to 3 parameters (keys, context, plan)"
-      expect { batch_config.define(:name) { |a:| } }.to raise_error "Option :name value should not accept keyword argument `a:`"
+    it "checks extra keyword arguments" do
+      expect { batch_config.define(:name) { |a:| } }.to raise_error Serega::SeregaError, keyword_error
+    end
 
-      expect { batch_config.define(:name, proc {}) }.to raise_error "Batch loader should have 1 to 3 parameters (keys, context, plan)"
-      expect { batch_config.define(:name, proc { |a| }) }.not_to raise_error
-      expect { batch_config.define(:name, proc { |a, b| }) }.not_to raise_error
-      expect { batch_config.define(:name, proc { |a, b, c| }) }.not_to raise_error
-      expect { batch_config.define(:name, proc { |a, b, c, d| }) }.not_to raise_error
-      expect { batch_config.define(:name, proc { |a:| }) }.to raise_error "Option :name value should not accept keyword argument `a:`"
+    it "checks loader params_count is 1, 2 or 3" do
+      value = proc {}
+      counter = Serega::SeregaUtils::ParamsCount
+      allow(counter).to receive(:call).and_return(0, 1, 2, 3, 4)
 
-      expect { batch_config.define(:name, lambda {}) }.to raise_error "Batch loader should have 1 to 3 parameters (keys, context, plan)"
-      expect { batch_config.define(:name, lambda { |a| }) }.not_to raise_error
-      expect { batch_config.define(:name, lambda { |a, b| }) }.not_to raise_error
-      expect { batch_config.define(:name, lambda { |a, b, c| }) }.not_to raise_error
-      expect { batch_config.define(:name, lambda { |a, b, c, d| }) }.to raise_error "Batch loader should have 1 to 3 parameters (keys, context, plan)"
-      expect { batch_config.define(:name, lambda { |a:| }) }.to raise_error "Option :name value should not accept keyword argument `a:`"
+      expect { batch_config.define(:name, &value) }.not_to raise_error
+      expect { batch_config.define(:name, &value) }.not_to raise_error
+      expect { batch_config.define(:name, &value) }.not_to raise_error
+      expect { batch_config.define(:name, &value) }.not_to raise_error
+      expect { batch_config.define(:name, &value) }.to raise_error Serega::SeregaError, params_count_error
+
+      expect(counter).to have_received(:call).with(value, max_count: 3).exactly(5).times
     end
   end
 

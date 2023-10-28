@@ -54,22 +54,50 @@ RSpec.describe Serega::SeregaPlugins::Batch do
   end
 
   describe "attributes options" do
-    it "allows to provide loader with 1 argument" do
-      loader = lambda { |a| a }
-      attribute = serializer.attribute :foo, batch: {key: :key, loader: loader}
-      expect(attribute.batch[:loader].call(1, 2, 3)).to eq 1
+    describe "loader" do
+      it "allows to provide loader with 0 arguments" do
+        loader = lambda {}
+        attribute = serializer.attribute :foo, batch: {key: :key, loader: loader}
+        expect(attribute.batch[:loader].call(1, 2, 3)).to be_nil
+      end
+
+      it "allows to provide loader with 1 argument" do
+        loader = lambda { |a| a }
+        attribute = serializer.attribute :foo, batch: {key: :key, loader: loader}
+        expect(attribute.batch[:loader].call(1, 2, 3)).to eq 1
+      end
+
+      it "allows to provide loader with 2 arguments" do
+        loader = lambda { |a, b| b }
+        attribute = serializer.attribute :foo, batch: {key: :key, loader: loader}
+        expect(attribute.batch[:loader].call(1, 2, 3)).to eq 2
+      end
+
+      it "allows to provide loader with 3 arguments" do
+        loader = lambda { |a, b, c| c }
+        attribute = serializer.attribute :foo, batch: {key: :key, loader: loader}
+        expect(attribute.batch[:loader].call(1, 2, 3)).to eq 3
+      end
     end
 
-    it "allows to provide loader with 2 arguments" do
-      loader = lambda { |a, b| b }
-      attribute = serializer.attribute :foo, batch: {key: :key, loader: loader}
-      expect(attribute.batch[:loader].call(1, 2, 3)).to eq 2
-    end
+    describe "key" do
+      it "allows to provide key with 0 arguments" do
+        key = lambda {}
+        attribute = serializer.attribute :foo, batch: {key: key, loader: proc {}}
+        expect(attribute.batch[:key].call(1, 2)).to be_nil
+      end
 
-    it "allows to provide loader with 3 arguments" do
-      loader = lambda { |a, b, c| c }
-      attribute = serializer.attribute :foo, batch: {key: :key, loader: loader}
-      expect(attribute.batch[:loader].call(1, 2, 3)).to eq 3
+      it "allows to provide key with 1 argument" do
+        key = lambda { |a| a }
+        attribute = serializer.attribute :foo, batch: {key: key, loader: proc {}}
+        expect(attribute.batch[:key].call(1, 2)).to eq 1
+      end
+
+      it "allows to provide key with 2 arguments" do
+        key = lambda { |a, b| b }
+        attribute = serializer.attribute :foo, batch: {key: key, loader: proc {}}
+        expect(attribute.batch[:key].call(1, 2)).to eq 2
+      end
     end
   end
 

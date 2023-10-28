@@ -140,19 +140,22 @@ class Serega
       end
 
       def prepare_init_block
-        return unless init_block
-
-        params_count = SeregaUtils::ParamsCount.call(init_block, max_count: 2)
-        (params_count == 1) ? proc { |obj, _ctx| init_block.call(obj) } : init_block
+        prepare_callable_proc(init_block)
       end
 
       def prepare_value_option_block
-        init_value = init_opts[:value]
-        return unless init_value
+        prepare_callable_proc(init_opts[:value])
+      end
 
-        # We checked in advance in CheckOptValue that we have 1 or 2 parameters
-        params_count = SeregaUtils::ParamsCount.call(init_value, max_count: 2)
-        (params_count == 1) ? proc { |obj, _ctx| init_value.call(obj) } : init_value
+      def prepare_callable_proc(callable)
+        return unless callable
+
+        params_count = SeregaUtils::ParamsCount.call(callable, max_count: 2)
+        case params_count
+        when 0 then proc { |obj, _ctx| callable.call }
+        when 1 then proc { |obj, _ctx| callable.call(obj) }
+        else callable
+        end
       end
 
       def prepare_delegate_block
