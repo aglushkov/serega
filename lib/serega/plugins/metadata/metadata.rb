@@ -10,17 +10,24 @@ class Serega
     # Adds ability to describe metadata that must be added to serialized response
     #
     # Added class-level method `:meta_attribute`, to define metadata, it accepts:
-    # - *path [Array<Symbol>] - nested hash keys beginning from the root object.
-    # - **options [Hash] - defaults are `hide_nil: false, hide_empty: false`
-    # - &block [Proc] - describes value for current meta attribute
+    #
+    # - `*path` [Array of Symbols] - nested hash keys.
+    # - `**options` [Hash]
+    #
+    #   - `:const` - describes metadata value (if it is constant)
+    #   - `:value` - describes metadata value as any `#callable` instance
+    #   - `:hide_nil` - does not show metadata key if value is nil, `false` by default
+    #   - `:hide_empty`, does not show metadata key if value is nil or empty, `false` by default
+    #
+    # - `&block` [Proc] - describes value for current meta attribute
     #
     # @example
     #  class AppSerializer < Serega
     #    plugin :root
     #    plugin :metadata
     #
-    #    meta_attribute(:version) { '1.2.3' }
-    #    meta_attribute(:ab_tests, :names) { %i[foo bar] }
+    #    meta_attribute(:version, const: '1.2.3')
+    #    meta_attribute(:ab_tests, :names, value: ABTests.new.method(:names))
     #    meta_attribute(:meta, :paging, hide_nil: true) do |records, ctx|
     #      next unless records.respond_to?(:total_count)
     #
@@ -28,7 +35,7 @@ class Serega
     #    end
     #  end
     #
-    #  AppSerializer.to_h(nil) # => {:data=>nil, :version=>"1.2.3", :ab_tests=>{:names=>[:foo, :bar]}}
+    #  AppSerializer.to_h(nil) # => {:data=>nil, :version=>"1.2.3", :ab_tests=>{:names=> ... }}
     #
     module Metadata
       # @return [Symbol] Plugin name
@@ -64,8 +71,10 @@ class Serega
 
         require_relative "meta_attribute"
         require_relative "validations/check_block"
+        require_relative "validations/check_opt_const"
         require_relative "validations/check_opt_hide_nil"
         require_relative "validations/check_opt_hide_empty"
+        require_relative "validations/check_opt_value"
         require_relative "validations/check_opts"
         require_relative "validations/check_path"
 
@@ -83,7 +92,7 @@ class Serega
       # @return [void]
       #
       def self.after_load_plugin(serializer_class, **_opts)
-        serializer_class.config.opts[:metadata] = {attribute_keys: %i[path hide_nil hide_empty]}
+        serializer_class.config.opts[:metadata] = {attribute_keys: %i[const hide_nil hide_empty value]}
       end
 
       #

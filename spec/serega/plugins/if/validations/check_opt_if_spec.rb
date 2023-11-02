@@ -28,7 +28,7 @@ RSpec.describe Serega::SeregaPlugins::If::CheckOptIf do
     expect { described_class.call(if: proc { |a:| }) }.to raise_error Serega::SeregaError, keyword_error
   end
 
-  it "checks callable params_count is 0, 1 or 2" do
+  it "checks callable has maximum 2 params" do
     value = proc {}
     counter = Serega::SeregaUtils::ParamsCount
     allow(counter).to receive(:call).and_return(0, 1, 2, 3)

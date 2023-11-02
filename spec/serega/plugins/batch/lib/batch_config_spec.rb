@@ -31,7 +31,7 @@ RSpec.describe Serega::SeregaPlugins::Batch::BatchConfig do
       expect { batch_config.define(:name) { |a:| } }.to raise_error Serega::SeregaError, keyword_error
     end
 
-    it "checks loader params_count is 1, 2 or 3" do
+    it "checks loader has maximum 3 args" do
       value = proc {}
       counter = Serega::SeregaUtils::ParamsCount
       allow(counter).to receive(:call).and_return(0, 1, 2, 3, 4)

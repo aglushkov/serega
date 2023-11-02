@@ -39,7 +39,7 @@ class Serega
             SeregaValidations::Utils::CheckExtraKeywordArg.call(value, ":value option")
             params_count = SeregaUtils::ParamsCount.call(value, max_count: 2)
 
-            raise SeregaError, params_count_error if (params_count != 1) && (params_count != 2)
+            raise SeregaError, params_count_error if params_count > 2
           end
 
           def check_value_type(value)
@@ -51,7 +51,7 @@ class Serega
           end
 
           def params_count_error
-            "Option :value value must have 1 or 2 parameters (object, context)"
+            "Option :value value can have maximum 2 parameters (object, context)"
           end
         end
       end

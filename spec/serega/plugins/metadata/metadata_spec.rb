@@ -28,6 +28,7 @@ RSpec.describe Serega::SeregaPlugins::Metadata do
       expect(child_attr).not_to equal parent_attr
       expect(child_attr.opts).to eq(hide_nil: true)
       expect(child_attr.path).to eq([:version])
+      expect(child_attr.block).to equal parent_attr.block
       expect(child_attr.value(nil, nil)).to eq "1.2.3"
     end
 
@@ -46,43 +47,6 @@ RSpec.describe Serega::SeregaPlugins::Metadata do
     end
   end
 
-  describe "MetaAttribute validations" do
-    subject(:validate) { serializer::MetaAttribute.new(path: ["PATH"], opts: {foo: :bar}, block: "BLOCK") }
-
-    let(:serializer) do
-      Class.new(Serega) do
-        plugin :root
-        plugin :metadata
-      end
-    end
-
-    before do
-      allow(Serega::SeregaPlugins::Metadata::MetaAttribute::CheckPath).to receive(:call)
-      allow(Serega::SeregaPlugins::Metadata::MetaAttribute::CheckOpts).to receive(:call)
-      allow(Serega::SeregaPlugins::Metadata::MetaAttribute::CheckBlock).to receive(:call)
-    end
-
-    it "validates path, opts, block" do
-      validate
-      expect(Serega::SeregaPlugins::Metadata::MetaAttribute::CheckPath)
-        .to have_received(:call).with(["PATH"])
-
-      expect(Serega::SeregaPlugins::Metadata::MetaAttribute::CheckOpts)
-        .to have_received(:call).with({foo: :bar}, [:path, :hide_nil, :hide_empty])
-
-      expect(Serega::SeregaPlugins::Metadata::MetaAttribute::CheckBlock)
-        .to have_received(:call).with("BLOCK")
-    end
-
-    it "skips validating path when check_attribute_name option is false" do
-      serializer.config.check_attribute_name = false
-      validate
-
-      expect(Serega::SeregaPlugins::Metadata::MetaAttribute::CheckPath)
-        .not_to have_received(:call)
-    end
-  end
-
   describe "serialization" do
     subject(:response) { user_serializer.to_h(obj, context: context) }
 
@@ -96,7 +60,7 @@ RSpec.describe Serega::SeregaPlugins::Metadata do
     end
 
     context "with regular metadata with single object" do
-      before { user_serializer.meta_attribute(:version) { "1.2.3" } }
+      before { user_serializer.meta_attribute(:version, const: "1.2.3") }
 
       it "appends metadata attributes to response" do
         expect(response).to eq(data: {first_name: "FIRST_NAME"}, version: "1.2.3")
@@ -106,7 +70,7 @@ RSpec.describe Serega::SeregaPlugins::Metadata do
     context "with regular metadata with multiple objects" do
       let(:obj) { [double(first_name: "FIRST_NAME")] }
 
-      before { user_serializer.meta_attribute(:version) { "1.2.3" } }
+      before { user_serializer.meta_attribute(:version, const: "1.2.3") }
 
       it "appends metadata attributes to response" do
         expect(response).to eq(data: [{first_name: "FIRST_NAME"}], version: "1.2.3")
@@ -115,15 +79,18 @@ RSpec.describe Serega::SeregaPlugins::Metadata do
 
     context "with metadata with parameters" do
       let(:context) { {page: 2, per_page: 3} }
-
-      before do
-        user_serializer.meta_attribute(:meta, :paging) do |obj, context|
+      let(:block) do
+        proc do |obj, context|
           {
             total_count: Array(obj).size,
             page: context[:page],
             per_page: context[:per_page]
           }
         end
+      end
+
+      before do
+        user_serializer.meta_attribute(:meta, :paging, value: block)
       end
 
       it "appends metadata attributes to response" do
@@ -138,8 +105,8 @@ RSpec.describe Serega::SeregaPlugins::Metadata do
       let(:context) { {page: 2, per_page: 3} }
 
       before do
-        user_serializer.meta_attribute(:version, :number) { "1.2.3" }
-        user_serializer.meta_attribute(:version) { "1.2.3" }
+        user_serializer.meta_attribute(:version, :number, const: "1.2.3")
+        user_serializer.meta_attribute(:version, const: "1.2.3")
         user_serializer.meta_attribute(:meta, :paging, :total_count) { |obj| Array(obj).count }
         user_serializer.meta_attribute(:meta, :paging, :page) { |_obj, ctx| ctx[:page] }
         user_serializer.meta_attribute(:meta, :paging, :per_page) { |_obj, ctx| ctx[:per_page] }
@@ -201,7 +168,7 @@ RSpec.describe Serega::SeregaPlugins::Metadata do
     context "when root is nil" do
       before do
         user_serializer.config.root = {one: nil, many: nil}
-        user_serializer.meta_attribute(:version) { "1.2.3" }
+        user_serializer.meta_attribute(:version, const: "1.2.3")
       end
 
       it "does not add metadata" do

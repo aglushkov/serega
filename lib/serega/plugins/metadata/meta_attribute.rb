@@ -20,7 +20,7 @@ class Serega
           # @return [Proc] Meta attribute options
           attr_reader :opts
 
-          # @return [Proc] Meta attribute originally added block
+          # @return [Proc,nil] Meta attribute originally added block
           attr_reader :block
 
           #
@@ -39,6 +39,7 @@ class Serega
             @path = SeregaUtils::EnumDeepDup.call(path)
             @opts = SeregaUtils::EnumDeepDup.call(opts)
             @block = block
+            @normalized_block = normalize_block(opts[:value], opts[:const], block)
           end
 
           #
@@ -50,19 +51,34 @@ class Serega
           # @return [Object] Serialized meta attribute value
           #
           def value(object, context)
-            block.call(object, context)
+            normalized_block.call(object, context)
           end
 
           def hide?(value)
-            (opts[:hide_nil] && value.nil?) || (opts[:hide_empty] && value.empty?)
+            (!!opts[:hide_nil] && value.nil?) || (!!opts[:hide_empty] && (value.nil? || (value.respond_to?(:empty?) && value.empty?)))
           end
 
           private
 
+          attr_reader :normalized_block
+
+          def normalize_block(value, const, block)
+            return proc { const } if const
+
+            callable = (value || block)
+            params_count = SeregaUtils::ParamsCount.call(callable, max_count: 2)
+
+            case params_count
+            when 0 then proc { callable.call }
+            when 1 then proc { |obj| callable.call(obj) }
+            else callable
+            end
+          end
+
           def check(path, opts, block)
             CheckPath.call(path) if check_attribute_name
-            CheckOpts.call(opts, attribute_keys)
-            CheckBlock.call(block)
+            CheckOpts.call(opts, block, attribute_keys)
+            CheckBlock.call(block) if block
           end
 
           def attribute_keys
