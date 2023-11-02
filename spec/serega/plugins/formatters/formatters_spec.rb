@@ -55,16 +55,15 @@ RSpec.describe Serega::SeregaPlugins::Formatters do
     it "checks formatter params when defined as config option" do
       formatter = proc {}
       counter = Serega::SeregaUtils::ParamsCount
-      allow(counter).to receive(:call).and_return(0, 1, 2)
+      allow(counter).to receive(:call).and_return(0, 1, 2, 3)
 
+      expect { serializer.config.formatters.add(foo: formatter) }.not_to raise_error
+      expect { serializer.config.formatters.add(foo: formatter) }.not_to raise_error
+      expect { serializer.config.formatters.add(foo: formatter) }.not_to raise_error
       expect { serializer.config.formatters.add(foo: formatter) }
-        .to raise_error Serega::SeregaError, "Formatter should have exactly 1 required parameter (value to format)"
-      expect { serializer.config.formatters.add(foo: formatter) }
-        .not_to raise_error
-      expect { serializer.config.formatters.add(foo: formatter) }
-        .to raise_error Serega::SeregaError, "Formatter should have exactly 1 required parameter (value to format)"
+        .to raise_error Serega::SeregaError, "Formatter can have maximum 2 parameters (value to format, context)"
 
-      expect(counter).to have_received(:call).with(formatter, max_count: 1).exactly(3).times
+      expect(counter).to have_received(:call).with(formatter, max_count: 2).exactly(4).times
     end
 
     it "checks formatter is defined when adding attribute" do
@@ -72,19 +71,12 @@ RSpec.describe Serega::SeregaPlugins::Formatters do
         .to raise_error Serega::SeregaError, "Formatter `:some` was not defined"
     end
 
-    it "checks formatter is callable when adding attribute" do
-      formatter = proc {}
-      counter = Serega::SeregaUtils::ParamsCount
-      allow(counter).to receive(:call).and_return(0, 1, 2)
-
-      expect { serializer.attribute :foo, format: formatter }
-        .to raise_error Serega::SeregaError, "Formatter should have exactly 1 required parameter (value to format)"
-      expect { serializer.attribute :foo, format: formatter }
-        .not_to raise_error
-      expect { serializer.attribute :foo, format: formatter }
-        .to raise_error Serega::SeregaError, "Formatter should have exactly 1 required parameter (value to format)"
-
-      expect(counter).to have_received(:call).with(formatter, max_count: 1).exactly(3).times
+    it "checks formatter has maximum 2 args when adding attribute" do
+      expect { serializer.attribute :foo, format: lambda {} }.not_to raise_error
+      expect { serializer.attribute :foo, format: lambda { |a| } }.not_to raise_error
+      expect { serializer.attribute :foo, format: lambda { |a, b| } }.not_to raise_error
+      expect { serializer.attribute :foo, format: lambda { |a, b, c| } }
+        .to raise_error Serega::SeregaError, "Formatter can have maximum 2 parameters (value to format, context)"
     end
   end
 
@@ -104,12 +96,10 @@ RSpec.describe Serega::SeregaPlugins::Formatters do
         expect(attribute.value([1, 2, 3], nil)).to eq [3, 2, 1]
       end
 
-      it "formats result of :const attribute value in advance" do
+      it "formats result of :const attribute value" do
         attribute = serializer.attribute(:a, const: "123", format: :reverse)
 
-        allow(reverse).to receive(:call)
         expect(attribute.value(nil, nil)).to eq "321"
-        expect(reverse).not_to have_received(:call)
       end
 
       it "returns regular block when no format option specified" do
@@ -129,6 +119,20 @@ RSpec.describe Serega::SeregaPlugins::Formatters do
       it "formats result of :const attribute value" do
         attribute = serializer.attribute(:a, const: "123", format: reverse)
         expect(attribute.value(nil, nil)).to eq "321"
+      end
+    end
+
+    context "when formatter uses context" do
+      let(:money) { ->(cents, ctx) { cents.to_f / 10**ctx[:money_digits] } }
+
+      before do
+        serializer.config.formatters.add(money: money)
+      end
+
+      it "formats result of attribute value" do
+        attribute = serializer.attribute(:a, method: :itself, format: :money)
+
+        expect(attribute.value(123, {money_digits: 2})).to eq 1.23
       end
     end
   end

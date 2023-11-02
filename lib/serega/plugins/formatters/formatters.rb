@@ -11,12 +11,15 @@ class Serega
     #
     # Attribute option `:format` now can be used with name of formatter or with callable instance.
     #
+    # Formatters can accept up to 2 parameters (formatted object, context)
+    #
     # @example
     #   class AppSerializer < Serega
     #     plugin :formatters, formatters: {
     #       iso8601: ->(value) { time.iso8601.round(6) },
     #       on_off: ->(value) { value ? 'ON' : 'OFF' },
     #       money: ->(value) { value.round(2) }
+    #       date: DateTypeFormatter # callable
     #     }
     #   end
     #
@@ -35,6 +38,7 @@ class Serega
     #     attribute :updated_at, format: :iso8601
     #
     #     # Using `callable` formatter
+    #     attribute :score_percent, format: PercentFormmatter # callable class
     #     attribute :score_percent, format: proc { |percent| "#{percent.round(2)}%" }
     #   end
     #
@@ -160,16 +164,10 @@ class Serega
         def prepare_value_block
           return super unless formatter
 
-          if init_opts.key?(:const)
-            # Format const value in advance
-            const_value = formatter.call(init_opts[:const])
-            proc { const_value }
-          else
-            # Wrap original block into formatter block
-            proc do |object, context|
-              value = super.call(object, context)
-              formatter.call(value)
-            end
+          # Wrap original block into formatter block
+          proc do |object, context|
+            value = super.call(object, context)
+            formatter.call(value, context)
           end
         end
 
@@ -177,11 +175,8 @@ class Serega
           formatter = init_opts[:format]
           return unless formatter
 
-          if formatter.is_a?(Symbol)
-            self.class.serializer_class.config.formatters.opts.fetch(formatter)
-          else
-            formatter # already callable
-          end
+          formatter = self.class.serializer_class.config.formatters.opts.fetch(formatter) if formatter.is_a?(Symbol)
+          prepare_callable_proc(formatter)
         end
       end
 
@@ -191,7 +186,7 @@ class Serega
       class CheckOptFormat
         class << self
           #
-          # Checks attribute :format option must be registered or valid callable with 1 arg
+          # Checks attribute :format option must be registered or valid callable with maximum 2 args
           #
           # @param opts [value] Attribute options
           #
@@ -238,10 +233,10 @@ class Serega
             raise Serega::SeregaError, "Option #{formatter_name.inspect} must have callable value" unless formatter.respond_to?(:call)
 
             SeregaValidations::Utils::CheckExtraKeywordArg.call(formatter, "#{formatter_name.inspect} value")
-            params_count = SeregaUtils::ParamsCount.call(formatter, max_count: 1)
+            params_count = SeregaUtils::ParamsCount.call(formatter, max_count: 2)
 
-            if params_count != 1
-              raise SeregaError, "Formatter should have exactly 1 required parameter (value to format)"
+            if params_count > 2
+              raise SeregaError, "Formatter can have maximum 2 parameters (value to format, context)"
             end
           end
         end
