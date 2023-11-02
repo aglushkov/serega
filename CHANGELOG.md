@@ -2,14 +2,13 @@
 
 ## [Unreleased]
 
-- Allow to provide :const and :value options to meta_attributes of `:metadata` plugin
-- Allow to provide callable/lambdas objects with 0-2 args as attribute
-  :value object
-- Allow to provide callable/lambdas with 1 arg as formatters
+- Allow to provide callable/lambdas objects with 0-2 args as attribute :value
+  object
+- Allow to provide callable/lambdas with 0-2 args format in :formatters plugin
 - Allow to provide callable/lambdas with 0-2 args as :if plugin options
 - Allow to provide callable/lambdas with 0-3 args as :batch plugin options
-- Attribute :format option and associated configurated formatter
-  (from formatters plugin) must have 1 argument
+- Allow to provide callable :const and :value options to meta_attributes
+  of `:metadata` plugin
 
 ```ruby
 # Attributes with callable classes
