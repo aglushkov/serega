@@ -22,16 +22,15 @@ class Serega
         #
         def call(object, max_count:)
           # Procs (but not lambdas) can accept all provided parameters
+          parameters = object.is_a?(Proc) ? object.parameters : object.method(:call).parameters
+          return 1 if parameters[0] == NO_NAMED_REST_PARAM
           return max_count if object.is_a?(Proc) && !object.lambda?
 
-          parameters = object.is_a?(Proc) ? object.parameters : object.method(:call).parameters
           count = 0
 
           # If all we have is no-name *rest parameters, then we assume we need to provide
           # 1 argument. It is now always correct, but in serialization context it's most common that
           # only one argument is needed.
-          return 1 if parameters[0] == NO_NAMED_REST_PARAM
-
           parameters.each do |parameter|
             next if parameter == NO_NAMED_REST_PARAM # Workaround for procs like :odd?.to_proc
             param_type = parameter[0]
