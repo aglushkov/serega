@@ -4,50 +4,23 @@
 load_plugin_code(:root, :metadata)
 
 RSpec.describe Serega::SeregaPlugins::Metadata::MetaAttribute::CheckBlock do
-  let(:error) { "Block can have maximum 2 regular parameters (no **keyword or *array args)" }
+  let(:params_count_error) { "Block can have maximum two parameters (object(s), context)" }
+  let(:keyword_error) { "Invalid block. It should not have any required keyword arguments" }
 
-  it "does not allow no block" do
-    block = nil
-    expect { described_class.call(block) }
-      .to raise_error Serega::SeregaError, "Block must be provided when defining meta attribute"
+  it "checks extra keyword arguments" do
+    expect { described_class.call(proc { |a:| }) }.to raise_error Serega::SeregaError, keyword_error
   end
 
-  it "allows no params" do
+  it "checks block has maximum 2 args" do
     block = proc {}
+    counter = Serega::SeregaUtils::ParamsCount
+    allow(counter).to receive(:call).and_return(0, 1, 2, 3)
+
     expect { described_class.call(block) }.not_to raise_error
-
-    block = lambda {}
     expect { described_class.call(block) }.not_to raise_error
-  end
-
-  it "allows one parameter" do
-    block = proc { |_obj| } # optional parameter
     expect { described_class.call(block) }.not_to raise_error
+    expect { described_class.call(block) }.to raise_error Serega::SeregaError, params_count_error
 
-    block = ->(_obj) {} # required parameter
-    expect { described_class.call(block) }.not_to raise_error
-  end
-
-  it "allows two parameters" do
-    block = proc { |_obj, _ctx| } # optional parameters
-    expect { described_class.call(block) }.not_to raise_error
-
-    block = ->(_obj, _ctx) {} # required parameters
-    expect { described_class.call(block) }.not_to raise_error
-  end
-
-  it "prohibits three parameters" do
-    block = proc { |_obj, _ctx, _foo| }
-    expect { described_class.call(block) }.to raise_error Serega::SeregaError, error
-  end
-
-  it "prohibits *rest parameters" do
-    block = proc { |*_foo| }
-    expect { described_class.call(block) }.to raise_error Serega::SeregaError, error
-  end
-
-  it "prohibits **keywords parameters" do
-    block = proc { |**_foo| }
-    expect { described_class.call(block) }.to raise_error Serega::SeregaError, error
+    expect(counter).to have_received(:call).with(block, max_count: 2).exactly(4).times
   end
 end

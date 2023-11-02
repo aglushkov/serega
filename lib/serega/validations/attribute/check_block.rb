@@ -14,7 +14,6 @@ class Serega
           #
           # Checks block parameter provided with attribute.
           # Must have up to two arguments - object and context.
-          # It should not have any *rest or **key arguments
           #
           # @example without arguments
           #   attribute(:email) { CONSTANT_EMAIL }

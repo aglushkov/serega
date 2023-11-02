@@ -13,7 +13,7 @@ RSpec.describe Serega::SeregaValidations::Attribute::CheckBlock do
     expect { described_class.call(proc { |a:| }) }.to raise_error Serega::SeregaError, keyword_error
   end
 
-  it "checks loader params_count is 1, 2 or 3" do
+  it "checks block has maximum 2 args" do
     block = proc {}
     counter = Serega::SeregaUtils::ParamsCount
     allow(counter).to receive(:call).and_return(0, 1, 2, 3)

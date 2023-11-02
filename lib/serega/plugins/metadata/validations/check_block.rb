@@ -8,14 +8,10 @@ class Serega
         # Validator for meta_attribute block parameter
         #
         class CheckBlock
-          ALLOWED_PARAM_TYPES = %i[opt req]
-          private_constant :ALLOWED_PARAM_TYPES
-
           class << self
             #
             # Checks block provided with attribute
-            # Block must have up to two arguments - object and context.
-            # It should not have any *rest or **key arguments
+            # Block must have up to two arguments - object(s) and context.
             #
             # @example without arguments
             #   metadata(:version) { CONSTANT_VERSION }
@@ -24,7 +20,7 @@ class Serega
             #   metadata(:paging) { |scope| { { page: scope.page, per_page: scope.per_page, total_count: scope.total_count } }
             #
             # @example with two arguments
-            #   metadata(:paging) { |scope, context| { { ... } if context[:with_paging] }
+            #   metadata(:paging) { |scope, context| { { ... } if context[:pagy] }
             #
             # @param block [Proc] Block that returns serialized meta attribute value
             #
@@ -33,12 +29,16 @@ class Serega
             # @return [void]
             #
             def call(block)
-              raise SeregaError, "Block must be provided when defining meta attribute" unless block
+              SeregaValidations::Utils::CheckExtraKeywordArg.call(block, "block")
+              params_count = SeregaUtils::ParamsCount.call(block, max_count: 2)
 
-              params = block.parameters
-              return if (params.count <= 2) && params.all? { |par| ALLOWED_PARAM_TYPES.include?(par[0]) }
+              raise SeregaError, block_error if params_count > 2
+            end
 
-              raise SeregaError, "Block can have maximum 2 regular parameters (no **keyword or *array args)"
+            private
+
+            def block_error
+              "Block can have maximum two parameters (object(s), context)"
             end
           end
         end

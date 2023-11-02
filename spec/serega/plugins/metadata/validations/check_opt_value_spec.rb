@@ -1,24 +1,25 @@
 # frozen_string_literal: true
 
-RSpec.describe Serega::SeregaValidations::Attribute::CheckOptValue do
+load_plugin_code(:root, :metadata)
+
+RSpec.describe Serega::SeregaPlugins::Metadata::MetaAttribute::CheckOptValue do
   let(:opts) { {} }
 
   let(:type_error) { "Option :value value must be a Proc or respond to #call" }
-  let(:params_count_error) { "Option :value value can have maximum 2 parameters (object, context)" }
-
-  it "prohibits to use with :method opt" do
-    expect { described_class.call({value: proc {}, method: :foo}) }
-      .to raise_error Serega::SeregaError, "Option :value can not be used together with option :method"
-  end
+  let(:params_count_error) { "Option :value value can have maximum 2 parameters (object(s), context)" }
 
   it "prohibits to use with :const opt" do
-    expect { described_class.call(value: proc {}, const: 1) }
+    expect { described_class.call(value: -> {}, const: :foo) }
       .to raise_error Serega::SeregaError, "Option :value can not be used together with option :const"
   end
 
   it "prohibits to use with block" do
-    expect { described_class.call({value: proc {}}, proc {}) }
+    expect { described_class.call({value: -> {}}, proc {}) }
       .to raise_error Serega::SeregaError, "Option :value can not be used together with block"
+  end
+
+  it "allows no :value option" do
+    expect { described_class.call({}, proc {}) }.not_to raise_error
   end
 
   it "prohibits to use keyword as value" do
@@ -30,7 +31,7 @@ RSpec.describe Serega::SeregaValidations::Attribute::CheckOptValue do
     expect(validator).to have_received(:call).with(value, ":value option")
   end
 
-  it "checks callable has maximum 2 params" do
+  it "checks it has maximum 2 params" do
     value = proc { |one| }
     counter = Serega::SeregaUtils::ParamsCount
     allow(counter).to receive(:call).and_return(0, 1, 2, 3)
