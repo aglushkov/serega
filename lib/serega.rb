@@ -82,7 +82,7 @@ class Serega
     #
     # @return [class<Module>] Loaded plugin module
     #
-    def plugin(name, **)
+    def plugin(name, **opts)
       raise SeregaError, "This plugin is already loaded" if plugin_used?(name)
 
       plugin = SeregaPlugins.find_plugin(name)
@@ -92,9 +92,9 @@ class Serega
       # - **before_load_plugin** usually used to check requirements and to load additional plugins
       # - **load_plugin** usually used to include plugin modules
       # - **after_load_plugin** usually used to add config options
-      plugin.before_load_plugin(self, **) if plugin.respond_to?(:before_load_plugin)
-      plugin.load_plugin(self, **) if plugin.respond_to?(:load_plugin)
-      plugin.after_load_plugin(self, **) if plugin.respond_to?(:after_load_plugin)
+      plugin.before_load_plugin(self, **opts) if plugin.respond_to?(:before_load_plugin)
+      plugin.load_plugin(self, **opts) if plugin.respond_to?(:load_plugin)
+      plugin.after_load_plugin(self, **opts) if plugin.respond_to?(:after_load_plugin)
 
       # Store attached plugins, so we can check it is loaded later
       config.plugins << (plugin.respond_to?(:plugin_name) ? plugin.plugin_name : plugin)
