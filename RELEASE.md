@@ -14,6 +14,7 @@
       && BUNDLE_GEMFILE=gemfiles/5.2.gemfile bundle update \
       && BUNDLE_GEMFILE=gemfiles/6.1.gemfile bundle update \
       && BUNDLE_GEMFILE=gemfiles/7.0.gemfile bundle update \
+      && BUNDLE_GEMFILE=gemfiles/7.1.gemfile bundle update \
       && bundle exec rspec \
       && bundle exec rubocop -A \
       && bundle exec rake examples \
@@ -41,9 +42,11 @@
       && BUNDLE_GEMFILE=gemfiles/5.2.gemfile bundle update \
       && BUNDLE_GEMFILE=gemfiles/6.1.gemfile bundle update \
       && BUNDLE_GEMFILE=gemfiles/7.0.gemfile bundle update \
+      && BUNDLE_GEMFILE=gemfiles/7.1.gemfile bundle update \
       && bundle exec rspec \
       && bundle exec rubocop -A \
-      && bundle exec rake examples
+      && bundle exec rake examples \
+      && codespell --skip="./sig,./doc,./coverage"
     ```
 
 1. Add CHANGELOG, README notices, test them:

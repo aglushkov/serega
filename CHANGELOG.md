@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.17.0] - 2023-11-03
+
 - Allow to provide callable/lambdas objects with 0-2 args as attribute :value
   object
 - Allow to provide callable/lambdas with 0-2 args format in :formatters plugin
@@ -15,7 +17,7 @@
 attribute :email, value: EmailFetcher
 attribute :email, if: EmailPolicy
 attribute :email, batch: {key: EmailKeyFetcher, loader: EmailBatchLoader }
-attribute :email, format: EmaileFormatter
+attribute :email, format: EmailFormatter
 ```
 
 ## [0.16.0] - 2023-10-15
