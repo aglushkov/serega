@@ -2,9 +2,9 @@
 
 source "https://rubygems.org"
 
+gem "activerecord-jdbcsqlite3-adapter", platforms: [:jruby]
 gem "sqlite3", "~> 1.4.4", platforms: [:ruby]
-gem "activerecord", "7.0.8"
-gem "activerecord-jdbcsqlite3-adapter", "~> 70.1", platforms: [:jruby]
+gem "activerecord", "~> 7.1", ">= 7.1.1"
 
 gem "rake", "~> 13.0"
 gem "standard", "~> 1.12", ">= 1.12.1", require: false

@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    serega (0.16.0)
+    serega (0.17.0)
 
 GEM
   remote: https://rubygems.org/
@@ -77,14 +77,14 @@ GEM
     parser (3.2.2.4)
       ast (~> 2.4.1)
       racc
-    psych (5.1.1)
+    psych (5.1.1.1)
       stringio
-    psych (5.1.1-java)
+    psych (5.1.1.1-java)
       jar-dependencies (>= 0.1.7)
-    racc (1.7.1)
-    racc (1.7.1-java)
+    racc (1.7.2)
+    racc (1.7.2-java)
     rainbow (3.1.1)
-    rake (13.0.6)
+    rake (13.1.0)
     rdoc (6.5.0)
       psych (>= 4.0.0)
     redcarpet (3.6.0)
@@ -120,7 +120,7 @@ GEM
       rubocop-ast (>= 1.28.1, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 3.0)
-    rubocop-ast (1.29.0)
+    rubocop-ast (1.30.0)
       parser (>= 3.2.1.0)
     rubocop-capybara (2.19.0)
       rubocop (~> 1.41)
@@ -131,8 +131,8 @@ GEM
       rubocop-ast (>= 0.4.0)
     rubocop-rake (0.6.0)
       rubocop (~> 1.0)
-    rubocop-rspec (2.24.1)
-      rubocop (~> 1.33)
+    rubocop-rspec (2.25.0)
+      rubocop (~> 1.40)
       rubocop-capybara (~> 2.17)
       rubocop-factory_bot (~> 2.22)
     ruby-progressbar (1.13.0)
@@ -143,7 +143,7 @@ GEM
       simplecov_json_formatter (~> 0.1)
     simplecov-html (0.12.3)
     simplecov_json_formatter (0.1.4)
-    sqlite3 (1.6.7-x86_64-linux)
+    sqlite3 (1.6.8-x86_64-linux)
     standard (1.31.2)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.0)
@@ -169,7 +169,7 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  activerecord (~> 7.0)
+  activerecord (~> 7.1)
   activerecord-jdbcsqlite3-adapter
   allocation_stats
   debug (>= 1.0.0)

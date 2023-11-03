@@ -36,9 +36,9 @@ end
 ruby_version = Gem::Version.new(RUBY_VERSION)
 ar_version =
   if ruby_version >= Gem::Version.new("3.0")
-    "~> 7.0"
+    "~> 7.1"
   elsif ruby_version >= Gem::Version.new("2.5")
-    "~> 6.0"
+    "~> 6.1"
   else
     "~> 5.2"
   end

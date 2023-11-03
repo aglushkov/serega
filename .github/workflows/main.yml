@@ -15,15 +15,15 @@ jobs:
         include:
           # https://github.com/ruby/setup-ruby
           - ruby: "head"
-            activerecord: "7.0"
+            activerecord: "7.1"
           - ruby: "3.2"
-            activerecord: "7.0"
+            activerecord: "7.1"
           - ruby: "3.1"
-            activerecord: "7.0"
+            activerecord: "7.1"
           - ruby: "3.0"
-            activerecord: "7.0"
+            activerecord: "7.1"
           - ruby: "2.7"
-            activerecord: "7.0"
+            activerecord: "7.1"
           - ruby: "2.7"
             activerecord: "6.1"
           - ruby: "2.7"
@@ -32,13 +32,13 @@ jobs:
             activerecord: "6.1"
           - ruby: "2.6"
             activerecord: "5.2"
-          - ruby: "jruby-9.4.2"
+          - ruby: "jruby-9.4.4"
             activerecord: "6.1"
-          - ruby: "jruby-9.4.2"
-            activerecord: "7.0"
-          - ruby: "truffleruby-23.0.0"
-            activerecord: "7.0"
-          - ruby: "truffleruby-23.0.0"
+          - ruby: "jruby-9.4.4"
+            activerecord: "7.0" # latest activerecord-jdbcsqlite3-adapter (70.1) does not support latest rails 7.1 yet
+          - ruby: "truffleruby-23.1.1"
+            activerecord: "7.1"
+          - ruby: "truffleruby-23.1.1"
             activerecord: "6.1"
 
     env:
@@ -57,24 +57,24 @@ jobs:
           bundler-cache: true
 
       - name: Install codespell
-        if: startsWith(matrix.ruby, '3.2') && matrix.activerecord == '7.0'
+        if: startsWith(matrix.ruby, '3.2') && matrix.activerecord == '7.1'
         run: |
           python -m pip install --upgrade pip
           pip install codespell==2.2.6
       - name: Check spelling with codespell
-        if: startsWith(matrix.ruby, '3.2') && matrix.activerecord == '7.0'
+        if: startsWith(matrix.ruby, '3.2') && matrix.activerecord == '7.1'
         run: codespell --skip="./sig,./doc,./coverage,./vendor" || exit 1
 
       # Check code standards only for latest MRI. It takes a lot of time for jruby or truffleruby
       - name: Check Code Standards
-        if: startsWith(matrix.ruby, '3.2') && matrix.activerecord == '7.0'
+        if: startsWith(matrix.ruby, '3.2') && matrix.activerecord == '7.1'
         run: bundle exec rubocop
 
       - name: Run Tests
         run: bundle exec rspec
 
       - name: Markdown linter
-        if: startsWith(matrix.ruby, '3.2') && matrix.activerecord == '7.0'
+        if: startsWith(matrix.ruby, '3.2') && matrix.activerecord == '7.1'
         run: bundle exec mdl README.md CHANGELOG.md RELEASE.md
 
       # https://github.com/paambaati/codeclimate-action
