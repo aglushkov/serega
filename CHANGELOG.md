@@ -2,6 +2,25 @@
 
 ## [Unreleased]
 
+- Require named batch loaders to be predefined before usage
+
+```ruby
+class AppSerializer < Serega
+  plugin :batch
+
+  # Define named loader first
+  config.batch.define(:posts_comments_counter) do |post_ids|
+    Comment.where(post_id: post_ids).group(:post_id).count
+  end
+end
+
+class PostSerializer < AppSerializer
+  # Use it later
+  attribute :comments_count,
+    batch: { loader: :posts_comments_counter, key: :id }
+end
+```
+
 ## [0.17.0] - 2023-11-03
 
 - Allow to provide callable/lambdas objects with 0-2 args as attribute :value

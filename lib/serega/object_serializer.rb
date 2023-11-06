@@ -29,7 +29,7 @@ class Serega
       #
       # @param object [Object] Serialized object
       #
-      # @return [Hash, Array<Hash>] Serialized object(s)
+      # @return [Hash, Array<Hash>, nil] Serialized object(s)
       def serialize(object)
         return if object.nil?
 

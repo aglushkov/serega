@@ -64,7 +64,7 @@ class Serega
         end
 
         def prepare_batch_loader(loader)
-          return loader if loader.is_a?(Symbol)
+          loader = self.class.serializer_class.config.batch.loaders.fetch(loader) if loader.is_a?(Symbol)
 
           params_count = SeregaUtils::ParamsCount.call(loader, max_count: 3)
           case params_count

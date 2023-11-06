@@ -8,15 +8,14 @@ RSpec.describe Serega::SeregaPlugins::Batch do
       Class.new(Serega) do
         plugin :formatters
         plugin :batch
+        config.batch.define(:to_s) do |keys|
+          keys.zip(keys.map(&:to_s)).to_h
+        end
 
         attribute :first_name
 
         attribute :post, batch: {key: :post_id, loader: :to_s}
         attribute :post_reverse, batch: {key: :post_id, loader: :to_s}, format: proc { |value| value.reverse }
-
-        config.batch.define(:to_s) do |keys|
-          keys.zip(keys.map(&:to_s)).to_h
-        end
       end
     end
 

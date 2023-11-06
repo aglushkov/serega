@@ -6,13 +6,14 @@ RSpec.describe Serega::SeregaPlugins::Batch do
   context "with preloads plugin" do
     let(:user_serializer) do
       post_ser = post_serializer
+
       Class.new(Serega) do
         plugin :preloads, auto_preload_attributes_with_serializer: true
         plugin :batch
 
-        attribute :one, batch: {key: :id, loader: :loader}, serializer: post_ser
+        attribute :one, batch: {key: :id, loader: proc {}}, serializer: post_ser
         attribute :two, serializer: post_ser
-        attribute :three, batch: {key: :id, loader: :loader}, serializer: post_ser, preload: :custom
+        attribute :three, batch: {key: :id, loader: proc {}}, serializer: post_ser, preload: :custom
       end
     end
 

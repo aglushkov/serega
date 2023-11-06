@@ -26,8 +26,7 @@ class Serega
             SeregaValidations::Utils::CheckAllowedKeys.call(batch, %i[key loader default], :batch)
 
             check_batch_opt_key(batch, serializer_class)
-            check_batch_opt_loader(batch)
-
+            check_batch_opt_loader(batch, serializer_class)
             check_usage_with_other_params(opts, block)
           end
 
@@ -42,11 +41,11 @@ class Serega
             CheckBatchOptKey.call(key)
           end
 
-          def check_batch_opt_loader(batch)
+          def check_batch_opt_loader(batch, serializer_class)
             loader = batch[:loader]
             raise SeregaError, "Option :loader must present inside :batch option" unless loader
 
-            CheckBatchOptLoader.call(loader)
+            CheckBatchOptLoader.call(loader, serializer_class)
           end
 
           def check_usage_with_other_params(opts, block)
