@@ -5,7 +5,13 @@ require "support/activerecord"
 load_plugin_code :batch
 
 RSpec.describe Serega::SeregaPlugins::Batch do
-  let(:serializer) { Class.new(Serega) { plugin :batch } }
+  let(:serializer) do
+    Class.new(Serega) do
+      plugin :batch
+
+      config.batch.define(:loader, &proc {})
+    end
+  end
 
   describe "Attribute methods" do
     describe "#batch" do

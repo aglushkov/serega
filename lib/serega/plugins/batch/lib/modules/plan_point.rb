@@ -13,25 +13,8 @@ class Serega
         # Returns attribute :batch option with prepared loader
         # @return [Hash] attribute :batch option
         #
-        attr_reader :batch
-
-        private
-
-        def set_normalized_vars
-          super
-          @batch = prepare_batch
-        end
-
-        def prepare_batch
-          batch = attribute.batch
-          if batch
-            loader = batch[:loader]
-            if loader.is_a?(Symbol)
-              batch_config = attribute.class.serializer_class.config.batch
-              batch[:loader] = batch_config.fetch_loader(loader)
-            end
-          end
-          batch
+        def batch
+          attribute.batch
         end
       end
     end

@@ -539,117 +539,147 @@ UserSerializer.to_h(user)
 
 ### Plugin :batch
 
-Adds ability to load nested attributes values in batches.
+Must be used to omit N+1 when loading attributes values.
 
-It can be used to find value for attributes in optimal way:
+User must provide batch loader object to attribute -
+`attribute :foo, batch: {loader: SomeLoader, key: :id}`.
 
-- load associations for multiple objects
-- load counters for multiple objects
-- make any heavy calculations for multiple objects only once
+This batch loader must be a callable object that accept 1 to 3 arguments:
 
-After including plugin, attributes gain new `:batch` option:
+1) List of ids (each id will be selected by using `:key` option)
+2) Context
+3) PlanPoint (special object containing information about current
+   attribute and all nested and parent attributes)
 
-```ruby
-attribute :name, batch: { loader: :name_loader, key: :id, default: nil }
-```
-
-`:batch` option must be a hash with this keys:
-
-- `loader` (required) [Symbol, Proc, callable] - Defines how to fetch values for
-  batch of keys. Receives 3 parameters: keys, context, plan.
-- `key` (required) [Symbol, Proc, callable] - Defines current object identifier.
-  Key is optional if plugin was defined with `default_key` option.
-- `default` (optional) - Default value for attribute.
-  By default it is `nil` or `[]` when attribute has option `many: true`
-  (ex: `attribute :tags, many: true, batch: { ... }`).
-
-If `:loader` was defined using name (as Symbol) then batch loader must be
-defined using `config.batch.define(:loader_name) { ... }` method.
-
-Result of this `:loader` callable must be a **Hash** where:
-
-- keys - provided keys
-- values - values for according keys
-
-`Batch` plugin can be defined with two specific attributes:
-
-- `auto_hide: true` - Marks attributes with defined :batch as hidden, so it
-  will not be serialized by default
-- `default_key: :id` - Set default object key (in this case :id) that will be
-  used for all attributes with :batch option specified.
-
-```ruby
-  plugin :batch, auto_hide: true, default_key: :id
-```
-
-Options `auto_hide` and `default_key` can be overwritten in nested serializers.
+Result must be returned as Hash, where each key is one of ids and
+each value is attribute value
 
 ```ruby
 class AppSerializer
-  plugin :batch, auto_hide: true, default_key: :id
+  plugin :batch
+end
+
+# Here we assume that CommentsCountBatchLoader and UserCompanyBatchLoader
+# respond to #call
+class UserSerializer < AppSerializer
+  attribute :comments_count,
+    batch: { loader: CommentsCountBatchLoader, key: :id }
+
+  attribute :company,
+    batch: { loader: UserCompanyBatchLoader, key: :id },
+    serializer: CompanySerializer
+end
+```
+
+Plugin can be added with global `:key` option. It be a Symbol ar any Proc or
+callable value that accepts current object and context.
+
+```ruby
+class SomeSerializer
+  # `:id` will be used as a default method to find object id,
+  # so you don't need to specify it with attributes
+  plugin :batch, key: :id
+end
+
+class UserSerializer < AppSerializer
+  attribute :comments_count,
+    batch: { loader: CommentsCountBatchLoader }
+
+  attribute :company,
+    batch: { loader: UserCompanyBatchLoader },
+    serializer: CompanySerializer
+end
+
+```
+
+However, global `:key` option can be overwritten via `config.batch.default_key=`
+method or in specific attributes with `:key` option.
+
+```ruby
+class SomeSerializer
+  plugin :batch, key: :id # global key is `:id`
+end
+
+class UserSerializer < AppSerializer
+  # :user_id will be used as default `key` for all batch attributes
+  config.batch.default_key = :user_id
+
+  # key is :user_id
+  attribute :comments_count,
+    batch: { loader: CommentsCountBatchLoader }
+
+
+  # key is :user_id
+  attribute :company,
+    batch: { loader: UserCompanyBatchLoader }, serializer: CompanySerializer
+
+  # key is :wallet_id
+  attribute :points_amount, batch: { loader: PointsBatchLoader, key: :wallet_id }
+end
+```
+
+The default value for attributes without found value can be specified via
+`:default` option. By default attributes without found value will be
+serialized as `nil`. Attribute marked as `many: true` will be
+serialized as empty array `[]`
+
+```ruby
+class UserSerializer < AppSerializer\
+  # Value will be empty array, as `many: true` option specified
+  attribute :companies,
+    batch: {loader: proc {}},
+    serializer: CompanySerializer,
+    many: true
+
+  # Value will be `0` as specified directly
+  attribute :points_amount,
+    batch: { loader: proc {}, key: :wallet_id, default: 0 }
+end
+```
+
+Batch attributes can be marked as hidden by default if plugin specified with
+`auto_hide` option. Also `auto_hide` option can be changed with
+`config.batch.auto_hide=` method.
+
+Look at [select serialized fields](#selecting-fields) for more information
+about hiding/showing attributes.
+
+```ruby
+class AppSerializer
+  plugin :batch, auto_hide: true
 end
 
 class UserSerializer < AppSerializer
   config.batch.auto_hide = false
-  config.batch.default_key = :user_id
 end
 ```
 
----
-⚠️ ATTENTION: `Batch` plugin must be added to serializers which have no
-`:batch` attributes, but have nested serializers, that have some. For example
-when you serialize `User -> Album -> Song` and Song has `:batch` attribute, then
-`:batch` plugin must be added to the User serializer also. \
-Best way would be to create one parent `AppSerializer < Serega` for all your
-serializers and add `:batch` plugin only to this parent `AppSerializer`
+Loaders can be predefined before usage and used later by providing their
+Symbol names (`config.batch.define(:loader_name) { |ids| ... }`)
 
 ```ruby
 class AppSerializer < Serega
-  plugin :batch, auto_hide: true, default_key: :id
+  plugin :batch
+
+  config.batch.define(:posts_comments_counter) do |post_ids|
+    Comment.where(post_id: post_ids).group(:post_id).count
+  end
 end
 
 class PostSerializer < AppSerializer
   attribute :comments_count,
-    batch: {
-      loader: CommentsCountBatchLoader, # callable(keys, context, plan_point)
-      key: :id, # can be skipped (as :id value is same as configured :default_key)
-      default: 0
-    }
-
-  # Define batch loader via Symbol, later we should define this loader via
-  # `config.batch.define(:posts_comments_counter) { ... }`
-  #
-  # Loader will receive array of ids, as `default_key: :id` plugin option was specified.
-  # Default value for not found counters is nil, as `:default` option not defined
-  attribute :comments_count,
-    batch: { loader: :posts_comments_counter }
-
-  # Define batch loader with serializer
-  attribute :comments,
-    serializer: CommentSerializer,
-    batch: {loader: :posts_comments, default: []}
-
-  # Resulted block must return hash like { key => value(s) }
-  config.batch.define(:posts_comments_counter) do |keys|
-    Comment.group(:post_id).where(post_id: keys).count
-  end
-
-  # We can return objects that will be automatically serialized if attribute
-  # defined with :serializer
-  # Parameter `context` can be used when loading batch
-  # Parameter `point` can be used to find nested attributes to serialize
-  config.batch.define(:posts_comments) do |keys, context, point|
-    # point.child_plan - if you need to manually check all nested attributes
-    # point.preloads - nested preloads (works with :preloads plugin only)
-
-    Comment
-      .preload(point.preloads) # Skip if :activerecord_preloads plugin used
-      .where(post_id: keys)
-      .where(is_spam: false)
-      .group_by(&:post_id)
-  end
+    batch: { loader: :posts_comments_counter, key: :id }
 end
 ```
+
+---
+⚠️ ATTENTION: `Batch` plugin must be added to all serializers that have
+`:batch` attributes inside nested serializers. For example when you serialize
+`User -> Album -> Song` and Song has `batch` attribute, then
+`batch` plugin must be added to the User serializer also.
+
+Best way would be to create one parent `AppSerializer < Serega` serializer
+and add `:batch` plugin once to this parent serializer.
 
 ### Plugin :root
 
