@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.18.0] - 2023-11-11
+
 - Rename batch plugin option `key` to `id_method`.
 - Rename batch plugin init option `default_key` to `id_method`.
   Now it can be callable object
