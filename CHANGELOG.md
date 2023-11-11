@@ -2,11 +2,30 @@
 
 ## [Unreleased]
 
-- Require named batch loaders to be predefined before usage
+- Rename batch plugin option `key` to `id_method`.
+- Rename batch plugin init option `default_key` to `id_method`.
+  Now it can be callable object
+- Rename batch plugin config option `default_key` to `id_method`.
+  Now it can be callable object
+
+```ruby
+class SomeSerializer < Serega
+  # previously it was `default_key: :id`
+  plugin :batch, id_method: :id
+
+  # previously it was `config.batch.default_key = :id`
+  config.batch.id_method = :id
+
+  # previously it was `attribute :other, batch: {key: :other_id, loader: ...}`
+  attribute :other, batch: {id_method: :other_id, loader: OtherLoader}
+end
+```
+
+- Require named batch loaders to be defined before usage
 
 ```ruby
 class AppSerializer < Serega
-  plugin :batch
+  plugin :batch, id_method: :id
 
   # Define named loader first
   config.batch.define(:posts_comments_counter) do |post_ids|
@@ -16,8 +35,7 @@ end
 
 class PostSerializer < AppSerializer
   # Use it later
-  attribute :comments_count,
-    batch: { loader: :posts_comments_counter, key: :id }
+  attribute :comments_count, batch: { loader: :posts_comments_counter }
 end
 ```
 

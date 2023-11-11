@@ -46,7 +46,7 @@ class Serega
           end
 
           def params_count_error
-            "Invalid :batch option :loader. It can accept maximum 3 parameters (keys, context, plan)"
+            "Invalid :batch option :loader. It can accept maximum 3 parameters (ids, context, plan)"
           end
 
           def must_be_callable

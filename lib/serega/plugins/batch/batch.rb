@@ -10,12 +10,10 @@ class Serega
     # @example Quick example
     #
     #   class AppSerializer
-    #     plugin :batch, key: :id
+    #     plugin :batch, id_method: :id
     #   end
     #
-    #   # Here we assume that CommentsCountBatchLoader and UserCompanyBatchLoader respond to #call
     #   class UserSerializer < AppSerializer
-    #     attribute :id
     #     attribute :comments_count, batch: { loader: CommentsCountBatchLoader, default: 0 }
     #     attribute :company, serializer: CompanySerializer, batch: { loader: UserCompanyBatchLoader }
     #   end
@@ -45,7 +43,7 @@ class Serega
         require_relative "lib/modules/config"
         require_relative "lib/modules/object_serializer"
         require_relative "lib/modules/plan_point"
-        require_relative "lib/validations/check_batch_opt_key"
+        require_relative "lib/validations/check_batch_opt_id_method"
         require_relative "lib/validations/check_batch_opt_loader"
         require_relative "lib/validations/check_opt_batch"
 
@@ -95,9 +93,9 @@ class Serega
 
         config = serializer_class.config
         config.attribute_keys << :batch
-        config.opts[:batch] = {loaders: {}, default_key: nil, auto_hide: false}
+        config.opts[:batch] = {loaders: {}, id_method: nil, auto_hide: false}
         config.batch.auto_hide = opts[:auto_hide] if opts.key?(:auto_hide)
-        config.batch.default_key = opts[:default_key] if opts.key?(:default_key)
+        config.batch.id_method = opts[:id_method] if opts.key?(:id_method)
       end
 
       #

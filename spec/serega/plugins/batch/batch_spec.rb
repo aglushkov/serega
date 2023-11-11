@@ -24,15 +24,15 @@ RSpec.describe Serega::SeregaPlugins::Batch do
       expect(auto_hide).to be true
     end
 
-    it "adds option :default_key (nil by default)" do
-      default_key = serializer.config.batch.default_key
-      expect(default_key).to be_nil
+    it "adds option :id_method (nil by default)" do
+      id_method = serializer.config.batch.id_method
+      expect(id_method).to be_nil
     end
 
-    it "allows to change :default_key option when defining plugin" do
-      serializer = Class.new(Serega) { plugin :batch, default_key: :id }
-      default_key = serializer.config.batch.default_key
-      expect(default_key).to eq :id
+    it "allows to change :id_method option when defining plugin" do
+      serializer = Class.new(Serega) { plugin :batch, id_method: :id }
+      id_method = serializer.config.batch.id_method
+      expect(id_method).to eq :id
     end
   end
 
@@ -49,7 +49,7 @@ RSpec.describe Serega::SeregaPlugins::Batch do
   describe "validations" do
     it "checks :batch_loader attribute option" do
       expect { serializer.attribute :foo, batch: true }.to raise_error Serega::SeregaError
-      expect { serializer.attribute :foo, batch: {key: :key, loader: proc { |keys| }} }.not_to raise_error
+      expect { serializer.attribute :foo, batch: {id_method: :id, loader: proc { |keys| }} }.not_to raise_error
     end
   end
 
@@ -57,46 +57,46 @@ RSpec.describe Serega::SeregaPlugins::Batch do
     describe "loader" do
       it "allows to provide loader with 0 arguments" do
         loader = lambda {}
-        attribute = serializer.attribute :foo, batch: {key: :key, loader: loader}
+        attribute = serializer.attribute :foo, batch: {id_method: :id, loader: loader}
         expect(attribute.batch[:loader].call(1, 2, 3)).to be_nil
       end
 
       it "allows to provide loader with 1 argument" do
         loader = lambda { |a| a }
-        attribute = serializer.attribute :foo, batch: {key: :key, loader: loader}
+        attribute = serializer.attribute :foo, batch: {id_method: :id, loader: loader}
         expect(attribute.batch[:loader].call(1, 2, 3)).to eq 1
       end
 
       it "allows to provide loader with 2 arguments" do
         loader = lambda { |a, b| b }
-        attribute = serializer.attribute :foo, batch: {key: :key, loader: loader}
+        attribute = serializer.attribute :foo, batch: {id_method: :id, loader: loader}
         expect(attribute.batch[:loader].call(1, 2, 3)).to eq 2
       end
 
       it "allows to provide loader with 3 arguments" do
         loader = lambda { |a, b, c| c }
-        attribute = serializer.attribute :foo, batch: {key: :key, loader: loader}
+        attribute = serializer.attribute :foo, batch: {id_method: :id, loader: loader}
         expect(attribute.batch[:loader].call(1, 2, 3)).to eq 3
       end
     end
 
-    describe "key" do
-      it "allows to provide key with 0 arguments" do
-        key = lambda {}
-        attribute = serializer.attribute :foo, batch: {key: key, loader: proc {}}
-        expect(attribute.batch[:key].call(1, 2)).to be_nil
+    describe "attribute batch id_method option" do
+      it "allows to provide callable id with 0 arguments" do
+        id = lambda {}
+        attribute = serializer.attribute :foo, batch: {id_method: id, loader: proc {}}
+        expect(attribute.batch[:id_method].call(1, 2)).to be_nil
       end
 
-      it "allows to provide key with 1 argument" do
-        key = lambda { |a| a }
-        attribute = serializer.attribute :foo, batch: {key: key, loader: proc {}}
-        expect(attribute.batch[:key].call(1, 2)).to eq 1
+      it "allows to provide callable id with 1 argument" do
+        id = lambda { |a| a }
+        attribute = serializer.attribute :foo, batch: {id_method: id, loader: proc {}}
+        expect(attribute.batch[:id_method].call(1, 2)).to eq 1
       end
 
-      it "allows to provide key with 2 arguments" do
-        key = lambda { |a, b| b }
-        attribute = serializer.attribute :foo, batch: {key: key, loader: proc {}}
-        expect(attribute.batch[:key].call(1, 2)).to eq 2
+      it "allows to provide callable id with 2 arguments" do
+        id = lambda { |a, b| b }
+        attribute = serializer.attribute :foo, batch: {id_method: id, loader: proc {}}
+        expect(attribute.batch[:id_method].call(1, 2)).to eq 2
       end
     end
   end
@@ -127,8 +127,8 @@ RSpec.describe Serega::SeregaPlugins::Batch do
           plugin :batch
 
           attribute :first_name
-          attribute :online_time, batch: {key: :online_id, loader: proc { |_ids, _ctx, _point| {1 => 10, 2 => 20} }}
-          attribute :offline_time, batch: {key: :offline_id, loader: proc { |_ids, _ctx, _point| {3 => 30, 4 => 40} }}
+          attribute :online_time, batch: {id_method: :online_id, loader: proc { |_ids, _ctx, _point| {1 => 10, 2 => 20} }}
+          attribute :offline_time, batch: {id_method: :offline_id, loader: proc { |_ids, _ctx, _point| {3 => 30, 4 => 40} }}
         end
       end
 
@@ -164,7 +164,7 @@ RSpec.describe Serega::SeregaPlugins::Batch do
 
       let(:user_serializer) do
         Class.new(Serega) do
-          plugin :batch, default_key: :online_id
+          plugin :batch, id_method: :online_id
 
           attribute :first_name
           attribute :online_time, batch: {loader: proc { |keys| foobar }} # not existing variable call
@@ -185,7 +185,7 @@ RSpec.describe Serega::SeregaPlugins::Batch do
       let(:user_serializer) do
         Class.new(Serega) do
           plugin :batch
-          attribute :online_time, batch: {key: :online_id, loader: proc { |keys| 1 }}
+          attribute :online_time, batch: {id_method: :online_id, loader: proc { |keys| 1 }}
         end
       end
 
@@ -214,7 +214,7 @@ RSpec.describe Serega::SeregaPlugins::Batch do
 
           attribute :first_name
           attribute :status, serializer: child_serializer,
-            batch: {key: :status_id, loader: proc { |ids| {1 => all_statuses[0], 2 => all_statuses[1]} }}
+            batch: {id_method: :status_id, loader: proc { |ids| {1 => all_statuses[0], 2 => all_statuses[1]} }}
         end
       end
 
@@ -257,7 +257,7 @@ RSpec.describe Serega::SeregaPlugins::Batch do
         Class.new(Serega) do
           plugin :batch
           attribute :name,
-            batch: {key: :id, loader: proc { |ids| {1 => "draft", 2 => "published"} }}
+            batch: {id_method: :id, loader: proc { |ids| {1 => "draft", 2 => "published"} }}
         end
       end
 
@@ -267,7 +267,7 @@ RSpec.describe Serega::SeregaPlugins::Batch do
         Class.new(Serega) do
           plugin :batch
           attribute :status, serializer: st_serializer,
-            batch: {key: :status_id, loader: proc { |ids| {1 => all_statuses[0], 2 => all_statuses[1]} }}
+            batch: {id_method: :status_id, loader: proc { |ids| {1 => all_statuses[0], 2 => all_statuses[1]} }}
         end
       end
 
@@ -279,7 +279,7 @@ RSpec.describe Serega::SeregaPlugins::Batch do
           attribute :first_name
           attribute :post,
             serializer: pst_serializer,
-            batch: {key: :post_id, loader: proc { |ids| {1 => all_posts[0], 2 => all_posts[1]} }}
+            batch: {id_method: :post_id, loader: proc { |ids| {1 => all_posts[0], 2 => all_posts[1]} }}
         end
       end
 
@@ -305,7 +305,7 @@ RSpec.describe Serega::SeregaPlugins::Batch do
           plugin :batch
           attribute :status,
             batch: {
-              key: :id,
+              id_method: :id,
               loader: proc { |keys| }
             }
         end

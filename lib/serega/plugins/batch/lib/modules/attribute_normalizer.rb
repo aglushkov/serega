@@ -44,22 +44,22 @@ class Serega
 
           loader = prepare_batch_loader(batch[:loader])
 
-          key = batch[:key] || self.class.serializer_class.config.batch.default_key
-          key = prepare_batch_key(key)
+          id_method = batch[:id_method] || self.class.serializer_class.config.batch.id_method
+          id_method = prepare_batch_id_method(id_method)
 
           default = batch.fetch(:default) { many ? FROZEN_EMPTY_ARRAY : nil }
 
-          {loader: loader, key: key, default: default}
+          {loader: loader, id_method: id_method, default: default}
         end
 
-        def prepare_batch_key(key)
-          return proc { |object| object.public_send(key) } if key.is_a?(Symbol)
+        def prepare_batch_id_method(id_method)
+          return proc { |object| object.public_send(id_method) } if id_method.is_a?(Symbol)
 
-          params_count = SeregaUtils::ParamsCount.call(key, max_count: 2)
+          params_count = SeregaUtils::ParamsCount.call(id_method, max_count: 2)
           case params_count
-          when 0 then proc { key.call }
-          when 1 then proc { |object| key.call(object) }
-          else key
+          when 0 then proc { id_method.call }
+          when 1 then proc { |object| id_method.call(object) }
+          else id_method
           end
         end
 

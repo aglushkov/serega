@@ -50,7 +50,7 @@ RSpec.describe Serega::SeregaPlugins::Batch do
 
         attribute :first_name
         attribute :last_name
-        attribute :posts, serializer: p_serializer, batch: {key: :id, loader: :sorted_posts}
+        attribute :posts, serializer: p_serializer, batch: {id_method: :id, loader: :sorted_posts}
       end
     end
 
@@ -94,8 +94,8 @@ RSpec.describe Serega::SeregaPlugins::Batch do
 
         attribute :first_name
         attribute :last_name
-        attribute :posts_count, batch: {key: :id, loader: :posts_count}
-        attribute :comments_count, batch: {key: :id, loader: :comments_count}
+        attribute :posts_count, batch: {id_method: :id, loader: :posts_count}
+        attribute :comments_count, batch: {id_method: :id, loader: :comments_count}
       end
     end
 
@@ -121,7 +121,7 @@ RSpec.describe Serega::SeregaPlugins::Batch do
 
         attribute :first_name
         attribute :last_name
-        attribute :posts, serializer: p_serializer, batch: {key: :id, loader: :sorted_posts}
+        attribute :posts, serializer: p_serializer, batch: {id_method: :id, loader: :sorted_posts}
       end
     end
 
@@ -134,7 +134,7 @@ RSpec.describe Serega::SeregaPlugins::Batch do
         end
 
         attribute :text
-        attribute :comments, serializer: c_serializer, batch: {key: :id, loader: :sorted_comments}
+        attribute :comments, serializer: c_serializer, batch: {id_method: :id, loader: :sorted_comments}
       end
     end
 

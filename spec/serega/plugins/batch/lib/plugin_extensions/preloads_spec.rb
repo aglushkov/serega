@@ -9,11 +9,11 @@ RSpec.describe Serega::SeregaPlugins::Batch do
 
       Class.new(Serega) do
         plugin :preloads, auto_preload_attributes_with_serializer: true
-        plugin :batch
+        plugin :batch, id_method: :id
 
-        attribute :one, batch: {key: :id, loader: proc {}}, serializer: post_ser
+        attribute :one, batch: {loader: proc {}}, serializer: post_ser
         attribute :two, serializer: post_ser
-        attribute :three, batch: {key: :id, loader: proc {}}, serializer: post_ser, preload: :custom
+        attribute :three, batch: {loader: proc {}}, serializer: post_ser, preload: :custom
       end
     end
 

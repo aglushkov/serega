@@ -1,16 +1,12 @@
 # frozen_string_literal: true
 
-version = File.read(File.join(File.dirname(__FILE__), "../VERSION")).strip
-local_file = File.join(File.dirname(__FILE__), "../serega-#{version}.gem")
-local_file_exist = File.file?(local_file)
-
 require "bundler/inline"
 
 gemfile(true, quiet: true) do
   source "https://rubygems.org"
   git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-  gem "serega", "~> #{version}", local_file_exist ? {path: File.dirname(local_file)} : {}
+  gem "serega", path: File.join(File.dirname(__FILE__), "..")
   gem "sqlite3"
   gem "activerecord"
 end
@@ -107,6 +103,23 @@ def groups(keys, values, by:, default: nil)
   data
 end
 
+class UsersPostsLoader
+  def self.call(user_ids)
+    Post
+      .where(user_id: user_ids)
+      .group_by(&:user_id)
+  end
+end
+
+class PostsCommentsLoader
+  def self.call(post_ids, _ctx, point)
+    Comment
+      .preload(point.preloads) # will preload views
+      .where(post_id: post_ids)
+      .group_by(&:post_id)
+  end
+end
+
 # Serializers
 class AppSerializer < Serega
   plugin :preloads,
@@ -115,44 +128,18 @@ class AppSerializer < Serega
     auto_hide_attributes_with_preload: false
 
   plugin :activerecord_preloads
-  plugin :batch, default_key: :id
+  plugin :batch, id_method: :id
 end
 
 class UserSerializer < AppSerializer
   attribute :first_name
   attribute :last_name
-  attribute :posts, serializer: "PostSerializer", many: true, batch: {loader: :users_posts}
-
-  config.batch.define(:users_posts) do |ids|
-    Post.where(user_id: ids).each_with_object({}) do |post, groups|
-      key = post.user_id
-
-      if groups.has_key?(key)
-        groups[key] << post
-      else
-        groups[key] = [post]
-      end
-    end
-  end
+  attribute :posts, serializer: "PostSerializer", many: true, batch: {loader: UsersPostsLoader}
 end
 
 class PostSerializer < AppSerializer
   attribute :text
-  attribute :comments, serializer: "CommentSerializer", many: true, batch: {loader: :posts_comments}
-
-  config.batch.define(:posts_comments) do |ids, _ctx, point|
-    scope = Comment.preload(point.preloads)
-    scope = scope.where(post_id: ids)
-    scope.each_with_object({}) do |comment, groups|
-      key = comment.post_id
-
-      if groups.has_key?(key)
-        groups[key] << comment
-      else
-        groups[key] = [comment]
-      end
-    end
-  end
+  attribute :comments, serializer: "CommentSerializer", many: true, batch: {loader: PostsCommentsLoader}
 end
 
 class CommentSerializer < AppSerializer

@@ -236,13 +236,13 @@ RSpec.describe Serega::SeregaPlugins::If do
       context "when skipping regular attribute" do
         let(:user_serializer) do
           Class.new(Serega) do
-            plugin :batch
+            plugin :batch, id_method: :id
             plugin :if
 
             attribute :id
             attribute :online_time,
               if: proc { |obj| obj.id != 1 },
-              batch: {key: :id, loader: proc { |_keys| {1 => 10, 2 => 20} }}
+              batch: {loader: proc { |_keys| {1 => 10, 2 => 20} }}
           end
         end
 
@@ -280,14 +280,13 @@ RSpec.describe Serega::SeregaPlugins::If do
           child_serializer = status_serializer
           Class.new(Serega) do
             plugin :if
-            plugin :batch
+            plugin :batch, id_method: :id
 
             attribute :id
             attribute :status,
               serializer: child_serializer,
               if: proc { |obj| obj.id != 1 }, # should skip status for user1
               batch: {
-                key: :id,
                 loader: proc do |_keys|
                   {
                     1 => status1,

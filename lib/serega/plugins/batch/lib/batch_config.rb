@@ -17,8 +17,8 @@ class Serega
         # Defines batch loader
         #
         # @param loader_name [Symbol] Batch loader name, that is used when defining attribute with batch loader.
-        # @param block [Proc] Block that can accept 3 parameters - keys, context, plan_point
-        #   and returns hash where ids are keys and values are batch loaded objects/
+        # @param block [Proc] Block that can accept 3 parameters - ids, context, plan_point
+        #   and returns hash with ids as keys and values are batch loaded objects
         #
         # @return [void]
         #
@@ -32,7 +32,7 @@ class Serega
           params_count = SeregaUtils::ParamsCount.call(callable, max_count: 3)
 
           if params_count > 3
-            raise SeregaError, "Batch loader can have maximum 3 parameters (keys, context, plan)"
+            raise SeregaError, "Batch loader can have maximum 3 parameters (ids, context, plan)"
           end
 
           loaders[loader_name] = callable
@@ -42,16 +42,6 @@ class Serega
         # @return [Hash] defined loaders
         def loaders
           opts[:loaders]
-        end
-
-        #
-        # Finds previously defined batch loader by name
-        #
-        # @param loader_name [Symbol]
-        #
-        # @return [Proc] batch loader block
-        def fetch_loader(loader_name)
-          loaders[loader_name] || (raise SeregaError, "Batch loader with name `#{loader_name.inspect}` was not defined. Define example: config.batch.define(:#{loader_name}) { |keys| ... }")
         end
 
         # Shows option to auto hide attributes with :batch specified
@@ -67,17 +57,19 @@ class Serega
           opts[:auto_hide] = value
         end
 
-        # Shows default key for :batch option
-        # @return [Symbol, nil] default key for :batch option
-        def default_key
-          opts[:default_key]
+        # Shows method name or callable object needed to get object identifier for batch load
+        # @return [Symbol, #call, nil] Default method name or callable object to get identifier
+        def id_method
+          opts[:id_method]
         end
 
-        # @param value [Symbol] New :default_key option value
+        # Sets new identifier method name or callable value needed for batch loading
+        #
+        # @param value [Symbol, #call] New :id_method value
         # @return [Boolean] New option value
-        def default_key=(value)
-          raise SeregaError, "Must be a Symbol, #{value.inspect} provided" unless value.is_a?(Symbol)
-          opts[:default_key] = value
+        def id_method=(value)
+          CheckBatchOptIdMethod.call(value)
+          opts[:id_method] = value
         end
       end
     end

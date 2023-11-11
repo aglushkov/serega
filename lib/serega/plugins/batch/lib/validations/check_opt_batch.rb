@@ -23,22 +23,22 @@ class Serega
             SeregaValidations::Utils::CheckOptIsHash.call(opts, :batch)
 
             batch = opts[:batch]
-            SeregaValidations::Utils::CheckAllowedKeys.call(batch, %i[key loader default], :batch)
+            SeregaValidations::Utils::CheckAllowedKeys.call(batch, %i[id_method loader default], :batch)
 
-            check_batch_opt_key(batch, serializer_class)
+            check_batch_opt_id_method(batch, serializer_class)
             check_batch_opt_loader(batch, serializer_class)
             check_usage_with_other_params(opts, block)
           end
 
           private
 
-          def check_batch_opt_key(batch, serializer_class)
-            return if !batch.key?(:key) && serializer_class.config.batch.default_key
+          def check_batch_opt_id_method(batch, serializer_class)
+            return if !batch.key?(:id_method) && serializer_class.config.batch.id_method
 
-            key = batch[:key]
-            raise SeregaError, "Option :key must present inside :batch option" unless key
+            id_method = batch[:id_method]
+            raise SeregaError, "Option :id_method must present inside :batch option" unless id_method
 
-            CheckBatchOptKey.call(key)
+            CheckBatchOptIdMethod.call(id_method)
           end
 
           def check_batch_opt_loader(batch, serializer_class)

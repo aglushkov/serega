@@ -11,7 +11,7 @@ RSpec.describe Serega::SeregaPlugins::Batch do
     describe "#batch" do
       it "returns provided attribute #batch option" do
         attribute = serializer.attribute :foo,
-          batch: {loader: proc {}, key: :id}
+          batch: {loader: proc {}, id_method: :id}
 
         batch = serializer::SeregaPlanPoint.new("plan", attribute, []).batch
 

@@ -2,13 +2,13 @@
 
 load_plugin_code :batch
 
-RSpec.describe Serega::SeregaPlugins::Batch::CheckBatchOptKey do
+RSpec.describe Serega::SeregaPlugins::Batch::CheckBatchOptIdMethod do
   let(:callable_parameters_error) do
-    "Invalid :batch option :key. It can accept maximum 2 parameters (object, context)"
+    "Invalid :batch option :id_method. It can accept maximum 2 parameters (object, context)"
   end
 
   let(:must_be_callable) do
-    "Invalid :batch option :key. It must be a Symbol, a Proc or respond to :call"
+    "Invalid :batch option :id_method. It must be a Symbol, a Proc or respond to #call"
   end
 
   it "prohibits non-proc, non-callable values" do
