@@ -1,23 +1,18 @@
 PATH
   remote: .
   specs:
-    serega (0.17.0)
+    serega (0.18.0)
 
 GEM
   remote: https://rubygems.org/
   specs:
-    activemodel (7.1.1)
-      activesupport (= 7.1.1)
-    activerecord (7.1.1)
-      activemodel (= 7.1.1)
-      activesupport (= 7.1.1)
+    activemodel (7.1.2)
+      activesupport (= 7.1.2)
+    activerecord (7.1.2)
+      activemodel (= 7.1.2)
+      activesupport (= 7.1.2)
       timeout (>= 0.4.0)
-    activerecord-jdbc-adapter (70.1-java)
-      activerecord (~> 7.0)
-    activerecord-jdbcsqlite3-adapter (70.1-java)
-      activerecord-jdbc-adapter (= 70.1)
-      jdbc-sqlite3 (~> 3.8, < 3.34)
-    activesupport (7.1.1)
+    activesupport (7.1.2)
       base64
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
@@ -29,9 +24,8 @@ GEM
       tzinfo (~> 2.0)
     allocation_stats (0.1.5)
     ast (2.4.2)
-    base64 (0.1.1)
+    base64 (0.2.0)
     bigdecimal (3.1.4)
-    bigdecimal (3.1.4-java)
     chef-utils (18.3.0)
       concurrent-ruby
     concurrent-ruby (1.2.2)
@@ -41,19 +35,15 @@ GEM
       reline (>= 0.3.1)
     diff-lcs (1.5.0)
     docile (1.4.0)
-    drb (2.1.1)
+    drb (2.2.0)
       ruby2_keywords
     i18n (1.14.1)
       concurrent-ruby (~> 1.0)
     io-console (0.6.0)
-    io-console (0.6.0-java)
-    irb (1.8.3)
+    irb (1.9.0)
       rdoc
       reline (>= 0.3.8)
-    jar-dependencies (0.4.1)
-    jdbc-sqlite3 (3.32.3.3)
     json (2.6.3)
-    json (2.6.3-java)
     kramdown (2.4.0)
       rexml
     kramdown-parser-gfm (1.1.0)
@@ -72,24 +62,21 @@ GEM
       tomlrb
     mixlib-shellout (3.2.7)
       chef-utils
-    mutex_m (0.1.2)
+    mutex_m (0.2.0)
     parallel (1.23.0)
     parser (3.2.2.4)
       ast (~> 2.4.1)
       racc
     psych (5.1.1.1)
       stringio
-    psych (5.1.1.1-java)
-      jar-dependencies (>= 0.1.7)
-    racc (1.7.2)
-    racc (1.7.2-java)
+    racc (1.7.3)
     rainbow (3.1.1)
     rake (13.1.0)
-    rdoc (6.5.0)
+    rdoc (6.6.0)
       psych (>= 4.0.0)
     redcarpet (3.6.0)
     regexp_parser (2.8.2)
-    reline (0.3.9)
+    reline (0.4.0)
       io-console (~> 0.5)
     rexml (3.2.6)
     rspec (3.12.0)
@@ -108,12 +95,11 @@ GEM
       activerecord (>= 4.2.0, < 8)
       rspec (~> 3.0)
     rspec-support (3.12.1)
-    rubocop (1.56.4)
-      base64 (~> 0.1.1)
+    rubocop (1.57.2)
       json (~> 2.3)
       language_server-protocol (>= 3.17.0)
       parallel (~> 1.10)
-      parser (>= 3.2.2.3)
+      parser (>= 3.2.2.4)
       rainbow (>= 2.2.2, < 4.0)
       regexp_parser (>= 1.8, < 3.0)
       rexml (>= 3.2.5, < 4.0)
@@ -144,10 +130,10 @@ GEM
     simplecov-html (0.12.3)
     simplecov_json_formatter (0.1.4)
     sqlite3 (1.6.8-x86_64-linux)
-    standard (1.31.2)
+    standard (1.32.0)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.0)
-      rubocop (~> 1.56.4)
+      rubocop (~> 1.57.2)
       standard-custom (~> 1.0.0)
       standard-performance (~> 1.2)
     standard-custom (1.0.2)
@@ -156,8 +142,8 @@ GEM
     standard-performance (1.2.1)
       lint_roller (~> 1.1)
       rubocop-performance (~> 1.19.1)
-    stringio (3.0.8)
-    timeout (0.4.0)
+    stringio (3.0.9)
+    timeout (0.4.1)
     tomlrb (2.0.3)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
@@ -165,7 +151,6 @@ GEM
     yard (0.9.34)
 
 PLATFORMS
-  universal-java-11
   x86_64-linux
 
 DEPENDENCIES
@@ -187,4 +172,4 @@ DEPENDENCIES
   yard
 
 BUNDLED WITH
-   2.4.5
+   2.4.22

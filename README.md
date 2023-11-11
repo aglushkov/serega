@@ -542,81 +542,116 @@ UserSerializer.to_h(user)
 Must be used to omit N+1 when loading attributes values.
 
 User must provide batch loader object to attribute -
-`attribute :foo, batch: {loader: SomeLoader, key: :id}`.
+`attribute :foo, batch: {loader: SomeLoader, id_method: :id}`.
 
-This batch loader must be a callable object that accept 1 to 3 arguments:
-
-1) List of ids (each id will be selected by using `:key` option)
-2) Context
-3) PlanPoint (special object containing information about current
-   attribute and all nested and parent attributes)
-
-Result must be returned as Hash, where each key is one of ids and
-each value is attribute value
+Result must be returned as Hash, where each key is one of provided ids.
 
 ```ruby
 class AppSerializer
   plugin :batch
 end
 
-# Here we assume that CommentsCountBatchLoader and UserCompanyBatchLoader
-# respond to #call
 class UserSerializer < AppSerializer
   attribute :comments_count,
-    batch: { loader: CommentsCountBatchLoader, key: :id }
+    batch: { loader: SomeLoader, id_method: :id }
 
   attribute :company,
-    batch: { loader: UserCompanyBatchLoader, key: :id },
+    batch: { loader: SomeLoader, id_method: :id },
     serializer: CompanySerializer
 end
 ```
 
-Plugin can be added with global `:key` option. It be a Symbol ar any Proc or
-callable value that accepts current object and context.
+#### Option :loader
+
+Loaders can be defined as a Proc, a callable value or a named Symbol
+Named loaders should be predefined with
+`config.batch.define(:loader_name) { |ids| ... })`
+
+Loader can accept 1 to 3 arguments:
+
+1. List of ids (each id will be found by using `:id_method` option)
+1. Context
+1. PlanPoint - a special object containing information about current
+   attribute and all children and parent attributes. It can be used to preload
+   required associations to batch values.
+   See [example](examples/batch_loader.rb) how
+   to find required preloads when using with `:preloads` plugin.
+
+```ruby
+class AppSerializer < Serega
+  plugin :batch, id_method: :id
+end
+
+class UserSerializer < Serega
+  # Define loader as callable object
+  attribute :comments_count,
+    batch: { loader: CountLoader }
+
+  # Define loader as a Proc
+  attribute :comments_count,
+    batch: { loader: proc { |ids| CountLoader.call(ids) } }
+
+  # Define loader as a Symbol
+  config.batch.define(:comments_count_loader) { |ids| CountLoader.call(ids }
+  attribute :comments_count, batch: { loader: :comments_count_loader }
+end
+
+class CountLoader
+  def self.call(user_ids)
+    Comment.where(user_id: user_ids).group(:user_id).count
+  end
+end
+```
+
+#### Option :id_method
+
+Batch plugin can be added with global `:id_method` option. It can be a Symbol,
+Proc or any callable value, which can accept current object and current context.
 
 ```ruby
 class SomeSerializer
-  # `:id` will be used as a default method to find object id,
-  # so you don't need to specify it with attributes
-  plugin :batch, key: :id
+  plugin :batch, id_method: :id
 end
 
 class UserSerializer < AppSerializer
   attribute :comments_count,
-    batch: { loader: CommentsCountBatchLoader }
+    batch: { loader: CommentsCountBatchLoader } # no :id_method here anymore
 
   attribute :company,
-    batch: { loader: UserCompanyBatchLoader },
+    batch: { loader: UserCompanyBatchLoader }, # no :id_method here anymore
     serializer: CompanySerializer
 end
 
 ```
 
-However, global `:key` option can be overwritten via `config.batch.default_key=`
-method or in specific attributes with `:key` option.
+However, global `id_method` option can be overwritten via `config.batch.id_method=`
+method or in specific attributes with `id_method` option.
 
 ```ruby
 class SomeSerializer
-  plugin :batch, key: :id # global key is `:id`
+  plugin :batch, id_method: :id # global id_method is `:id`
 end
 
 class UserSerializer < AppSerializer
-  # :user_id will be used as default `key` for all batch attributes
-  config.batch.default_key = :user_id
+  # :user_id will be used as default `id_method` for all batch attributes
+  config.batch.id_method = :user_id
 
-  # key is :user_id
+  # id_method is :user_id
   attribute :comments_count,
     batch: { loader: CommentsCountBatchLoader }
 
 
-  # key is :user_id
+  # id_method is :user_id
   attribute :company,
     batch: { loader: UserCompanyBatchLoader }, serializer: CompanySerializer
 
-  # key is :wallet_id
-  attribute :points_amount, batch: { loader: PointsBatchLoader, key: :wallet_id }
+  # id_method is :uuid
+  attribute :points_amount,
+    batch: { loader: PointsBatchLoader, id_method: :uuid }
 end
 ```
+
+#### Option :default
 
 The default value for attributes without found value can be specified via
 `:default` option. By default attributes without found value will be
@@ -624,16 +659,16 @@ serialized as `nil`. Attribute marked as `many: true` will be
 serialized as empty array `[]`
 
 ```ruby
-class UserSerializer < AppSerializer\
-  # Value will be empty array, as `many: true` option specified
+class UserSerializer < AppSerializer
+  # Missing values become empty arrays, as `many: true` option specified
   attribute :companies,
     batch: {loader: proc {}},
     serializer: CompanySerializer,
     many: true
 
-  # Value will be `0` as specified directly
+  # Missing values become `0` as specified directly
   attribute :points_amount,
-    batch: { loader: proc {}, key: :wallet_id, default: 0 }
+    batch: { loader: proc {}, default: 0 }
 end
 ```
 
@@ -651,24 +686,6 @@ end
 
 class UserSerializer < AppSerializer
   config.batch.auto_hide = false
-end
-```
-
-Loaders can be predefined before usage and used later by providing their
-Symbol names (`config.batch.define(:loader_name) { |ids| ... }`)
-
-```ruby
-class AppSerializer < Serega
-  plugin :batch
-
-  config.batch.define(:posts_comments_counter) do |post_ids|
-    Comment.where(post_id: post_ids).group(:post_id).count
-  end
-end
-
-class PostSerializer < AppSerializer
-  attribute :comments_count,
-    batch: { loader: :posts_comments_counter, key: :id }
 end
 ```
 

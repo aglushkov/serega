@@ -8,7 +8,7 @@ RSpec.describe Serega::SeregaPlugins::Batch::BatchConfig do
   let(:batch_config) { described_class.new({loaders: {}}) }
 
   let(:params_count_error) do
-    "Batch loader can have maximum 3 parameters (keys, context, plan)"
+    "Batch loader can have maximum 3 parameters (ids, context, plan)"
   end
 
   let(:keyword_error) do
@@ -46,19 +46,6 @@ RSpec.describe Serega::SeregaPlugins::Batch::BatchConfig do
     end
   end
 
-  describe "#fetch_loader" do
-    it "returns defined loader by name" do
-      loader = proc { |a| }
-      batch_config.define(:name, &loader)
-      expect(batch_config.fetch_loader(:name)).to eq loader
-    end
-
-    it "raises error when loader was not found" do
-      expect { batch_config.fetch_loader(:name) }.to raise_error Serega::SeregaError,
-        "Batch loader with name `:name` was not defined. Define example: config.batch.define(:name) { |keys| ... }"
-    end
-  end
-
   describe "#loaders" do
     it "returns defined loaders hash" do
       loader = proc { |a| }
@@ -87,23 +74,23 @@ RSpec.describe Serega::SeregaPlugins::Batch::BatchConfig do
     end
   end
 
-  describe "#default_key" do
-    it "returns default_key option" do
-      batch_config.opts[:default_key] = "DEFAULT_KEY"
-      expect(batch_config.default_key).to eq "DEFAULT_KEY"
+  describe "#id_method" do
+    it "returns id_method option" do
+      batch_config.opts[:id_method] = "id_method"
+      expect(batch_config.id_method).to eq "id_method"
     end
   end
 
-  describe "#default_key=" do
-    it "changes default_key option" do
-      batch_config.opts[:default_key] = "DEFAULT_KEY"
-      batch_config.default_key = :foo
-      expect(batch_config.default_key).to eq :foo
+  describe "#id_method=" do
+    it "changes id_method option" do
+      batch_config.opts[:id_method] = "id_method"
+      batch_config.id_method = :foo
+      expect(batch_config.id_method).to eq :foo
     end
 
     it "validates argument" do
-      expect { batch_config.default_key = 1 }
-        .to raise_error Serega::SeregaError, "Must be a Symbol, 1 provided"
+      expect { batch_config.id_method = 1 }
+        .to raise_error Serega::SeregaError, "Invalid :batch option :id_method. It must be a Symbol, a Proc or respond to #call"
     end
   end
 end

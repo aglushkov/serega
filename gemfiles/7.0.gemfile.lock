@@ -1,7 +1,7 @@
 PATH
   remote: ..
   specs:
-    serega (0.17.0)
+    serega (0.18.0)
 
 GEM
   remote: https://rubygems.org/
@@ -22,7 +22,6 @@ GEM
       minitest (>= 5.1)
       tzinfo (~> 2.0)
     ast (2.4.2)
-    base64 (0.1.1)
     chef-utils (18.3.0)
       concurrent-ruby
     concurrent-ruby (1.2.2)
@@ -55,8 +54,8 @@ GEM
     parser (3.2.2.4)
       ast (~> 2.4.1)
       racc
-    racc (1.7.2)
-    racc (1.7.2-java)
+    racc (1.7.3)
+    racc (1.7.3-java)
     rainbow (3.1.1)
     rake (13.1.0)
     regexp_parser (2.8.2)
@@ -77,12 +76,11 @@ GEM
       activerecord (>= 4.2.0, < 8)
       rspec (~> 3.0)
     rspec-support (3.12.1)
-    rubocop (1.56.4)
-      base64 (~> 0.1.1)
+    rubocop (1.57.2)
       json (~> 2.3)
       language_server-protocol (>= 3.17.0)
       parallel (~> 1.10)
-      parser (>= 3.2.2.3)
+      parser (>= 3.2.2.4)
       rainbow (>= 2.2.2, < 4.0)
       regexp_parser (>= 1.8, < 3.0)
       rexml (>= 3.2.5, < 4.0)
@@ -112,10 +110,10 @@ GEM
     simplecov-html (0.12.3)
     simplecov_json_formatter (0.1.4)
     sqlite3 (1.4.4)
-    standard (1.31.2)
+    standard (1.32.0)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.0)
-      rubocop (~> 1.56.4)
+      rubocop (~> 1.57.2)
       standard-custom (~> 1.0.0)
       standard-performance (~> 1.2)
     standard-custom (1.0.2)
@@ -148,4 +146,4 @@ DEPENDENCIES
   standard (~> 1.12, >= 1.12.1)
 
 BUNDLED WITH
-   2.4.21
+   2.4.22

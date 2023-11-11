@@ -6,7 +6,7 @@ RSpec.describe Serega::SeregaPlugins::Batch::CheckBatchOptLoader do
   let(:serializer) { Class.new(Serega) { plugin :batch } }
 
   let(:params_count_error) do
-    "Invalid :batch option :loader. It can accept maximum 3 parameters (keys, context, plan)"
+    "Invalid :batch option :loader. It can accept maximum 3 parameters (ids, context, plan)"
   end
 
   let(:param_type_error) do
