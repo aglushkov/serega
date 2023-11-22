@@ -1,5 +1,0 @@
-# Classes
-module Serega
-  FROZEN_EMPTY_HASH: {}
-  FROZEN_EMPTY_ARRAY: []
-end
