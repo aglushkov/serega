@@ -24,7 +24,8 @@ It has some great features:
 - Adding custom metadata (via [metadata][metadata] or
   [context_metadata][context_metadata] plugins)
 - Value formatters ([formatters][formatters] plugin) helps to transform
-  time, date, money, percentage, and any other values in the same way keeping the code dry
+  time, date, money, percentage, and any other values in the same way keeping
+  the code dry
 - Conditional attributes - ([if][if] plugin)
 - Auto camelCase keys - [camel_case][camel_case] plugin
 
@@ -73,7 +74,8 @@ class UserSerializer < Serega
   # Block is used to define attribute value
   attribute(:first_name) { |user| user.profile&.first_name }
 
-  # Option :value can be used with a Proc or callable object to define attribute value
+  # Option :value can be used with a Proc or callable object to define attribute
+  # value
   attribute :first_name, value: UserProfile.new # must have #call method
   attribute :first_name, value: proc { |user| user.profile&.first_name }
 
@@ -107,7 +109,8 @@ class UserSerializer < Serega
   attribute(:email, preload: :emails) { |user| user.emails.find(&:verified?) }
 
   # Options `:if, :unless, :if_value and :unless_value` can be specified
-  # when `:if` plugin is enabled. They hide the attribute key and value from the response.
+  # when `:if` plugin is enabled. They hide the attribute key and value from the
+  # response.
   # See more usage examples in the `:if` plugin section.
   attribute :email, if: proc { |user, ctx| user == ctx[:current_user] }
   attribute :email, if_value: :present?
@@ -165,7 +168,8 @@ UserSerializer.as_json(user) # => {"username":"serega"}
 UserSerializer.as_json([user]) # => [{"username":"serega"}]
 ```
 
-If serialized fields are constant, then it's a good idea to initiate the serializer and reuse it.
+If serialized fields are constant, then it's a good idea to initiate the
+serializer and reuse it.
 It will be a bit faster (the serialization plan will be prepared only once).
 
 ```ruby
@@ -193,14 +197,14 @@ UserSerializer.to_h(user_struct, many: false)
 
 By default, all attributes are serialized (except marked as `hide: true`).
 
-We can provide **modifiers** to select only the action_nameneeded attributes:
+We can provide **modifiers** to select serialized attributes:
 
-- *only* - lists attributes to serialize;
+- *only* - lists specific attributes to serialize;
 - *except* - lists attributes to not serialize;
 - *with* - lists attributes to serialize additionally (By default all attributes
   are exposed and will be serialized, but some attributes can be hidden when
-  they are defined with the `hide: true` option, more on this below. `with` modifier
-  can be used to expose such attributes).
+  they are defined with the `hide: true` option, more on this below. `with`
+  modifier can be used to expose such attributes).
 
 Modifiers can be provided as Hash, Array, String, Symbol, or their combinations.
 
@@ -209,8 +213,9 @@ single `String` with attributes split by comma `,` and nested values inside
 brackets `()`, like: `username,enemies(username,email)`. This can be very useful
 to accept the list of fields in **GET** requests.
 
-When a non-existing attribute is provided, the `Serega::AttributeNotExist` error will be
-raised. This error can be muted with the `check_initiate_params: false` parameter.
+When a non-existing attribute is provided, the `Serega::AttributeNotExist` error
+will be raised. This error can be muted with the `check_initiate_params: false`
+option.
 
 ```ruby
 class UserSerializer < Serega
@@ -328,8 +333,8 @@ Here are the default options. Other options can be added with plugins.
 ```ruby
 class AppSerializer < Serega
   # Configure adapter to serialize to JSON.
-  # It is `JSON.dump` by default. But if the Oj gem is loaded, then the default is changed to
-  # `Oj.dump(data, mode: :compat)`
+  # It is `JSON.dump` by default. But if the Oj gem is loaded, then the default
+  # is changed to `Oj.dump(data, mode: :compat)`
   config.to_json = ->(data) { Oj.dump(data, mode: :compat) }
 
   # Configure adapter to de-serialize JSON.
@@ -364,10 +369,12 @@ Plugin accepts options:
 - `auto_preload_attributes_with_serializer` - default `false`
 - `auto_hide_attributes_with_preload` - default `false`
 
-These options are extremely useful if you want to forget about finding preloads manually.
+These options are extremely useful if you want to forget about finding preloads
+manually.
 
 Preloads can be disabled with the `preload: false` attribute option.
-Automatically added preloads can be overwritten with the manually specified `preload: :xxx` option.
+Automatically added preloads can be overwritten with the manually specified
+`preload: :xxx` option.
 
 For some examples, **please read the comments in the code below**
 
@@ -421,9 +428,10 @@ UserSerializer.new(
 
 #### SPECIFIC CASE #1: Serializing the same object in association
 
-For example, you show your current user as "user" and use the same user object to serialize "user_stats".
-`UserStatSerializer` relies on user fields and any other user associations.
-You should specify `preload: nil` to preload `UserStatSerializer` nested associations to the "user" object.
+For example, you show your current user as "user" and use the same user object
+to serialize "user_stats". `UserStatSerializer` relies on user fields and any
+other user associations. You should specify `preload: nil` to preload
+`UserStatSerializer` nested associations to the "user" object.
 
 ```ruby
 class AppSerializer < Serega
@@ -445,8 +453,8 @@ end
 #### SPECIFIC CASE #2: Serializing multiple associations as a single relation
 
 For example, "user" has two relations - "new_profile" and "old_profile". Also
-profiles have the "avatar" association. And you decided to serialize profiles in one
-array. You can specify `preload_path: [[:new_profile], [:old_profile]]` to
+profiles have the "avatar" association. And you decided to serialize profiles in
+one array. You can specify `preload_path: [[:new_profile], [:old_profile]]` to
 achieve this:
 
 ```ruby
@@ -603,8 +611,9 @@ end
 
 #### Option :id_method
 
-The `:batch` plugin can be added with the global `:id_method` option. It can be a Symbol,
-Proc or any callable value that can accept the current object and context.
+The `:batch` plugin can be added with the global `:id_method` option. It can be
+a Symbol, Proc or any callable value that can accept the current object and
+context.
 
 ```ruby
 class SomeSerializer
@@ -622,8 +631,9 @@ end
 
 ```
 
-However, the global `id_method` option can be overwritten via `config.batch.id_method=`
-method or in specific attributes with the `id_method` option.
+However, the global `id_method` option can be overwritten via
+`config.batch.id_method=` method or in specific attributes with the `id_method`
+option.
 
 ```ruby
 class SomeSerializer
@@ -670,8 +680,8 @@ class UserSerializer < AppSerializer
 end
 ```
 
-Batch attributes can be marked as hidden by default if the plugin is enabled with
-the `auto_hide` option. The `auto_hide` option can be changed with
+Batch attributes can be marked as hidden by default if the plugin is enabled
+with the `auto_hide` option. The `auto_hide` option can be changed with
 the `config.batch.auto_hide=` method.
 
 Look at [select serialized fields](#selecting-fields) for more information
@@ -689,8 +699,8 @@ end
 
 ---
 ⚠️ ATTENTION: The `:batch` plugin must be added to all serializers that have
-`:batch` attributes inside nested serializers. For example, when you serialize the
-`User -> Album -> Song` and the Song has a `batch` attribute, then
+`:batch` attributes inside nested serializers. For example, when you serialize
+the `User -> Album -> Song` and the Song has a `batch` attribute, then
 the `:batch` plugin must be added to the User serializer.
 
 The best way would be to create one parent `AppSerializer < Serega` serializer
@@ -729,7 +739,9 @@ The root key can be changed per serialization.
  UserSerializer.to_h(nil, root: nil)   # => nil
 ```
 
-The root key can be removed for all responses by providing the `root: nil` plugin option.
+The root key can be removed for all responses by providing the `root: nil`
+plugin option.
+
 In this case, no root key will be added. But it still can be added manually.
 
 ```ruby
@@ -752,7 +764,6 @@ In this case, no root key will be added. But it still can be added manually.
  end
 ```
 
-
 ### Plugin :metadata
 
 Depends on: [`:root`][root] plugin, that must be loaded first
@@ -766,7 +777,8 @@ Adds class-level `.meta_attribute` method. It accepts:
 
    - `:const` - describes metadata value (if it is constant)
    - `:value` - describes metadata value as any `#callable` instance
-   - `:hide_nil` - does not show the metadata key if the value is nil. It is `false` by default
+   - `:hide_nil` - does not show the metadata key if the value is nil.
+     It is `false` by default
    - `:hide_empty` - does not show the metadata key if the value is nil or empty.
      It is `false` by default.
 
@@ -968,7 +980,8 @@ for example `plugin :camel_case, transform: ->(name) { name.camelize }`
 For any attribute camelCase-behavior can be skipped when
 the `camel_case: false` attribute option provided.
 
-This plugin transforms only attribute keyz, without affecting the `root`, `metadata` and `context_metadata` plugins keys.
+This plugin transforms only attribute keys, without affecting the `root`,
+`metadata` and `context_metadata` plugins keys.
 
 If you wish to [select serialized fields](#selecting-fields), you should
 provide them camelCased.
@@ -1031,10 +1044,10 @@ end
 ### Plugin :explicit_many_option
 
 The plugin requires adding a `:many` option when adding relationships
-(attributes with the `:serializer` option)
+(attributes with the `:serializer` option).
 
-Adding this plugin makes it clearer to find if some relationship is an array or a single
-object
+Adding this plugin makes it clearer to find if some relationship is an array or
+a single object.
 
 ```ruby
   class BaseSerializer < Serega
