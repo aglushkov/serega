@@ -659,7 +659,7 @@ class UserSerializer < AppSerializer
 end
 ```
 
-#### Option :default
+#### Default value
 
 The default value for attributes without found value can be specified via
 `:default` option. By default, attributes without found value will be
@@ -675,8 +675,7 @@ class UserSerializer < AppSerializer
     many: true
 
   # Missing values become `0` as specified directly
-  attribute :points_amount,
-    batch: { loader: proc {}, default: 0 }
+  attribute :points_amount, batch: { loader: proc {} }, default: 0
 end
 ```
 

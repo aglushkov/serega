@@ -14,7 +14,7 @@ class Serega
     #   end
     #
     #   class UserSerializer < AppSerializer
-    #     attribute :comments_count, batch: { loader: CommentsCountBatchLoader, default: 0 }
+    #     attribute :comments_count, batch: { loader: CommentsCountBatchLoader }, default: 0
     #     attribute :company, serializer: CompanySerializer, batch: { loader: UserCompanyBatchLoader }
     #   end
     #

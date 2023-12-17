@@ -35,6 +35,7 @@ RSpec.describe Serega::SeregaAttribute do
         serializer_class::SeregaAttributeNormalizer,
         name: nil,
         many: nil,
+        default: nil,
         hide: nil,
         serializer: nil,
         method: nil,
@@ -45,7 +46,7 @@ RSpec.describe Serega::SeregaAttribute do
       allow(serializer_class::SeregaAttributeNormalizer).to receive(:new).with(initials).and_return(normalizer)
       attribute = attribute_class.new(**initials)
 
-      expect(attribute.instance_variables).to include(:@name, :@value_block, :@many, :@hide, :@serializer)
+      expect(attribute.instance_variables).to include(:@name, :@default, :@value_block, :@many, :@hide, :@serializer)
     end
   end
 

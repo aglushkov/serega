@@ -87,22 +87,6 @@ View.create!(comment: comment2, count: 2)
 View.create!(comment: comment3, count: 3)
 View.create!(comment: comment4, count: 4)
 
-def groups(keys, values, by:, default: nil)
-  data =
-    values.each_with_object({}) do |element, groups|
-      key = element.public_send(by)
-
-      if groups.has_key?(key)
-        groups[key] << element
-      else
-        groups[key] = [element]
-      end
-    end
-
-  keys.each { |key| data[key] ||= default }
-  data
-end
-
 class UsersPostsLoader
   def self.call(user_ids)
     Post

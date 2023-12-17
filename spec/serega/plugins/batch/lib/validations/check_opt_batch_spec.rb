@@ -20,7 +20,7 @@ RSpec.describe Serega::SeregaPlugins::Batch::CheckOptBatch do
   end
 
   it "checks allowed keys" do
-    opts[:batch] = {id_method: nil, loader: nil, default: nil, foo: nil}
+    opts[:batch] = {id_method: nil, loader: nil, foo: nil}
     expect { check }.to raise_error Serega::SeregaError, /foo/
   end
 

@@ -17,9 +17,8 @@ RSpec.describe Serega::SeregaPlugins::Batch do
     describe "#batch" do
       it "returns provided options with transformed Symbol id_method to Proc" do
         batch_loader = proc { |*args| }
-        at = serializer.attribute :at1, batch: {id_method: :id, loader: batch_loader, default: :default}
+        at = serializer.attribute :at1, batch: {id_method: :id, loader: batch_loader}
         expect(at.batch).to include(loader: batch_loader)
-        expect(at.batch).to include(default: :default)
         expect(at.batch).to include(id_method: be_a(Proc))
 
         object = double(id: "ID")
@@ -48,14 +47,19 @@ RSpec.describe Serega::SeregaPlugins::Batch do
         expect(at.batch[:id_method].call(1)).to eq :foo
       end
 
-      it "adds `default: nil` if attribute :many option not specified" do
-        at = serializer.attribute :at, batch: {id_method: :id, loader: :loader}
-        expect(at.batch).to include({default: nil})
+      it "adds `default` options if attribute `default` option specified" do
+        at = serializer.attribute :at1, batch: {id_method: :id, loader: :loader}, default: :foo
+        expect(at.batch).to include(default: :foo)
       end
 
       it "adds `default: []` if attribute :many option is set" do
         at = serializer.attribute :at, batch: {id_method: :id, loader: :loader}, many: true
         expect(at.batch).to include({default: []})
+      end
+
+      it "adds `default: nil` if attribute :default and :many options are not specified" do
+        at = serializer.attribute :at, batch: {id_method: :id, loader: :loader}
+        expect(at.batch).to include({default: nil})
       end
     end
 

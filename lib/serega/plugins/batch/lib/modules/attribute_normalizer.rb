@@ -47,8 +47,6 @@ class Serega
           id_method = batch[:id_method] || self.class.serializer_class.config.batch.id_method
           id_method = prepare_batch_id_method(id_method)
 
-          default = batch.fetch(:default) { many ? FROZEN_EMPTY_ARRAY : nil }
-
           {loader: loader, id_method: id_method, default: default}
         end
 
