@@ -87,6 +87,11 @@ class UserSerializer < Serega
   # is user.profile.fname
   attribute :first_name, delegate: { to: :profile, method: :fname }
 
+  # Option :default can be used to replace possible nil values.
+  attribute :first_name, default: ''
+  attribute :is_active, default: false
+  attribute :comments_count, default: 0
+
   # Option :const specifies attribute with a specific constant value
   attribute(:type, const: 'user')
 
@@ -100,8 +105,9 @@ class UserSerializer < Serega
   attribute :posts, serializer: "PostSerializer"
   attribute :posts, serializer: -> { PostSerializer }
 
-  # Option `:many` specifies a has_many relationship
+  # Option `:many` specifies a has_many relationship. It is optional.
   # If not specified, it is defined during serialization by checking `object.is_a?(Enumerable)`
+  # Also the `:many` changes the default value from `nil` to `[]`.
   attribute :posts, serializer: PostSerializer, many: true
 
   # Option `:preload` can be specified when enabled `:preloads` plugin

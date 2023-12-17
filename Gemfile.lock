@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    serega (0.18.0)
+    serega (0.19.0)
 
 GEM
   remote: https://rubygems.org/
@@ -30,20 +30,20 @@ GEM
       concurrent-ruby
     concurrent-ruby (1.2.2)
     connection_pool (2.4.1)
-    debug (1.8.0)
-      irb (>= 1.5.0)
-      reline (>= 0.3.1)
+    debug (1.9.0)
+      irb (~> 1.10)
+      reline (>= 0.3.8)
     diff-lcs (1.5.0)
     docile (1.4.0)
     drb (2.2.0)
       ruby2_keywords
     i18n (1.14.1)
       concurrent-ruby (~> 1.0)
-    io-console (0.6.0)
-    irb (1.9.0)
+    io-console (0.7.1)
+    irb (1.10.1)
       rdoc
       reline (>= 0.3.8)
-    json (2.6.3)
+    json (2.7.1)
     kramdown (2.4.0)
       rexml
     kramdown-parser-gfm (1.1.0)
@@ -63,7 +63,7 @@ GEM
     mixlib-shellout (3.2.7)
       chef-utils
     mutex_m (0.2.0)
-    parallel (1.23.0)
+    parallel (1.24.0)
     parser (3.2.2.4)
       ast (~> 2.4.1)
       racc
@@ -72,11 +72,11 @@ GEM
     racc (1.7.3)
     rainbow (3.1.1)
     rake (13.1.0)
-    rdoc (6.6.0)
+    rdoc (6.6.2)
       psych (>= 4.0.0)
     redcarpet (3.6.0)
-    regexp_parser (2.8.2)
-    reline (0.4.0)
+    regexp_parser (2.8.3)
+    reline (0.4.1)
       io-console (~> 0.5)
     rexml (3.2.6)
     rspec (3.12.0)
@@ -130,7 +130,7 @@ GEM
     simplecov-html (0.12.3)
     simplecov_json_formatter (0.1.4)
     sqlite3 (1.6.9-x86_64-linux)
-    standard (1.32.0)
+    standard (1.32.1)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.0)
       rubocop (~> 1.57.2)
@@ -142,7 +142,7 @@ GEM
     standard-performance (1.2.1)
       lint_roller (~> 1.1)
       rubocop-performance (~> 1.19.1)
-    stringio (3.0.9)
+    stringio (3.1.0)
     timeout (0.4.1)
     tomlrb (2.0.3)
     tzinfo (2.0.6)

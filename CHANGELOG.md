@@ -2,9 +2,11 @@
 
 ## [Unreleased]
 
-- Added :default option for attributes. If :default is specified than found
-  nils will be replaced with this value. Also when :default option is not
-  specified we us empty array as a default if `many: true` option is specified
+## [0.19.0] - 2023-12-17
+
+- Added :default option for attributes. The `default` option value will replace
+  nils. Also we will use empty array as a default when `many: true` is
+  specified without custom :default option
 - Remove :batch plugin :default option. It can be replaced with the new global
   :default option.
 
