@@ -1,7 +1,7 @@
 PATH
   remote: ..
   specs:
-    serega (0.18.0)
+    serega (0.19.0)
 
 GEM
   remote: https://rubygems.org/
@@ -29,8 +29,8 @@ GEM
       tzinfo (~> 2.0)
     ast (2.4.2)
     base64 (0.2.0)
-    bigdecimal (3.1.4)
-    bigdecimal (3.1.4-java)
+    bigdecimal (3.1.5)
+    bigdecimal (3.1.5-java)
     chef-utils (18.3.0)
       concurrent-ruby
     concurrent-ruby (1.2.2)
@@ -42,8 +42,8 @@ GEM
     i18n (1.14.1)
       concurrent-ruby (~> 1.0)
     jdbc-sqlite3 (3.32.3.3)
-    json (2.6.3)
-    json (2.6.3-java)
+    json (2.7.1)
+    json (2.7.1-java)
     kramdown (2.4.0)
       rexml
     kramdown-parser-gfm (1.1.0)
@@ -63,7 +63,7 @@ GEM
     mixlib-shellout (3.2.7)
       chef-utils
     mutex_m (0.2.0)
-    parallel (1.23.0)
+    parallel (1.24.0)
     parser (3.2.2.4)
       ast (~> 2.4.1)
       racc
@@ -71,7 +71,7 @@ GEM
     racc (1.7.3-java)
     rainbow (3.1.1)
     rake (13.1.0)
-    regexp_parser (2.8.2)
+    regexp_parser (2.8.3)
     rexml (3.2.6)
     rspec (3.12.0)
       rspec-core (~> 3.12.0)
@@ -124,7 +124,7 @@ GEM
     simplecov-html (0.12.3)
     simplecov_json_formatter (0.1.4)
     sqlite3 (1.4.4)
-    standard (1.32.0)
+    standard (1.32.1)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.0)
       rubocop (~> 1.57.2)
