@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+- Added :default option for attributes. If :default is specified than found
+  nils will be replaced with this value. Also when :default option is not
+  specified we us empty array as a default if `many: true` option is specified
+- Remove :batch plugin :default option. It can be replaced with the new global
+  :default option.
+
 ## [0.18.0] - 2023-11-11
 
 - Rename batch plugin option `key` to `id_method`.

@@ -27,7 +27,7 @@ RSpec.describe Serega do
       expect(config.plugins).to eq []
       expect(config.serialize_keys).to match_array(%i[context many])
       expect(config.initiate_keys).to match_array(%i[only except with check_initiate_params])
-      expect(config.attribute_keys).to match_array(%i[method value serializer many hide const delegate])
+      expect(config.attribute_keys).to match_array(%i[method value serializer many hide const delegate default])
       expect(config.check_attribute_name).to be true
       expect(config.check_initiate_params).to be true
       expect(config.delegate_default_allow_nil).to be false

@@ -78,7 +78,7 @@ RSpec.describe Serega::SeregaAttributeNormalizer do
   describe "#prepare_value_block" do
     it "returns normalized block when it accepts 0 arguments" do
       block = lambda { 123 }
-      attribute = normalizer.new(block: block)
+      attribute = normalizer.new(block: block, opts: {})
       value_block = attribute.send(:prepare_value_block)
       expect(value_block).not_to eq block
       expect(value_block.call(1, 2)).to eq 123
@@ -86,7 +86,7 @@ RSpec.describe Serega::SeregaAttributeNormalizer do
 
     it "returns normalized block if it accepts only 1 argument" do
       block = lambda { |a| a }
-      attribute = normalizer.new(block: block)
+      attribute = normalizer.new(block: block, opts: {})
       value_block = attribute.send(:prepare_value_block)
       expect(value_block).not_to eq block
       expect(value_block.call(1, 2)).to eq 1
@@ -160,6 +160,20 @@ RSpec.describe Serega::SeregaAttributeNormalizer do
       expect(block).to be_a Proc
       expect(block.call(object1)).to be_nil
       expect(block.call(object2)).to eq "NAME"
+    end
+
+    it "returns default value when initial block returns nil" do
+      value = lambda {}
+      attribute = normalizer.new(opts: {value: value, default: 123})
+      value_block = attribute.send(:prepare_value_block)
+      expect(value_block.call(1, 2)).to eq 123
+    end
+
+    it "does not return default value when initial block does not return nil" do
+      value = lambda { 987 }
+      attribute = normalizer.new(opts: {value: value, default: 123})
+      value_block = attribute.send(:prepare_value_block)
+      expect(value_block.call(1, 2)).to eq 987
     end
   end
 end

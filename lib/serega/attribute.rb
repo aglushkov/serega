@@ -21,6 +21,10 @@ class Serega
       # @return [Boolean, nil] Attribute :many option
       attr_reader :many
 
+      # Attribute :default option
+      # @return [Object, nil] Attribute :default option
+      attr_reader :default
+
       # Attribute :hide option
       # @return [Boolean, nil] Attribute :hide option
       attr_reader :hide
@@ -108,9 +112,10 @@ class Serega
 
       def set_normalized_vars(normalizer)
         @name = normalizer.name
+        @many = normalizer.many
+        @default = normalizer.default
         @value_block = normalizer.value_block
         @hide = normalizer.hide
-        @many = normalizer.many
         @serializer = normalizer.serializer
       end
     end

@@ -86,6 +86,19 @@ class Serega
         @serializer = prepare_serializer
       end
 
+      #
+      # Shows the default attribute value. It is a value that replaces found nils.
+      #
+      # When custom :default is not specified, we set empty array as default when `many: true` specified
+      #
+      # @return [Object] Attribute default value
+      #
+      def default
+        return @default if instance_variable_defined?(:@default)
+
+        @default = prepare_default
+      end
+
       private
 
       def prepare_name
@@ -97,11 +110,14 @@ class Serega
       # - plugin :formatters (wraps resulted block in formatter block and formats :const values)
       #
       def prepare_value_block
-        prepare_init_block ||
+        value_block =
+          prepare_init_block ||
           prepare_value_option_block ||
           prepare_const_block ||
           prepare_delegate_block ||
           prepare_keyword_block
+
+        prepare_value_block_with_default(value_block)
       end
 
       #
@@ -156,6 +172,20 @@ class Serega
         when 1 then proc { |obj, _ctx| callable.call(obj) }
         else callable
         end
+      end
+
+      def prepare_value_block_with_default(callable)
+        default_value = default
+        return callable if default_value.nil?
+
+        proc { |obj, ctx|
+          res = callable.call(obj, ctx)
+          res.nil? ? default_value : res
+        }
+      end
+
+      def prepare_default
+        init_opts.fetch(:default) { many ? FROZEN_EMPTY_ARRAY : nil }
       end
 
       def prepare_delegate_block
