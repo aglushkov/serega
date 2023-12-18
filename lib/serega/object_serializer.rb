@@ -38,8 +38,8 @@ class Serega
 
       private
 
-      def serialize_array(object)
-        object.map { |obj| serialize_object(obj) }
+      def serialize_array(objects)
+        objects.map { |object| serialize_object(object) }
       end
 
       # Patched in:
@@ -79,11 +79,16 @@ class Serega
       end
 
       def relation_value(value, point)
-        child_plan = point.child_plan
-        child_serializer = point.child_object_serializer
-        child_many = point.many
-        serializer = child_serializer.new(context: context, plan: child_plan, many: child_many, **opts)
-        serializer.serialize(value)
+        child_serializer(point).serialize(value)
+      end
+
+      def child_serializer(point)
+        point.child_object_serializer.new(
+          context: context,
+          plan: point.child_plan,
+          many: point.many,
+          **opts
+        )
       end
 
       def array?(object, many)
