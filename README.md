@@ -1074,10 +1074,10 @@ a single object.
 
 - The `Serega::SeregaError` is a base error raised by this gem.
 - The `Serega::AttributeNotExist` error is raised when validating attributes in
-  `:only, :except, :with` modifiers. This error contains additional metadata:
+  `:only, :except, :with` modifiers. This error contains additional methods:
 
-   - error.serializer - shows current serializer
-   - error.attributes - lists not existing attributes
+   - `#serializer` - shows current serializer
+   - `#attributes` - lists not existing attributes
 
 ## Release
 

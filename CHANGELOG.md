@@ -4,10 +4,8 @@
 
 - Add additional methods to Serega::AttributeNotExist:
 
-   - `Serega::AttributeNotExist#serializer` Shows current serializer.
-     Can help when you use multiple serializers and want to find which one is
-     responsible for the error;
-   - `Serega::AttributeNotExist#attributes` Lists not existing attributes.
+   - `#serializer` Shows current serializer;
+   - `#attributes` Lists not existing attributes.
 
 - Fix extra allocations by replacing forwardable methods with plain ruby methods
 
