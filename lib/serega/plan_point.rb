@@ -9,8 +9,6 @@ class Serega
     # SeregaPlanPoint instance methods
     #
     module InstanceMethods
-      extend Forwardable
-
       # Link to current plan this point belongs to
       # @return [SeregaAttribute] Current plan
       attr_reader :plan
@@ -26,20 +24,6 @@ class Serega
       # Child fields to serialize
       # @return [Hash] Attributes to serialize
       attr_reader :modifiers
-
-      # @!method name
-      #   Attribute `name`
-      #   @see SeregaAttribute::AttributeInstanceMethods#name
-      # @!method value
-      #   Attribute `value` block
-      #   @see SeregaAttribute::AttributeInstanceMethods#value
-      # @!method many
-      #   Attribute `many` option
-      #   @see SeregaAttribute::AttributeInstanceMethods#many
-      # @!method serializer
-      #   Attribute `serializer` option
-      #   @see SeregaAttribute::AttributeInstanceMethods#serializer
-      def_delegators :@attribute, :name, :value, :many, :serializer
 
       #
       # Initializes plan point
@@ -58,6 +42,30 @@ class Serega
         @attribute = attribute
         @modifiers = modifiers
         set_normalized_vars
+      end
+
+      # Attribute `value`
+      # @see SeregaAttribute::AttributeInstanceMethods#value
+      def value(obj, ctx)
+        attribute.value(obj, ctx)
+      end
+
+      # Attribute `name`
+      # @see SeregaAttribute::AttributeInstanceMethods#value
+      def name
+        attribute.name
+      end
+
+      # Attribute `many` option
+      # @see SeregaAttribute::AttributeInstanceMethods#many
+      def many
+        attribute.many
+      end
+
+      # Attribute `serializer` option
+      # @see SeregaAttribute::AttributeInstanceMethods#serializer
+      def serializer
+        attribute.serializer
       end
 
       #
