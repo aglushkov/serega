@@ -27,7 +27,7 @@ class Serega
           validate(serializer_class, with) if with
           validate(serializer_class, except) if except
 
-          raise_errors if any_error?
+          raise_errors(serializer_class) if any_error?
         end
 
         private
@@ -66,12 +66,19 @@ class Serega
         end
 
         def save_error(name)
-          full_attribute_name = [*parents_names, name].join(".")
-          error_attributes << full_attribute_name
+          error_attributes << build_full_attribute_name(*parents_names, name)
         end
 
-        def raise_errors
-          raise Serega::AttributeNotExist, "Not existing attributes: #{error_attributes.join(", ")}"
+        def build_full_attribute_name(*names)
+          head, *nested = *names
+          result = head.to_s # names are symbols, we need not frozen string
+          nested.each { |nested_name| result << "(" << nested_name.to_s }
+          nested.each { result << ")" }
+          result
+        end
+
+        def raise_errors(serializer_class)
+          raise Serega::AttributeNotExist.new("Not existing attributes: #{error_attributes.join(", ")}", serializer_class, error_attributes)
         end
 
         def any_error?

@@ -42,16 +42,30 @@ RSpec.describe Serega::SeregaValidations::Initiate::CheckModifiers do
 
   it "raises when provided not existing attribute in nested serializer" do
     attrs = "foo_bazz(extra)"
-    message = "Not existing attributes: foo_bazz.extra"
-    expect { serializer.new(only: attrs) }.to raise_error Serega::AttributeNotExist, message
+    message = "Not existing attributes: foo_bazz(extra)"
+
+    expect { serializer.new(only: attrs) }.to raise_error do |error|
+      expect(error).to be_a Serega::AttributeNotExist
+      expect(error.message).to eq message
+      expect(error.serializer).to eq serializer
+      expect(error.attributes).to eq ["foo_bazz(extra)"]
+    end
+
     expect { serializer.new(with: attrs) }.to raise_error Serega::AttributeNotExist, message
     expect { serializer.new(except: attrs) }.to raise_error Serega::AttributeNotExist, message
   end
 
   it "raises when provided nested attribute for not nested parent attribute" do
     attrs = "foo_bar(extra)"
-    message = "Not existing attributes: foo_bar.extra"
-    expect { serializer.new(only: attrs) }.to raise_error Serega::AttributeNotExist, message
+    message = "Not existing attributes: foo_bar(extra)"
+
+    expect { serializer.new(only: attrs) }.to raise_error do |error|
+      expect(error).to be_a Serega::AttributeNotExist
+      expect(error.message).to eq message
+      expect(error.serializer).to eq serializer
+      expect(error.attributes).to eq ["foo_bar(extra)"]
+    end
+
     expect { serializer.new(with: attrs) }.to raise_error Serega::AttributeNotExist, message
     expect { serializer.new(except: attrs) }.to raise_error Serega::AttributeNotExist, message
   end

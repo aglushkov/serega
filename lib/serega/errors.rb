@@ -11,5 +11,13 @@ class Serega
   # @example
   #   Serega.new(only: 'FOO')
   #   # => Attribute 'FOO' not exists (Serega::AttributeNotExist)
-  class AttributeNotExist < SeregaError; end
+  class AttributeNotExist < SeregaError
+    attr_reader :serializer, :attributes
+
+    def initialize(message = nil, serializer = nil, attributes = nil)
+      super(message)
+      @serializer = serializer
+      @attributes = attributes
+    end
+  end
 end
