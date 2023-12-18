@@ -301,7 +301,7 @@ fields_as_string = 'first_name,enemy'
 UserSerializer.new(only: fields).to_h(bruce)
 UserSerializer.to_h(bruce, only: fields)
 UserSerializer.to_h(bruce, only: fields_as_string)
-# => raises Serega::AttributeNotExist, "Attribute 'enemy' not exists"
+# => raises Serega::AttributeNotExist
 
 # With no existing attribute and disabled validation
 fields = %i[first_name enemy]
@@ -1074,7 +1074,10 @@ a single object.
 
 - The `Serega::SeregaError` is a base error raised by this gem.
 - The `Serega::AttributeNotExist` error is raised when validating attributes in
-  `:only, :except, :with` modifiers
+  `:only, :except, :with` modifiers. This error contains additional metadata:
+
+   - error.serializer - shows current serializer
+   - error.attributes - lists not existing attributes
 
 ## Release
 

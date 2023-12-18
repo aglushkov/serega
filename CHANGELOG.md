@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+- Add additional methods to Serega::AttributeNotExist:
+
+   - `Serega::AttributeNotExist#serializer` Shows current serializer.
+     Can help when you use multiple serializers and want to find which one is
+     responsible for the error;
+   - `Serega::AttributeNotExist#attributes` Lists not existing attributes.
+
+- Fix extra allocations by replacing forwardable methods with plain ruby methods
+
 ## [0.19.0] - 2023-12-17
 
 - Added :default option for attributes. The `default` option value will replace
