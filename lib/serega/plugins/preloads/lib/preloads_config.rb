@@ -51,7 +51,7 @@ class Serega
             opts.fetch(method_name)
           end
 
-          define_method("#{method_name}=") do |value|
+          define_method(:"#{method_name}=") do |value|
             raise SeregaError, "Must have boolean value, #{value.inspect} provided" if (value != true) && (value != false)
             opts[method_name] = value
           end

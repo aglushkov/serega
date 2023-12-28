@@ -1,5 +1,6 @@
 require:
   - standard
+  - rubocop-performance
   - rubocop-rspec
   - rubocop-rake
 

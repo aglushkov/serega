@@ -65,7 +65,7 @@ class Serega
           def normalize_block(value, const, block)
             return proc { const } if const
 
-            callable = (value || block)
+            callable = value || block
             params_count = SeregaUtils::ParamsCount.call(callable, max_count: 2)
 
             case params_count

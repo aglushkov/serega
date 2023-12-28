@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.20.0] - 2023-12-29
+
 - Validate plugins options keys
 - Add additional methods to Serega::AttributeNotExist:
 
