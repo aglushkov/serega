@@ -8,7 +8,7 @@ RSpec.describe Serega::SeregaPlugins::Metadata do
   describe "loading" do
     it "raises error when root plugin was not added before" do
       expect { Class.new(Serega) { plugin :metadata } }
-        .to raise_error Serega::SeregaError, "Please load :root plugin first so we can wrap serialization response into top-level hash to add metadata there"
+        .to raise_error Serega::SeregaError, "Plugin :metadata must be loaded after the :root plugin. Please load the :root plugin first"
     end
   end
 

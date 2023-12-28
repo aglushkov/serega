@@ -25,11 +25,30 @@ class Serega
         :batch
       end
 
+      # Checks requirements to load plugin
+      #
+      # @param serializer_class [Class<Serega>] Current serializer class
+      # @param opts [Hash] plugin options
+      #
+      # @return [void]
+      #
+      def self.before_load_plugin(serializer_class, **opts)
+        allowed_keys = %i[auto_hide id_method]
+        opts.each_key do |key|
+          next if allowed_keys.include?(key)
+
+          raise SeregaError,
+            "Plugin #{plugin_name.inspect} does not accept the #{key.inspect} option. Allowed options:\n" \
+            "  - :auto_hide [Boolean] - Marks attribute as hidden when it has :batch loader specified\n" \
+            "  - :id_method [Symbol, #call] - Specified the default method to use to find object identifier"
+        end
+      end
+
       #
       # Applies plugin code to specific serializer
       #
       # @param serializer_class [Class<Serega>] Current serializer class
-      # @param _opts [Hash] Loaded plugins options
+      # @param _opts [Hash] Plugin options
       #
       # @return [void]
       #
@@ -60,7 +79,7 @@ class Serega
       # Runs callbacks after plugin was attached
       #
       # @param serializer_class [Class<Serega>] Current serializer class
-      # @param opts [Hash] loaded plugins opts
+      # @param opts [Hash] Plugin options
       #
       # @return [void]
       #

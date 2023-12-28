@@ -60,11 +60,31 @@ class Serega
         :root
       end
 
+      # Checks requirements to load plugin
+      #
+      # @param serializer_class [Class<Serega>] Current serializer class
+      # @param opts [Hash] plugin options
+      #
+      # @return [void]
+      #
+      def self.before_load_plugin(serializer_class, **opts)
+        allowed_keys = %i[root root_one root_many]
+        opts.each_key do |key|
+          next if allowed_keys.include?(key)
+
+          raise SeregaError,
+            "Plugin #{plugin_name.inspect} does not accept the #{key.inspect} option. Allowed options:\n" \
+            "  - :root [String, Symbol, nil] Specifies common root keyword used when serializing one or multiple objects\n" \
+            "  - :root_one [String, Symbol, nil] Specifies root keyword used when serializing one object\n" \
+            "  - :root_many [String, Symbol, nil] Specifies root keyword used when serializing multiple objects" \
+        end
+      end
+
       #
       # Applies plugin code to specific serializer
       #
       # @param serializer_class [Class<Serega>] Current serializer class
-      # @param _opts [Hash] Loaded plugins options
+      # @param _opts [Hash] Plugin options
       #
       # @return [void]
       #
@@ -78,7 +98,7 @@ class Serega
       # Adds config options and runs other callbacks after plugin was loaded
       #
       # @param serializer_class [Class<Serega>] Current serializer class
-      # @param opts [Hash] loaded plugins opts
+      # @param opts [Hash] Plugin options
       #
       # @return [void]
       #
@@ -102,9 +122,9 @@ class Serega
         #
         # Configures response root key
         #
-        # @param root [String, Symbol, nil] Specifies common root when serializing one or multiple objects
-        # @param one [String, Symbol, nil] Specifies root when serializing one object
-        # @param many [String, Symbol, nil] Specifies root when serializing multiple objects
+        # @param root [String, Symbol, nil] Specifies common root keyword used when serializing one or multiple objects
+        # @param one [String, Symbol, nil] Specifies root keyword used when serializing one object
+        # @param many [String, Symbol, nil] Specifies root keyword used when serializing multiple objects
         #
         # @return [Hash] Configured root names
         #

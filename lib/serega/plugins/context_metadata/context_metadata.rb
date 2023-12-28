@@ -30,13 +30,22 @@ class Serega
       # Checks requirements and loads additional plugins
       #
       # @param serializer_class [Class<Serega>] Current serializer class
-      # @param opts [Hash] loaded plugins opts
+      # @param opts [Hash] Plugin options
       #
       # @return [void]
       #
       def self.before_load_plugin(serializer_class, **opts)
+        allowed_keys = %i[context_metadata_key]
+        opts.each_key do |key|
+          next if allowed_keys.include?(key)
+
+          raise SeregaError,
+            "Plugin #{plugin_name.inspect} does not accept the #{key.inspect} option. Allowed options:\n" \
+            "  - :context_metadata_key [Symbol] - The key name that must be used to add metadata. Default is :meta."
+        end
+
         unless serializer_class.plugin_used?(:root)
-          raise SeregaError, "Please load :root plugin first so we can wrap serialization response into top-level hash to add metadata there"
+          raise SeregaError, "Plugin #{plugin_name.inspect} must be loaded after the :root plugin. Please load the :root plugin first"
         end
       end
 
@@ -44,7 +53,7 @@ class Serega
       # Applies plugin code to specific serializer
       #
       # @param serializer_class [Class<Serega>] Current serializer class
-      # @param _opts [Hash] Loaded plugins options
+      # @param _opts [Hash] Plugin options
       #
       # @return [void]
       #
@@ -58,7 +67,7 @@ class Serega
       # Adds config options and runs other callbacks after plugin was loaded
       #
       # @param serializer_class [Class<Serega>] Current serializer class
-      # @param opts [Hash] loaded plugins opts
+      # @param opts [Hash] Plugin options
       #
       # @return [void]
       #

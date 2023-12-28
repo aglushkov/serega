@@ -70,11 +70,31 @@ class Serega
         :preloads
       end
 
+      # Checks requirements to load plugin
+      #
+      # @param serializer_class [Class<Serega>] Current serializer class
+      # @param opts [Hash] plugin options
+      #
+      # @return [void]
+      #
+      def self.before_load_plugin(serializer_class, **opts)
+        allowed_keys = DEFAULT_CONFIG.keys
+        opts.each_key do |key|
+          next if allowed_keys.include?(key)
+
+          raise SeregaError,
+            "Plugin #{plugin_name.inspect} does not accept the #{key.inspect} option. Allowed options:\n" \
+            "  - :auto_preload_attributes_with_delegate [Boolean] - Automatically adds `preload: <delegate_to>` option to attributes with :delegate option specified\n" \
+            "  - :auto_preload_attributes_with_serializer [Boolean] - Automatically adds `preload: <attribute_name>` option to attributes with :serializer option specified\n" \
+            "  - :auto_hide_attributes_with_preload [Boolean] - Automatically adds `hide: true` option to attributes with :preload option (specified manually or added automatically)"
+        end
+      end
+
       #
       # Applies plugin code to specific serializer
       #
       # @param serializer_class [Class<Serega>] Current serializer class
-      # @param _opts [Hash] Loaded plugins options
+      # @param _opts [Hash] Plugin options
       #
       # @return [void]
       #
@@ -104,7 +124,7 @@ class Serega
       # Adds config options and runs other callbacks after plugin was loaded
       #
       # @param serializer_class [Class<Serega>] Current serializer class
-      # @param opts [Hash] loaded plugins opts
+      # @param opts [Hash] Plugin options
       #
       # @return [void]
       #

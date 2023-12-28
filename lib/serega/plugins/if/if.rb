@@ -51,7 +51,7 @@ class Serega
       # Applies plugin code to specific serializer
       #
       # @param serializer_class [Class<Serega>] Current serializer class
-      # @param _opts [Hash] Loaded plugins options
+      # @param _opts [Hash] Plugin options
       #
       # @return [void]
       #
@@ -72,7 +72,7 @@ class Serega
       # Adds config options and runs other callbacks after plugin was loaded
       #
       # @param serializer_class [Class<Serega>] Current serializer class
-      # @param opts [Hash] loaded plugins opts
+      # @param opts [Hash] Plugin options
       #
       # @return [void]
       #

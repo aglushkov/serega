@@ -54,17 +54,21 @@ class Serega
       # Checks requirements to load plugin
       #
       # @param serializer_class [Class<Serega>] Current serializer class
-      # @param _opts [Hash] plugins options
+      # @param opts [Hash] plugin options
       #
       # @return [void]
       #
-      def self.before_load_plugin(serializer_class, **_opts)
+      def self.before_load_plugin(serializer_class, **opts)
+        opts.each_key do |key|
+          raise SeregaError, "Plugin #{plugin_name.inspect} does not accept the #{key.inspect} option. No options are allowed"
+        end
+
         unless serializer_class.plugin_used?(:preloads)
-          raise SeregaError, "Please load `plugin :preloads` first"
+          raise SeregaError, "Plugin #{plugin_name.inspect} must be loaded after the :preloads plugin. Please load the :preloads plugin first"
         end
 
         if serializer_class.plugin_used?(:batch)
-          raise SeregaError, "Plugin `activerecord_preloads` must be loaded before `batch`"
+          raise SeregaError, "Plugin #{plugin_name.inspect} must be loaded before the :batch plugin"
         end
       end
 
@@ -72,7 +76,7 @@ class Serega
       # Applies plugin code to specific serializer
       #
       # @param serializer_class [Class<Serega>] Current serializer class
-      # @param _opts [Hash] Loaded plugins options
+      # @param _opts [Hash] Plugin options
       #
       # @return [void]
       #

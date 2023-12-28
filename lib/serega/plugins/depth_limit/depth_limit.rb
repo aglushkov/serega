@@ -41,11 +41,29 @@ class Serega
         :depth_limit
       end
 
+      # Checks requirements
+      #
+      # @param serializer_class [Class<Serega>] Current serializer class
+      # @param opts [Hash] Plugin options
+      #
+      # @return [void]
+      #
+      def self.before_load_plugin(serializer_class, **opts)
+        allowed_keys = %i[limit]
+        opts.each_key do |key|
+          next if allowed_keys.include?(key)
+
+          raise SeregaError,
+            "Plugin #{plugin_name.inspect} does not accept the #{key.inspect} option. Allowed options:\n" \
+            "  - :limit [Integer] - Maximum serialization depth."
+        end
+      end
+
       #
       # Applies plugin code to specific serializer
       #
       # @param serializer_class [Class<Serega>] Current serializer class
-      # @param _opts [Hash] Loaded plugins options
+      # @param _opts [Hash] Plugin options
       #
       # @return [void]
       #
@@ -58,7 +76,7 @@ class Serega
       # Adds config options and runs other callbacks after plugin was loaded
       #
       # @param serializer_class [Class<Serega>] Current serializer class
-      # @param opts [Hash] loaded plugins opts
+      # @param opts [Hash] Plugin options
       #
       # @return [void]
       #
