@@ -13,13 +13,18 @@ RSpec.describe Serega::SeregaPlugins::ActiverecordPreloads do
     it "raises error if plugin :preloads was not loaded" do
       serializer = Class.new(Serega)
       expect { serializer.plugin(:activerecord_preloads) }
-        .to raise_error Serega::SeregaError, "Please load `plugin :preloads` first"
+        .to raise_error Serega::SeregaError, "Plugin :activerecord_preloads must be loaded after the :preloads plugin. Please load the :preloads plugin first"
     end
 
     it "raises error if loaded after :batch plugin" do
       serializer.plugin(:batch)
-      error = "Plugin `activerecord_preloads` must be loaded before `batch`"
+      error = "Plugin :activerecord_preloads must be loaded before the :batch plugin"
       expect { serializer.plugin(:activerecord_preloads) }.to raise_error Serega::SeregaError, error
+    end
+
+    it "raises error when any option was provided" do
+      error = "Plugin :activerecord_preloads does not accept the :foo option. No options are allowed"
+      expect { serializer.plugin(:activerecord_preloads, foo: :bar) }.to raise_error Serega::SeregaError, error
     end
   end
 

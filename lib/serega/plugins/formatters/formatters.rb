@@ -51,13 +51,22 @@ class Serega
       # Checks requirements and loads additional plugins
       #
       # @param serializer_class [Class<Serega>] Current serializer class
-      # @param opts [Hash] loaded plugins opts
+      # @param opts [Hash] Plugin options
       #
       # @return [void]
       #
       def self.before_load_plugin(serializer_class, **opts)
+        allowed_keys = %i[formatters]
+        opts.each_key do |key|
+          next if allowed_keys.include?(key)
+
+          raise SeregaError,
+            "Plugin #{plugin_name.inspect} does not accept the #{key.inspect} option. Allowed options:\n" \
+            "  - :formatters [Hash<Symbol, #call>] - Formatters (names and according callable values)"
+        end
+
         if serializer_class.plugin_used?(:batch)
-          raise SeregaError, "Plugin `formatters` must be loaded before `batch`"
+          raise SeregaError, "Plugin #{plugin_name.inspect} must be loaded before the :batch plugin"
         end
       end
 
@@ -65,7 +74,7 @@ class Serega
       # Applies plugin code to specific serializer
       #
       # @param serializer_class [Class<Serega>] Current serializer class
-      # @param _opts [Hash] Loaded plugins options
+      # @param _opts [Hash] Plugin options
       #
       # @return [void]
       #
@@ -79,7 +88,7 @@ class Serega
       # Adds config options and runs other callbacks after plugin was loaded
       #
       # @param serializer_class [Class<Serega>] Current serializer class
-      # @param opts [Hash] loaded plugins opts
+      # @param opts [Hash] Plugin options
       #
       # @return [void]
       #

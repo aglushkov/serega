@@ -34,6 +34,16 @@ RSpec.describe Serega::SeregaPlugins::Batch do
       id_method = serializer.config.batch.id_method
       expect(id_method).to eq :id
     end
+
+    it "raises error if plugin defined with unknown option" do
+      serializer = Class.new(Serega)
+      expect { serializer.plugin(:batch, foo: :bar) }
+        .to raise_error Serega::SeregaError, <<~MESSAGE.strip
+          Plugin :batch does not accept the :foo option. Allowed options:
+            - :auto_hide [Boolean] - Marks attribute as hidden when it has :batch loader specified
+            - :id_method [Symbol, #call] - Specified the default method to use to find object identifier
+        MESSAGE
+    end
   end
 
   describe ".inherited" do

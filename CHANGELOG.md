@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- Validate plugins options keys
 - Add additional methods to Serega::AttributeNotExist:
 
    - `#serializer` Shows current serializer;

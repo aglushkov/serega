@@ -17,6 +17,15 @@ RSpec.describe Serega::SeregaPlugins::DepthLimit do
         .to raise_error Serega::SeregaError,
           "Please provide :limit option. Example: `plugin :depth_limit, limit: 10`"
     end
+
+    it "raises error if plugin defined with unknown option" do
+      serializer = Class.new(Serega)
+      expect { serializer.plugin(:depth_limit, foo: :bar) }
+        .to raise_error Serega::SeregaError, <<~MESSAGE.strip
+          Plugin :depth_limit does not accept the :foo option. Allowed options:
+            - :limit [Integer] - Maximum serialization depth.
+        MESSAGE
+    end
   end
 
   describe "configuration" do

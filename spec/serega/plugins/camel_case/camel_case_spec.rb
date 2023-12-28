@@ -23,6 +23,15 @@ RSpec.describe Serega::SeregaPlugins::CamelCase do
       serializer.plugin :camel_case
       expect(serializer.config.attribute_keys).to include :camel_case
     end
+
+    it "raises error if plugin defined with unknown option" do
+      serializer = Class.new(Serega)
+      expect { serializer.plugin(:camel_case, foo: :bar) }
+        .to raise_error Serega::SeregaError, <<~MESSAGE.strip
+          Plugin :camel_case does not accept the :foo option. Allowed options:
+            - :transform [#call] - Custom transformation
+        MESSAGE
+    end
   end
 
   describe "configuration" do

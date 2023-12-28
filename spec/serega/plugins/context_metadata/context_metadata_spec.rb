@@ -18,7 +18,16 @@ RSpec.describe Serega::SeregaPlugins::ContextMetadata do
 
     it "raises error when root plugin was not added before" do
       expect { Class.new(Serega) { plugin :context_metadata } }
-        .to raise_error Serega::SeregaError, "Please load :root plugin first so we can wrap serialization response into top-level hash to add metadata there"
+        .to raise_error Serega::SeregaError, "Plugin :context_metadata must be loaded after the :root plugin. Please load the :root plugin first"
+    end
+
+    it "raises error if plugin defined with unknown option" do
+      serializer = Class.new(Serega)
+      expect { serializer.plugin(:context_metadata, foo: :bar) }
+        .to raise_error Serega::SeregaError, <<~MESSAGE.strip
+          Plugin :context_metadata does not accept the :foo option. Allowed options:
+            - :context_metadata_key [Symbol] - The key name that must be used to add metadata. Default is :meta.
+        MESSAGE
     end
   end
 
