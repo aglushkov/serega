@@ -16,6 +16,8 @@ jobs:
           # https://github.com/ruby/setup-ruby
           - ruby: "head"
             activerecord: "7.1"
+          - ruby: "3.3"
+            activerecord: "7.1"
           - ruby: "3.2"
             activerecord: "7.1"
           - ruby: "3.1"
@@ -32,9 +34,9 @@ jobs:
             activerecord: "6.1"
           - ruby: "2.6"
             activerecord: "5.2"
-          - ruby: "jruby-9.4.4"
+          - ruby: "jruby-9.4.5"
             activerecord: "6.1"
-          - ruby: "jruby-9.4.4"
+          - ruby: "jruby-9.4.5"
             activerecord: "7.0" # latest activerecord-jdbcsqlite3-adapter (70.1) does not support latest rails 7.1 yet
           - ruby: "truffleruby-23.1.1"
             activerecord: "7.1"

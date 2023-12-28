@@ -1,7 +1,7 @@
 PATH
   remote: ..
   specs:
-    serega (0.19.0)
+    serega (0.20.0)
 
 GEM
   remote: https://rubygems.org/
@@ -68,4 +68,4 @@ DEPENDENCIES
   sqlite3 (~> 1.5.4)
 
 BUNDLED WITH
-   2.4.5
+   2.4.22
