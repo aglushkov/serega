@@ -1,4 +1,4 @@
-### Plugin :explicit_many_option
+# Plugin :explicit_many_option
 
 The plugin requires adding a `:many` option when adding relationships
 (attributes with the `:serializer` option).

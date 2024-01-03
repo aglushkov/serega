@@ -1,5 +1,4 @@
-
-### Plugin :presenter
+# Plugin :presenter
 
 Helps to write clean code by using a Presenter class.
 

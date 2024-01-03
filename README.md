@@ -362,10 +362,6 @@ class AppSerializer < Serega
 end
 ```
 
-## Plugins
-
-
-
 ## Errors
 
 - The `Serega::SeregaError` is a base error raised by this gem.
@@ -396,15 +392,15 @@ Bug reports, pull requests and improvements ideas are very welcome!
 
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
 
-[activerecord_preloads]: #plugin-activerecord_preloads
-[batch]: #plugin-batch
-[camel_case]: #plugin-camel_case
-[context_metadata]: #plugin-context_metadata
-[depth_limit]: #plugin-depth_limit
-[formatters]: #plugin-formatters
-[metadata]: #plugin-metadata
-[preloads]: #plugin-preloads
-[presenter]: #plugin-presenter
-[root]: #plugin-root
-[string_modifiers]: #plugin-string_modifiers
-[if]: #plugin-if
+[activerecord_preloads]: docs/plugins/activerecord_preloads.md
+[batch]: docs/plugins/batch.md
+[camel_case]: docs/plugins/camel_case.md
+[context_metadata]: docs/plugins/context_metadata.md
+[depth_limit]: docs/plugins/depth_limit.md
+[formatters]: docs/plugins/formatters.md
+[metadata]: docs/plugins/metadata.md
+[preloads]: docs/plugins/preloads.md
+[presenter]: docs/plugins/presenter.md
+[root]: docs/plugins/root.md
+[string_modifiers]: docs/plugins/string_modifiers.md
+[if]: docs/plugins/if.md

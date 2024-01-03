@@ -1,6 +1,6 @@
-### Plugin :string_modifiers
+# Plugin :string_modifiers
 
-Allows to specify modifiers as strings.
+Allows to select fields by specifying modifiers as strings.
 
 Serialized attributes must be split with `,` and nested attributes must be
 defined inside brackets `()`.

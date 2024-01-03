@@ -2,7 +2,7 @@
 
 Automatically preloads associations to serialized objects.
 
-Depends on the [preloads][preloads.md] plugin, that must be loaded first
+Depends on the [preloads][preloads] plugin, that must be loaded first
 
 It takes all defined preloads from serialized attributes (including attributes
 from serialized relations), merges them into a single associations hash, and then
@@ -64,3 +64,5 @@ end
 UserSerializer.to_h(user)
 # => preloads {users_stats: {}, albums: { downloads: {} }}
 ```
+
+[preloads]: preloads.md

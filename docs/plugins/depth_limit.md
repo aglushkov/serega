@@ -1,4 +1,4 @@
-### Plugin :depth_limit
+# Plugin :depth_limit
 
 Helps to secure from malicious queries that serialize too much
 or from accidental serializing of objects with cyclic relations.

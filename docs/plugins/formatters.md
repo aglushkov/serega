@@ -1,4 +1,4 @@
-### Plugin :formatters
+# Plugin :formatters
 
 Allows to define `formatters` and apply them to attribute values.
 

@@ -1,5 +1,4 @@
-
-### Plugin :metadata
+# Plugin :metadata
 
 Depends on: [`:root`][root] plugin, that must be loaded first
 
@@ -40,3 +39,5 @@ end
 AppSerializer.to_h(nil)
 # => {:data=>nil, :version=>"1.2.3", :ab_tests=>{:names=> ... }}
 ```
+
+[root]: root.md

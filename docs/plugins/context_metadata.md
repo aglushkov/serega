@@ -1,4 +1,4 @@
-### Plugin :context_metadata
+# Plugin :context_metadata
 
 Depends on: [`:root`][root] plugin, that must be loaded first
 
@@ -23,3 +23,5 @@ end
 UserSerializer.to_h(nil, meta: { version: '1.0.1' })
 # => {:data=>nil, :version=>"1.0.1"}
 ```
+
+[root]: root.md

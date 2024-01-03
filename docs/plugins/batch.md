@@ -1,4 +1,4 @@
-### Plugin :batch
+# Plugin :batch
 
 Helps to omit N+1.
 
@@ -22,7 +22,7 @@ class UserSerializer < AppSerializer
 end
 ```
 
-#### Option :loader
+## Option :loader
 
 Loaders can be defined as a Proc, a callable value, or a named Symbol
 Named loaders should be predefined with
@@ -35,7 +35,7 @@ The loader can accept 1 to 3 arguments:
 1. PlanPoint - a special object containing information about current
    attribute and all children and parent attributes. It can be used to preload
    required associations to batch values.
-   See [example](examples/batch_loader.rb) how
+   See [example][batch_loader_example] how
    to find required preloads when using the `:preloads` plugin.
 
 ```ruby
@@ -64,7 +64,7 @@ class CountLoader
 end
 ```
 
-#### Option :id_method
+## Option :id_method
 
 The `:batch` plugin can be added with the global `:id_method` option. It can be
 a Symbol, Proc or any callable value that can accept the current object and
@@ -114,7 +114,7 @@ class UserSerializer < AppSerializer
 end
 ```
 
-#### Default value
+## Default value
 
 The default value for attributes without found value can be specified via
 `:default` option. By default, attributes without found value will be
@@ -138,7 +138,7 @@ Batch attributes can be marked as hidden by default if the plugin is enabled
 with the `auto_hide` option. The `auto_hide` option can be changed with
 the `config.batch.auto_hide=` method.
 
-Look at [select serialized fields](#selecting-fields) for more information
+Look at [select serialized fields][selecting_fields] for more information
 about hiding/showing attributes.
 
 ```ruby
@@ -159,3 +159,7 @@ the `:batch` plugin must be added to the User serializer.
 
 The best way would be to create one parent `AppSerializer < Serega` serializer
 and add the `:batch` plugin once to this parent serializer.
+
+
+[batch_loader_example]: ../../examples/batch_loader.rb
+[selecting_fields]: ../../README.md#selecting-fields

@@ -1,5 +1,4 @@
-
-### Plugin :preloads
+# Plugin :preloads
 
 Allows to define `:preloads` to attributes and then allows to merge preloads
 from serialized attributes and return single associations hash.
@@ -67,7 +66,7 @@ UserSerializer.new(
 
 ---
 
-#### SPECIFIC CASE #1: Serializing the same object in association
+## SPECIFIC CASE #1: Serializing the same object in association
 
 For example, you show your current user as "user" and use the same user object
 to serialize "user_stats". `UserStatSerializer` relies on user fields and any
@@ -91,7 +90,7 @@ class UserSerializer < AppSerializer
 end
 ```
 
-#### SPECIFIC CASE #2: Serializing multiple associations as a single relation
+## SPECIFIC CASE #2: Serializing multiple associations as a single relation
 
 For example, "user" has two relations - "new_profile" and "old_profile". Also
 profiles have the "avatar" association. And you decided to serialize profiles in
@@ -125,7 +124,7 @@ UserSerializer.new.preloads
 # => {:new_profile=>{:avatar=>{}}, :old_profile=>{:avatar=>{}}}
 ```
 
-#### SPECIFIC CASE #3: Preload association through another association
+## SPECIFIC CASE #3: Preload association through another association
 
 ```ruby
 attribute :image,
@@ -147,3 +146,5 @@ they should be preloaded manually.
 
 There are only [activerecord_preloads][activerecord_preloads] plugin that can
 be used to preload these associations automatically.
+
+[activerecord_preloads]: activerecord_preloads.md

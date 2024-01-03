@@ -1,4 +1,4 @@
-### Plugin :if
+# Plugin :if
 
 Plugin adds `:if, :unless, :if_value, :unless_value` options to
 attributes so we can remove attributes from the response in various ways.
@@ -16,7 +16,7 @@ Use `:if` and `:unless` in this case.
 
 See also a `:hide` option that is available without any plugins to hide
 attribute without conditions.
-Look at [select serialized fields](#selecting-fields) for `:hide` usage examples.
+Look at [select serialized fields][selecting_fields] for `:hide` usage examples.
 
 ```ruby
  class UserSerializer < Serega
@@ -41,3 +41,6 @@ Look at [select serialized fields](#selecting-fields) for `:hide` usage examples
    attribute :email, unless_value: CustomPolicy.method(:hide_email?)
  end
 ```
+
+[selecting_fields]: ../../README.md#selecting-fields
+

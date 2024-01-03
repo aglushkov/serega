@@ -1,4 +1,4 @@
-### Plugin :camel_case
+# Plugin :camel_case
 
 By default, when we add an attribute like `attribute :first_name` it means:
 
@@ -22,7 +22,7 @@ the `camel_case: false` attribute option provided.
 This plugin transforms only attribute keys, without affecting the `root`,
 `metadata` and `context_metadata` plugins keys.
 
-If you wish to [select serialized fields](#selecting-fields), you should
+If you wish to [select serialized fields][selecting_fields], you should
 provide them camelCased.
 
 ```ruby
@@ -45,3 +45,5 @@ UserSerializer.to_h(user)
 UserSerializer.new(only: %i[firstName lastName]).to_h(user)
 # => {firstName: "Bruce", lastName: "Wayne"}
 ```
+
+[selecting_fields]: ../../README.md#selecting-fields
