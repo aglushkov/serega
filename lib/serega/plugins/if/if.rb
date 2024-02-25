@@ -42,9 +42,25 @@ class Serega
     #  end
     #
     module If
+      # This value must be returned to identify that serialization key was skipped
+      KEY_SKIPPED = :_key_skipped_with_serega_if_plugin
+
       # @return [Symbol] Plugin name
       def self.plugin_name
         :if
+      end
+
+      # Checks requirements to load plugin
+      #
+      # @param serializer_class [Class<Serega>] Current serializer class
+      # @param opts [Hash] plugin options
+      #
+      # @return [void]
+      #
+      def self.before_load_plugin(serializer_class, **opts)
+        if serializer_class.plugin_used?(:batch)
+          raise SeregaError, "Plugin #{plugin_name.inspect} must be loaded before the :batch plugin"
+        end
       end
 
       #
@@ -194,12 +210,13 @@ class Serega
         private
 
         def serialize_point(object, point, _container)
-          return unless point.satisfy_if_conditions?(object, context)
+          return KEY_SKIPPED unless point.satisfy_if_conditions?(object, context)
           super
         end
 
         def attach_final_value(value, point, _container)
-          return unless point.satisfy_if_value_conditions?(value, context)
+          return KEY_SKIPPED unless point.satisfy_if_value_conditions?(value, context)
+
           super
         end
       end

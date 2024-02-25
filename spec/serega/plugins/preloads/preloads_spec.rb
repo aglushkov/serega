@@ -6,6 +6,12 @@ RSpec.describe Serega::SeregaPlugins::Preloads do
   let(:serializer_class) { Class.new(Serega) }
 
   describe "loading" do
+    it "raises error if loaded after :batch plugin" do
+      serializer_class.plugin(:batch)
+      error = "Plugin :preloads must be loaded before the :batch plugin"
+      expect { serializer_class.plugin(:preloads) }.to raise_error Serega::SeregaError, error
+    end
+
     it "adds allowed attribute options" do
       serializer_class.plugin :preloads
       attribute_keys = serializer_class.config.attribute_keys

@@ -70,6 +70,7 @@ class Serega
 
       # Patched in:
       # - plugin :if (conditionally skips attaching)
+      # - plugin :batch :if extension (removes prepared key)
       def attach_final_value(final_value, point, container)
         container[point.name] = final_value
       end

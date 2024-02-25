@@ -88,6 +88,10 @@ class Serega
             "  - :auto_preload_attributes_with_serializer [Boolean] - Automatically adds `preload: <attribute_name>` option to attributes with :serializer option specified\n" \
             "  - :auto_hide_attributes_with_preload [Boolean] - Automatically adds `hide: true` option to attributes with :preload option (specified manually or added automatically)"
         end
+
+        if serializer_class.plugin_used?(:batch)
+          raise SeregaError, "Plugin #{plugin_name.inspect} must be loaded before the :batch plugin"
+        end
       end
 
       #
