@@ -105,6 +105,11 @@ class Serega
           serializer_class::SeregaAttribute.include(PluginsExtensions::Formatters::SeregaAttributeInstanceMethods)
         end
 
+        if serializer_class.plugin_used?(:if)
+          require_relative "lib/plugins_extensions/if"
+          serializer_class::SeregaObjectSerializer.include(PluginsExtensions::If::ObjectSerializerInstanceMethods123)
+        end
+
         if serializer_class.plugin_used?(:preloads)
           require_relative "lib/plugins_extensions/preloads"
           serializer_class::SeregaAttributeNormalizer.include(PluginsExtensions::Preloads::AttributeNormalizerInstanceMethods)

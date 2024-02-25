@@ -14,6 +14,12 @@ RSpec.describe Serega::SeregaPlugins::If do
       expect(attribute_keys).to include :unless
       expect(attribute_keys).to include :unless_value
     end
+
+    it "raises error if loaded after :batch plugin" do
+      serializer.plugin(:batch)
+      error = "Plugin :if must be loaded before the :batch plugin"
+      expect { serializer.plugin(:if) }.to raise_error Serega::SeregaError, error
+    end
   end
 
   describe "validations" do
@@ -236,8 +242,8 @@ RSpec.describe Serega::SeregaPlugins::If do
       context "when skipping regular attribute" do
         let(:user_serializer) do
           Class.new(Serega) do
-            plugin :batch, id_method: :id
             plugin :if
+            plugin :batch, id_method: :id
 
             attribute :id
             attribute :online_time,
