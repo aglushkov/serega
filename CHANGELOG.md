@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.20.1] - 2024-02-25
+
+- Fix issue with :if plugin used together with :batch plugin.
+  We kept `key => nil` attribute when key should have been skipped
+  because of :if_value or :unelss_value option
+
 ## [0.20.0] - 2023-12-29
 
 - Validate plugins options keys
