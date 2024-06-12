@@ -37,6 +37,7 @@ class Serega
 
           Utils::CheckOptIsHash.call(opts, :context)
           Utils::CheckOptIsBool.call(opts, :many)
+          Utils::CheckOptIsBool.call(opts, :symbol_keys)
         end
 
         def serializer_class

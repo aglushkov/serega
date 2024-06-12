@@ -39,8 +39,8 @@ class Serega
     module CamelCase
       # Default camel-case transformation
       TRANSFORM_DEFAULT = proc { |attribute_name|
-        attribute_name.gsub!(/_[a-z]/) { |m| m[-1].upcase! }
-        attribute_name
+        camel_cased_name = attribute_name.to_s.gsub(/_[a-z]/) { |m| m[-1].upcase! }
+        camel_cased_name.freeze
       }
 
       # @return [Symbol] Plugin name
@@ -203,7 +203,7 @@ class Serega
           res = super
           return res if init_opts[:camel_case] == false
 
-          self.class.serializer_class.config.camel_case.transform.call(res.to_s).to_sym
+          self.class.serializer_class.config.camel_case.transform.call(res)
         end
       end
     end

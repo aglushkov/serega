@@ -107,7 +107,7 @@ class Serega
 
         if serializer_class.plugin_used?(:if)
           require_relative "lib/plugins_extensions/if"
-          serializer_class::SeregaObjectSerializer.include(PluginsExtensions::If::ObjectSerializerInstanceMethods123)
+          serializer_class::SeregaObjectSerializer.include(PluginsExtensions::If::ObjectSerializerInstanceMethods)
         end
 
         if serializer_class.plugin_used?(:preloads)

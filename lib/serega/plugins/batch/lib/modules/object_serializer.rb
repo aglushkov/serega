@@ -21,7 +21,7 @@ class Serega
         def remember_key_for_batch_loading(batch, object, point, container)
           id = batch[:id_method].call(object, context)
           batch_loader(point).remember(id, container)
-          container[point.name] = nil # Reserve attribute place in resulted hash. We will set correct value later
+          container[key(point)] = nil # Reserve attribute place in resulted hash. We will set correct value later
         end
 
         def batch_loader(point)

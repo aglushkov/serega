@@ -27,12 +27,21 @@ class Serega
       end
 
       #
+      # Stringified initial attribute name
+      #
+      # @return [String] Attribute normalized name
+      #
+      def name
+        @name ||= prepare_name
+      end
+
+      #
       # Symbolized initial attribute name
       #
       # @return [Symbol] Attribute normalized name
       #
-      def name
-        @name ||= prepare_name
+      def symbol_name
+        @symbol_name ||= name.to_sym
       end
 
       #
@@ -102,7 +111,7 @@ class Serega
       private
 
       def prepare_name
-        init_name.to_sym
+        SeregaUtils::SymbolName.call(init_name)
       end
 
       #

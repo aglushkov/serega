@@ -25,13 +25,13 @@ RSpec.describe Serega::SeregaPlugins::Preloads do
       point = plan_point(foo)
       expect(point.preloads).to eq({})
 
-      point = plan_point(foo, {with: {foo: {}}})
+      point = plan_point(foo, {with: {"foo" => {}}})
       expect(point.preloads).to eq({foo1: {}})
 
-      point = plan_point(foo, {with: {foo: {}, bar: {}}})
+      point = plan_point(foo, {with: {"foo" => {}, "bar" => {}}})
       expect(point.preloads).to eq({foo1: {}, bar1: {}})
 
-      point = plan_point(foo, {with: {foo: {}, bar: {foo: {}}}})
+      point = plan_point(foo, {with: {"foo" => {}, "bar" => {"foo" => {}}}})
       expect(point.preloads).to eq({foo1: {}, bar1: {foo1: {}}})
     end
   end

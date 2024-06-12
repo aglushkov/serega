@@ -10,7 +10,7 @@ class Serega
     # SeregaObjectSerializer instance methods
     #
     module InstanceMethods
-      attr_reader :context, :plan, :many, :opts
+      attr_reader :context, :plan, :many, :symbol_keys, :opts
 
       # @param plan [SeregaPlan] Serialization plan
       # @param context [Hash] Serialization context
@@ -18,10 +18,11 @@ class Serega
       # @param opts [Hash] Any custom options
       #
       # @return [SeregaObjectSerializer] New SeregaObjectSerializer
-      def initialize(context:, plan:, many: nil, **opts)
+      def initialize(context:, plan:, many: nil, symbol_keys: false, **opts)
         @context = context
         @plan = plan
         @many = many
+        @symbol_keys = symbol_keys
         @opts = opts
       end
 
@@ -72,7 +73,11 @@ class Serega
       # - plugin :if (conditionally skips attaching)
       # - plugin :batch :if extension (removes prepared key)
       def attach_final_value(final_value, point, container)
-        container[point.name] = final_value
+        container[key(point)] = final_value
+      end
+
+      def key(point)
+        symbol_keys ? point.symbol_name : point.name
       end
 
       def final_value(value, point)
@@ -86,6 +91,7 @@ class Serega
       def child_serializer(point)
         point.child_object_serializer.new(
           context: context,
+          symbol_keys: symbol_keys,
           plan: point.child_plan,
           many: point.many,
           **opts

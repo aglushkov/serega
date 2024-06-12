@@ -20,6 +20,7 @@ require_relative "serega/utils/enum_deep_freeze"
 require_relative "serega/utils/params_count"
 require_relative "serega/utils/symbol_name"
 require_relative "serega/utils/to_hash"
+require_relative "serega/utils/to_stringified_hash"
 require_relative "serega/json/adapter"
 
 require_relative "serega/attribute"
@@ -161,17 +162,17 @@ class Serega
     #
     def call(object, opts = nil)
       opts ||= FROZEN_EMPTY_HASH
-      initiate_keys = config.initiate_keys
 
       if opts.empty?
-        modifiers_opts = FROZEN_EMPTY_HASH
-        serialize_opts = nil
+        initiate_opts = FROZEN_EMPTY_HASH
+        serialize_opts = FROZEN_EMPTY_HASH
       else
+        initiate_keys = config.initiate_keys
         serialize_opts = opts.except(*initiate_keys)
-        modifiers_opts = opts.slice(*initiate_keys)
+        initiate_opts = opts.slice(*initiate_keys)
       end
 
-      new(modifiers_opts).to_h(object, serialize_opts)
+      new(initiate_opts).to_h(object, symbol_keys: true, **serialize_opts)
     end
 
     #
@@ -189,7 +190,8 @@ class Serega
     # @return [Hash] Serialization result
     #
     def to_h(object, opts = nil)
-      call(object, opts)
+      opts ||= FROZEN_EMPTY_HASH
+      call(object, symbol_keys: true, **opts)
     end
 
     #
@@ -207,7 +209,9 @@ class Serega
     # @return [String] Serialization result
     #
     def to_json(object, opts = nil)
-      config.to_json.call(to_h(object, opts))
+      opts ||= FROZEN_EMPTY_HASH
+      resulted_hash = to_h(object, **opts, symbol_keys: false)
+      config.to_json.call(resulted_hash)
     end
 
     #
@@ -225,7 +229,8 @@ class Serega
     # @return [Hash] Serialization result
     #
     def as_json(object, opts = nil)
-      config.from_json.call(to_json(object, opts))
+      resulted_json = to_json(object, opts)
+      config.from_json.call(resulted_json)
     end
 
     private
@@ -320,16 +325,16 @@ class Serega
     # @return [Hash] Serialization result
     #
     def call(object, opts = nil)
-      self.class::CheckSerializeParams.new(opts).validate if opts&.any?
-      opts ||= {}
-      opts[:context] ||= {}
+      opts ||= FROZEN_EMPTY_HASH
+      self.class::CheckSerializeParams.new(opts).validate if opts.any?
 
-      serialize(object, opts)
+      serialize(object, symbol_keys: true, context: {}, **opts)
     end
 
     # @see #call
     def to_h(object, opts = nil)
-      call(object, opts)
+      opts ||= FROZEN_EMPTY_HASH
+      call(object, symbol_keys: true, **opts)
     end
 
     #
@@ -343,8 +348,9 @@ class Serega
     # @return [Hash] Serialization result
     #
     def to_json(object, opts = nil)
-      hash = to_h(object, opts)
-      config.to_json.call(hash)
+      opts ||= FROZEN_EMPTY_HASH
+      resulted_hash = to_h(object, **opts, symbol_keys: false)
+      config.to_json.call(resulted_hash)
     end
 
     #
@@ -384,7 +390,7 @@ class Serega
     # Patched in:
     # - plugin :string_modifiers (parses string modifiers differently)
     def parse_modifier(value)
-      SeregaUtils::ToHash.call(value)
+      SeregaUtils::ToStringifiedHash.call(value)
     end
 
     # Patched in:

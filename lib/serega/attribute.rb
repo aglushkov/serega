@@ -14,8 +14,12 @@ class Serega
       attr_reader :initials
 
       # Attribute name
-      # @return [Symbol] Attribute name
+      # @return [String] Attribute name as String
       attr_reader :name
+
+      # Attribute symbol name
+      # @return [Symbol] Attribute name as Symbol
+      attr_reader :symbol_name
 
       # Attribute :many option
       # @return [Boolean, nil] Attribute :many option
@@ -112,6 +116,7 @@ class Serega
 
       def set_normalized_vars(normalizer)
         @name = normalizer.name
+        @symbol_name = normalizer.symbol_name
         @many = normalizer.many
         @default = normalizer.default
         @value_block = normalizer.value_block

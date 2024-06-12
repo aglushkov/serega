@@ -16,12 +16,14 @@ class Serega
           #
           # @see Serega::SeregaObjectSerializer
           #
-          module ObjectSerializerInstanceMethods123
+          module ObjectSerializerInstanceMethods
             private
 
             # Removes key added by `batch` plugin at the start of serialization to preserve attributes ordering
             def attach_final_value(value, point, container)
-              container.delete(point.name) if super == SeregaPlugins::If::KEY_SKIPPED
+              if super == SeregaPlugins::If::KEY_SKIPPED
+                container.delete(key(point))
+              end
             end
           end
         end

@@ -51,9 +51,15 @@ class Serega
       end
 
       # Attribute `name`
-      # @see SeregaAttribute::AttributeInstanceMethods#value
+      # @see SeregaAttribute::AttributeInstanceMethods#name
       def name
         attribute.name
+      end
+
+      # Attribute `symbol_name`
+      # @see SeregaAttribute::AttributeInstanceMethods#symbol_name
+      def symbol_name
+        attribute.symbol_name
       end
 
       # Attribute `many` option

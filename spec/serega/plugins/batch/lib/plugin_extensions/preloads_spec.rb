@@ -22,12 +22,12 @@ RSpec.describe Serega::SeregaPlugins::Batch do
     end
 
     it "returns no preloads by default for attributes with `batch` option" do
-      expect(user_serializer.attributes[:one].preloads).to be_nil
-      expect(user_serializer.attributes[:two].preloads).to eq({two: {}})
+      expect(user_serializer.attributes["one"].preloads).to be_nil
+      expect(user_serializer.attributes["two"].preloads).to eq({two: {}})
     end
 
     it "keeps manually added preloads" do
-      expect(user_serializer.attributes[:three].preloads).to eq({custom: {}})
+      expect(user_serializer.attributes["three"].preloads).to eq({custom: {}})
     end
   end
 end

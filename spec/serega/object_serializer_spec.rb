@@ -12,8 +12,8 @@ RSpec.describe Serega::SeregaObjectSerializer do
   end
 
   describe "serialization" do
-    def serialize(object)
-      object_serializer.new(context: context, plan: plan).serialize(object)
+    def serialize(object, symbol_keys: true)
+      object_serializer.new(context: context, plan: plan, symbol_keys: symbol_keys).serialize(object)
     end
 
     let(:serializer_class) do
@@ -23,14 +23,16 @@ RSpec.describe Serega::SeregaObjectSerializer do
     end
 
     context "when no nested serializers" do
-      let(:plan) { serializer_class::SeregaPlan.new(nil, {only: {foo: {}}}) }
+      let(:plan) { serializer_class::SeregaPlan.new(nil, {only: {"foo" => {}}}) }
 
       it "serializes object to hash" do
         expect(serialize(1)).to eq(foo: "bar")
+        expect(serialize(1, symbol_keys: false)).to eq("foo" => "bar")
       end
 
       it "serializes array to array of hashes" do
         expect(serialize([1, 1])).to eq([{foo: "bar"}, {foo: "bar"}])
+        expect(serialize([1, 1], symbol_keys: false)).to eq([{"foo" => "bar"}, {"foo" => "bar"}])
       end
 
       it "raises any error with additional serializer name and attribute name in error message" do
@@ -42,7 +44,7 @@ RSpec.describe Serega::SeregaObjectSerializer do
     end
 
     context "with nested serializers" do
-      let(:plan) { serializer_class::SeregaPlan.new(nil, {only: {foo: {}, hash: {}, array: {}}}) }
+      let(:plan) { serializer_class::SeregaPlan.new(nil, {only: {"foo" => {}, "hash" => {}, "array" => {}}}) }
 
       before do
         serializer_class.attribute(:hash, serializer: serializer_class, const: 1, hide: true)
@@ -50,11 +52,16 @@ RSpec.describe Serega::SeregaObjectSerializer do
       end
 
       it "serializes nested object to hash and nested array to array of hashes" do
-        result = serialize(1)
-        expect(result).to eq(
+        expect(serialize(1)).to eq(
           foo: "bar",
           hash: {foo: "bar"},
           array: [{foo: "bar"}, {foo: "bar"}]
+        )
+
+        expect(serialize(1, symbol_keys: false)).to eq(
+          "foo" => "bar",
+          "hash" => {"foo" => "bar"},
+          "array" => [{"foo" => "bar"}, {"foo" => "bar"}]
         )
       end
     end

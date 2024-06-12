@@ -71,14 +71,15 @@ class Serega
 
         def build_full_attribute_name(*names)
           head, *nested = *names
-          result = head.to_s # names are symbols, we need not frozen string
-          nested.each { |nested_name| result << "(" << nested_name.to_s }
+          result = head.dup # names are strings, we need not frozen one to start with
+          nested.each { |nested_name| result << "(" << nested_name }
           nested.each { result << ")" }
           result
         end
 
         def raise_errors(serializer_class)
-          raise Serega::AttributeNotExist.new("Not existing attributes: #{error_attributes.join(", ")}", serializer_class, error_attributes)
+          attrs = error_attributes.join(", ")
+          raise Serega::AttributeNotExist.new("Not existing attributes: #{attrs}", serializer_class, error_attributes)
         end
 
         def any_error?

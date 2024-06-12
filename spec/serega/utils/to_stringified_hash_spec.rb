@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Serega::SeregaUtils::ToHash do
+RSpec.describe Serega::SeregaUtils::ToStringifiedHash do
   subject(:result) { described_class.call(val) }
 
   context "with nil value" do
@@ -25,9 +25,9 @@ RSpec.describe Serega::SeregaUtils::ToHash do
     let(:val) { %w[foo bar] }
 
     it "returns hash with symbol keys and frozen empty hash values" do
-      expect(result).to eq(foo: {}, bar: {})
-      expect(result[:foo]).to be_frozen
-      expect(result[:bar]).to be_frozen
+      expect(result).to eq("foo" => {}, "bar" => {})
+      expect(result["foo"]).to be_frozen
+      expect(result["bar"]).to be_frozen
     end
   end
 
@@ -43,8 +43,8 @@ RSpec.describe Serega::SeregaUtils::ToHash do
     let(:val) { :foo }
 
     it "returns hash with frozen empty hash value" do
-      expect(result).to eq(foo: {})
-      expect(result[:foo]).to be_frozen
+      expect(result).to eq("foo" => {})
+      expect(result["foo"]).to be_frozen
     end
   end
 
@@ -52,8 +52,8 @@ RSpec.describe Serega::SeregaUtils::ToHash do
     let(:val) { "foo" }
 
     it "returns hash with symbol key and frozen empty hash value" do
-      expect(result).to eq(foo: {})
-      expect(result[:foo]).to be_frozen
+      expect(result).to eq("foo" => {})
+      expect(result["foo"]).to be_frozen
     end
   end
 
@@ -61,16 +61,8 @@ RSpec.describe Serega::SeregaUtils::ToHash do
     let(:val) { {foo: :bar} }
 
     it "returns nested hash with frozen empty hash final value" do
-      expect(result).to eq(foo: {bar: {}})
-      expect(result[:foo][:bar]).to be_frozen
-    end
-  end
-
-  context "with empty hash value" do
-    let(:val) { {} }
-
-    it "returns empty hash" do
-      expect(result).to equal(Serega::FROZEN_EMPTY_HASH)
+      expect(result).to eq("foo" => {"bar" => {}})
+      expect(result["foo"]["bar"]).to be_frozen
     end
   end
 
@@ -78,8 +70,8 @@ RSpec.describe Serega::SeregaUtils::ToHash do
     let(:val) { {"foo" => "bar"} }
 
     it "returns nested hash with symbol keys with frozen empty hash final value" do
-      expect(result).to eq(foo: {bar: {}})
-      expect(result[:foo][:bar]).to be_frozen
+      expect(result).to eq("foo" => {"bar" => {}})
+      expect(result["foo"]["bar"]).to be_frozen
     end
   end
 
@@ -91,20 +83,21 @@ RSpec.describe Serega::SeregaUtils::ToHash do
     end
   end
 
+
   context "with complex value test" do
     let(:val) { [:a, "b", {c: {"d" => [:e, "f"]}}] }
 
-    it "returns nested hash with symbol keys" do
+    it "returns nested hash" do
       expect(result).to eq(
-        a: {},
-        b: {},
-        c: {d: {e: {}, f: {}}}
+        "a" => {},
+        "b" => {},
+        "c" => {"d" => {"e" => {}, "f" => {}}}
       )
 
-      expect(result.dig(:a)).to be_frozen
-      expect(result.dig(:b)).to be_frozen
-      expect(result.dig(:c, :d, :e)).to be_frozen
-      expect(result.dig(:c, :d, :f)).to be_frozen
+      expect(result.dig("a")).to be_frozen
+      expect(result.dig("b")).to be_frozen
+      expect(result.dig("c", "d", "e")).to be_frozen
+      expect(result.dig("c", "d", "f")).to be_frozen
     end
   end
 end

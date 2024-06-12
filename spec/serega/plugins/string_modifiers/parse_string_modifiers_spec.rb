@@ -13,35 +13,35 @@ RSpec.describe Serega::SeregaPlugins::StringModifiers::ParseStringModifiers do
     end
 
     it "parses single field" do
-      expect(parse("id")).to eq(id: {})
+      expect(parse("id")).to eq("id" => {})
     end
 
     it "parses multiple fields" do
-      expect(parse("id, name")).to eq(id: {}, name: {})
+      expect(parse("id, name")).to eq("id" => {}, "name" => {})
     end
 
     it "parses single resource with single field" do
-      expect(parse("users(id)")).to eq(users: {id: {}})
+      expect(parse("users(id)")).to eq("users" => {"id" => {}})
     end
 
     it "parses fields started with open PAREN" do
-      expect(parse("(users(id))")).to eq(users: {id: {}})
+      expect(parse("(users(id))")).to eq("users" => {"id" => {}})
     end
 
     it "parses fields started with extra close PAREN" do
-      expect(parse(")users)")).to eq(users: {})
+      expect(parse(")users)")).to eq("users" => {})
     end
 
     it "parses single resource with multiple fields" do
-      expect(parse("users(id,name)")).to eq(users: {id: {}, name: {}})
+      expect(parse("users(id,name)")).to eq("users" => {"id" => {}, "name" => {}})
     end
 
     it "parses multiple resources with fields" do
       fields = "id,posts(title,text),news(title,text)"
       resp = {
-        id: {},
-        posts: {title: {}, text: {}},
-        news: {title: {}, text: {}}
+        "id" => {},
+        "posts" => {"title" => {}, "text" => {}},
+        "news" => {"title" => {}, "text" => {}}
       }
 
       expect(parse(fields)).to eq(resp)
@@ -50,15 +50,15 @@ RSpec.describe Serega::SeregaPlugins::StringModifiers::ParseStringModifiers do
     it "parses included resources" do
       fields = "id,posts(title,text,comments(author(name),comment))"
       resp = {
-        id: {},
-        posts: {
-          title: {},
-          text: {},
-          comments: {
-            author: {
-              name: {}
+        "id" => {},
+        "posts" => {
+          "title" => {},
+          "text" => {},
+          "comments" => {
+            "author" => {
+              "name" => {}
             },
-            comment: {}
+            "comment" => {}
           }
         }
       }

@@ -25,7 +25,7 @@ RSpec.describe Serega do
       ]
 
       expect(config.plugins).to eq []
-      expect(config.serialize_keys).to match_array(%i[context many])
+      expect(config.serialize_keys).to match_array(%i[context many symbol_keys])
       expect(config.initiate_keys).to match_array(%i[only except with check_initiate_params])
       expect(config.attribute_keys).to match_array(%i[method value serializer many hide const delegate default])
       expect(config.check_attribute_name).to be true
@@ -65,7 +65,7 @@ RSpec.describe Serega do
 
       # Check attributes are copied to child attributes
       child = Class.new(parent)
-      expect(child.attributes[:foo].class.superclass).to eq parent.attributes[:foo].class
+      expect(child.attributes["foo"].class.superclass).to eq parent.attributes["foo"].class
     end
 
     it "inherits serialization class" do
@@ -154,7 +154,7 @@ RSpec.describe Serega do
   describe ".attribute" do
     it "adds new attribute" do
       attribute = serializer_class.attribute "foo"
-      expect(serializer_class.attributes).to eq(foo: attribute)
+      expect(serializer_class.attributes).to eq("foo" => attribute)
     end
   end
 
@@ -167,7 +167,7 @@ RSpec.describe Serega do
       foo = serializer_class.attribute :foo
       bar = serializer_class.attribute :bar
 
-      expect(serializer_class.attributes).to eq(foo: foo, bar: bar)
+      expect(serializer_class.attributes).to eq("foo" => foo, "bar" => bar)
     end
   end
 
@@ -181,17 +181,17 @@ RSpec.describe Serega do
     end
 
     let(:opts) { {except: :except} }
-    let(:serializer) { serializer_class.new(**opts) }
+    let(:serializer) { serializer_class.new(opts) }
 
     describe "#call" do
       it "returns serialized response" do
-        expect(serializer.call("foo", context: {data: "bar"}))
-          .to eq({obj: "foo", ctx: "bar"})
+        expect(serializer.call("foo")).to eq({obj: "foo", ctx: nil})
+        expect(serializer.call("foo", symbol_keys: false)).to eq({"obj" => "foo", "ctx" => nil})
       end
     end
 
     describe "#to_h" do
-      it "returns serialized response same as .call method" do
+      it "returns serialized response" do
         expect(serializer.to_h("foo", context: {data: "bar"}))
           .to eq({obj: "foo", ctx: "bar"})
       end
@@ -213,6 +213,9 @@ RSpec.describe Serega do
 
     describe ".call" do
       it "returns serialized to response" do
+        expect(serializer_class.call("foo"))
+          .to eq({obj: "foo", ctx: nil, except: "EXCEPT"})
+
         expect(serializer_class.call("foo", **opts, context: {data: "bar"}))
           .to eq({obj: "foo", ctx: "bar"})
       end
@@ -251,7 +254,7 @@ RSpec.describe Serega do
     it "validates initiate params by default" do
       serializer_class.to_h(nil, modifiers)
 
-      expect(serializer_class::CheckInitiateParams).to have_received(:new).with(only: {foo: {}})
+      expect(serializer_class::CheckInitiateParams).to have_received(:new).with(only: {"foo" => {}})
       expect(validator).to have_received(:validate)
     end
 
@@ -280,7 +283,8 @@ RSpec.describe Serega do
     it "selects serialize params (not modifiers params) and validates them" do
       serializer_class.to_h(nil, params)
 
-      expect(serializer_class::CheckSerializeParams).to have_received(:new).with(context: {foo: "bar"}, a: 1)
+      expect(serializer_class::CheckSerializeParams).to have_received(:new)
+        .with(hash_including(context: {foo: "bar"}, a: 1))
       expect(validator).to have_received(:validate)
     end
   end

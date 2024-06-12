@@ -47,7 +47,7 @@ RSpec.describe Serega::SeregaPlan do
       expect(result.points.count).to eq names.count
 
       names.each do |key, child_keys|
-        point = result.points.find { |point| point.name == key }
+        point = result.points.find { |point| point.name.to_s == key.to_s }
         expect(point).not_to be_nil
         expect(point.child_plan).to satisfy_attribute_names(child_keys) if child_keys
       end
@@ -66,7 +66,7 @@ RSpec.describe Serega::SeregaPlan do
     end
 
     it "returns only attributes from :only option" do
-      result = plan(only: {a2: {}, d: {d1: {}}}, except: {}, with: {})
+      result = plan(only: {"a2" => {}, "d" => {"d1" => {}}}, except: {}, with: {})
 
       expect(result).to satisfy_attribute_names(
         a2: nil,
@@ -75,7 +75,7 @@ RSpec.describe Serega::SeregaPlan do
     end
 
     it "returns all not hidden attributes except provided in :except option" do
-      result = plan(only: {}, except: {a2: {}, d: {d1: {}}}, with: {})
+      result = plan(only: {}, except: {"a2" => {}, "d" => {"d1" => {}}}, with: {})
 
       expect(result).to satisfy_attribute_names(
         a1: nil,
@@ -84,7 +84,7 @@ RSpec.describe Serega::SeregaPlan do
     end
 
     it "returns all not hidden attributes and attributes defined in :with option" do
-      result = plan(only: {}, except: {}, with: {a3: {}, b: {}, c: {c3: {}}})
+      result = plan(only: {}, except: {}, with: {"a3" => {}, "b" => {}, "c" => {"c3" => {}}})
 
       expect(result).to satisfy_attribute_names(
         a1: nil,
@@ -99,34 +99,34 @@ RSpec.describe Serega::SeregaPlan do
 
   describe "saving plans to cache" do
     it "does not save plans to cache when not configured to do so" do
-      result1 = plan(only: {a1: {}})
-      result2 = plan(only: {a1: {}})
+      result1 = plan(only: {"a1" => {}})
+      result2 = plan(only: {"a1" => {}})
 
-      expect(result1).to satisfy_attribute_names(a1: nil)
-      expect(result2).to satisfy_attribute_names(a1: nil)
+      expect(result1).to satisfy_attribute_names("a1" => nil)
+      expect(result2).to satisfy_attribute_names("a1" => nil)
       expect(result1).not_to equal result2
     end
 
     it "saves plans to cache and uses them when configured to use cache" do
       current_serializer.config.max_cached_plans_per_serializer_count = 1
-      result1 = plan(only: {a1: {}})
-      result2 = plan(only: {a1: {}})
+      result1 = plan(only: {"a1" => {}})
+      result2 = plan(only: {"a1" => {}})
 
-      expect(result1).to satisfy_attribute_names(a1: nil)
-      expect(result2).to satisfy_attribute_names(a1: nil)
+      expect(result1).to satisfy_attribute_names("a1" => nil)
+      expect(result2).to satisfy_attribute_names("a1" => nil)
       expect(result1).to equal result2
     end
 
     it "removes from cache oldest plans if cached keys count more than configured" do
       current_serializer.config.max_cached_plans_per_serializer_count = 1
 
-      result1 = plan(only: {a1: {}})
+      result1 = plan(only: {"a1" => {}})
       plan(only: {a2: {}}) # replace cached result1
 
-      result2 = plan(only: {a1: {}})
+      result2 = plan(only: {"a1" => {}})
 
-      expect(result1).to satisfy_attribute_names(a1: nil)
-      expect(result2).to satisfy_attribute_names(a1: nil)
+      expect(result1).to satisfy_attribute_names("a1" => nil)
+      expect(result2).to satisfy_attribute_names("a1" => nil)
       expect(result1).not_to equal result2
     end
   end

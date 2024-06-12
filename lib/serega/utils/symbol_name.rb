@@ -15,7 +15,11 @@ class Serega
         # @return [String] frozen string corresponding to provided symbol
         #
         def call(key)
-          key.is_a?(String) ? key : to_frozen_string(key)
+          if key.is_a?(Symbol)
+            to_frozen_string(key)
+          else
+            key.frozen? ? key : key.dup.freeze
+          end
         end
 
         private

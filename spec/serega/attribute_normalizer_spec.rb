@@ -5,9 +5,10 @@ RSpec.describe Serega::SeregaAttributeNormalizer do
   let(:normalizer) { serializer_class::SeregaAttributeNormalizer }
 
   describe "#name" do
-    it "symbolizes name" do
-      attribute = normalizer.new(name: "current_name")
-      expect(attribute.name).to eq :current_name
+    it "returns frozen string" do
+      attribute = normalizer.new(name: :current_name)
+      expect(attribute.name).to eq "current_name"
+      expect(attribute.name).to be_frozen
     end
   end
 

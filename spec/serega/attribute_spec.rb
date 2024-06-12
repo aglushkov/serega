@@ -34,6 +34,7 @@ RSpec.describe Serega::SeregaAttribute do
       normalizer = instance_double(
         serializer_class::SeregaAttributeNormalizer,
         name: nil,
+        symbol_name: nil,
         many: nil,
         default: nil,
         hide: nil,
@@ -46,7 +47,8 @@ RSpec.describe Serega::SeregaAttribute do
       allow(serializer_class::SeregaAttributeNormalizer).to receive(:new).with(initials).and_return(normalizer)
       attribute = attribute_class.new(**initials)
 
-      expect(attribute.instance_variables).to include(:@name, :@default, :@value_block, :@many, :@hide, :@serializer)
+      expect(attribute.instance_variables)
+        .to include(:@name, :@symbol_name, :@default, :@value_block, :@many, :@hide, :@serializer)
     end
   end
 
@@ -108,15 +110,15 @@ RSpec.describe Serega::SeregaAttribute do
     end
 
     def except(key)
-      {except: {key => {}}, only: {}, with: {}}
+      {except: {key.to_s => {}}, only: {}, with: {}}
     end
 
     def only(key)
-      {except: {}, only: {key => {}}, with: {}}
+      {except: {}, only: {key.to_s => {}}, with: {}}
     end
 
     def with(key)
-      {except: {}, only: {}, with: {key => {}}}
+      {except: {}, only: {}, with: {key.to_s => {}}}
     end
 
     it "returns by default true when attribute is not hidden" do
@@ -145,7 +147,7 @@ RSpec.describe Serega::SeregaAttribute do
 
     it "skips :except parameter if it has nested keys" do
       args = except(:name)
-      args[:except][:name] = {foo: {}}
+      args[:except]["name"] = {"foo" => {}}
 
       expect(attribute_class.new(name: :name).visible?(**args)).to be true
     end
