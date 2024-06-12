@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "stringio"
-
 class Serega
   module SeregaPlugins
     #
@@ -25,6 +23,14 @@ class Serega
       # Modifiers parser
       #
       class ParseStringModifiers
+        COMMA = ","
+        COMMA_CODEPOINT = COMMA.ord
+        LPAREN = "("
+        LPAREN_CODEPOINT = LPAREN.ord
+        RPAREN = ")"
+        RPAREN_CODEPOINT = RPAREN.ord
+        private_constant :COMMA, :LPAREN, :RPAREN, :COMMA_CODEPOINT, :LPAREN_CODEPOINT, :RPAREN_CODEPOINT
+
         class << self
           #
           # Parses string modifiers
@@ -40,45 +46,52 @@ class Serega
           #   parse("user,comments") => { user: {}, comments: {} }
           #   parse("user(comments(text))") => { user: { comments: { text: {} } } }
           def parse(fields)
-            res = {}
-            attribute = +""
-            char = +""
-            path_stack = nil
-            fields = StringIO.new(fields)
+            result = {}
+            attribute_storage = result
+            path_stack = (fields.include?(LPAREN) || fields.include?(RPAREN)) ? [] : nil
 
-            while fields.read(1, char)
-              case char
-              when ","
-                add_attribute(res, path_stack, attribute, FROZEN_EMPTY_HASH)
-              when ")"
-                add_attribute(res, path_stack, attribute, FROZEN_EMPTY_HASH)
-                path_stack&.pop
-              when "("
-                name = add_attribute(res, path_stack, attribute, {})
-                (path_stack ||= []).push(name) if name
-              else
-                attribute.insert(-1, char)
+            start_index = 0
+            end_index = 0
+            fields.each_codepoint do |codepoint|
+              case codepoint
+              when COMMA_CODEPOINT
+                attribute = extract_attribute(fields, start_index, end_index)
+                add_attribute(attribute_storage, attribute, FROZEN_EMPTY_HASH) if attribute
+                start_index = end_index + 1
+              when LPAREN_CODEPOINT
+                attribute = extract_attribute(fields, start_index, end_index)
+                if attribute
+                  attribute_storage = add_attribute(attribute_storage, attribute, {})
+                  path_stack.push(attribute)
+                end
+                start_index = end_index + 1
+              when RPAREN_CODEPOINT
+                attribute = extract_attribute(fields, start_index, end_index)
+                add_attribute(attribute_storage, attribute, FROZEN_EMPTY_HASH) if attribute
+                path_stack.pop
+                attribute_storage = dig?(result, path_stack)
+                start_index = end_index + 1
               end
+
+              end_index += 1
             end
 
-            add_attribute(res, path_stack, attribute, FROZEN_EMPTY_HASH)
+            attribute = extract_attribute(fields, start_index, end_index)
+            add_attribute(attribute_storage, attribute, FROZEN_EMPTY_HASH) if attribute
 
-            res
+            result
           end
 
           private
 
-          def add_attribute(res, path_stack, attribute, nested_attributes = FROZEN_EMPTY_HASH)
+          def extract_attribute(fields, start_index, end_index)
+            attribute = fields[start_index, end_index - start_index]
             attribute.strip!
-            return if attribute.empty?
+            attribute.empty? ? nil : attribute.to_sym
+          end
 
-            name = attribute.to_sym
-            attribute.clear
-
-            current_attrs = dig?(res, path_stack)
-            current_attrs[name] = nested_attributes
-
-            name
+          def add_attribute(storage, attribute, nested_attributes = FROZEN_EMPTY_HASH)
+            storage[attribute] = nested_attributes
           end
 
           def dig?(hash, path)
