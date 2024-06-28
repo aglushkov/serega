@@ -40,7 +40,7 @@ class Serega
       # Default camel-case transformation
       TRANSFORM_DEFAULT = proc { |attribute_name|
         camel_cased_name = attribute_name.to_s.gsub(/_[a-z]/) { |m| m[-1].upcase! }
-        camel_cased_name.freeze
+        camel_cased_name.dedup
       }
 
       # @return [Symbol] Plugin name

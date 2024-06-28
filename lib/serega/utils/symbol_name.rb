@@ -18,7 +18,7 @@ class Serega
           if key.is_a?(Symbol)
             to_frozen_string(key)
           else
-            key.frozen? ? key : key.dup.freeze
+            key.dedup
           end
         end
 
@@ -27,7 +27,7 @@ class Serega
         # :nocov:
         if RUBY_VERSION < "3"
           def to_frozen_string(key)
-            key.to_s.freeze
+            key.to_s.dedup
           end
         else
           def to_frozen_string(key)

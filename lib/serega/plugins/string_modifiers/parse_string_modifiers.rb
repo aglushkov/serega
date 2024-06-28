@@ -87,7 +87,7 @@ class Serega
           def extract_attribute(fields, start_index, end_index)
             attribute = fields[start_index, end_index - start_index]
             attribute.strip!
-            attribute.empty? ? nil : attribute.freeze
+            attribute.empty? ? nil : attribute.dedup
           end
 
           def add_attribute(storage, attribute, nested_attributes = FROZEN_EMPTY_HASH)
