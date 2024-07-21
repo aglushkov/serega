@@ -38,45 +38,64 @@ RSpec.describe Serega::SeregaPlugins::ActiverecordPreloads do
       end
     end
 
-    it "adds preloads to object when calling to_h" do
-      object = "OBJ"
-      preloads = "PRELOADS"
-      serializer = serializer_class.new
-      allow(serializer).to receive(:preloads).and_return(preloads)
+    let(:serializer) { serializer_class.new }
+    let(:preloader) { Serega::SeregaPlugins::ActiverecordPreloads::Preloader }
 
-      allow(Serega::SeregaPlugins::ActiverecordPreloads::Preloader)
-        .to receive(:preload)
-        .with(object, preloads)
-        .and_return("OBJ_WITH_PRELOADS")
+    before { allow(preloader).to receive(:preload) }
 
-      expect(serializer.to_h(object)[:itself]).to eq("OBJ_WITH_PRELOADS")
+    describe "#preload_associations_to" do
+      subject(:preload) { serializer.preload_associations_to(object) }
+
+      let(:preloads) { "PRELOADS" }
+      let(:object) { "OBJECT" }
+
+      before { allow(serializer).to receive(:preloads).and_return(preloads) }
+
+      it "adds preloads to object" do
+        preload
+        expect(preloader).to have_received(:preload).with(object, preloads)
+      end
+
+      context "with nil object" do
+        let(:object) { nil }
+
+        it "skips preloading" do
+          preload
+          expect(preloader).not_to have_received(:preload)
+        end
+      end
+
+      context "with empty array" do
+        let(:object) { [] }
+
+        it "skips preloading" do
+          preload
+          expect(preloader).not_to have_received(:preload)
+        end
+      end
+
+      context "with nothing to preload" do
+        let(:preloads) { {} }
+
+        it "skips preloading" do
+          preload
+          expect(preloader).not_to have_received(:preload)
+        end
+      end
     end
 
-    it "skips preloading for nil" do
-      object = nil
-      serializer = serializer_class.new
-      allow(serializer).to receive(:preloads)
+    describe "#to_h" do
+      subject(:to_h) { serializer.to_h(object) }
 
-      expect(serializer.to_h(object)).to be_nil
-      expect(serializer).not_to have_received(:preloads)
-    end
+      let(:preloads) { "PRELOADS" }
+      let(:object) { "OBJECT" }
 
-    it "skips preloading for empty array" do
-      object = []
-      serializer = serializer_class.new
-      allow(serializer).to receive(:preloads)
+      before { allow(serializer).to receive(:preload_associations_to) }
 
-      expect(serializer.to_h(object, {many: false})[:itself]).to be object
-      expect(serializer).not_to have_received(:preloads)
-    end
-
-    it "skips preloading when nothing to preload" do
-      object = "OBJECT"
-      serializer = serializer_class.new
-      allow(serializer).to receive(:preloads).and_return({})
-
-      expect(serializer.to_h(object)[:itself]).to be object
-      expect(serializer).to have_received(:preloads)
+      it "preloads associations before serialization" do
+        expect(serializer.to_h(object)[:itself]).to eq(object)
+        expect(serializer).to have_received(:preload_associations_to).with(object)
+      end
     end
   end
 end

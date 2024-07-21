@@ -90,6 +90,22 @@ class Serega
       # Overrides Serega class instance methods
       #
       module InstanceMethods
+        #
+        # Preloads associations to object
+        #
+        # @param object [Object] Any object
+        # @return provided object
+        #
+        def preload_associations_to(object)
+          return object if object.nil? || (object.is_a?(Array) && object.empty?)
+
+          preloads = preloads() # `preloads()` method comes from :preloads plugin
+          return object if preloads.empty?
+
+          Preloader.preload(object, preloads)
+          object
+        end
+
         private
 
         #
@@ -97,17 +113,8 @@ class Serega
         # Preloads associations to object before serialization
         #
         def serialize(object, _opts)
-          object = add_preloads(object)
+          preload_associations_to(object)
           super
-        end
-
-        def add_preloads(obj)
-          return obj if obj.nil? || (obj.is_a?(Array) && obj.empty?)
-
-          preloads = preloads() # `preloads()` method comes from :preloads plugin
-          return obj if preloads.empty?
-
-          Preloader.preload(obj, preloads)
         end
       end
     end

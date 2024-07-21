@@ -549,6 +549,9 @@ UserSerializer.to_h(user)
 # => preloads {users_stats: {}, albums: { downloads: {} }}
 ```
 
+For testing purposes preloading can be done manually with
+`#preload_association_to(obj)` instance method
+
 ### Plugin :batch
 
 Helps to omit N+1.
