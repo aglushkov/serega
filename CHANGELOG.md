@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+- Allow to provide modifiers and serialization options as strings. Only symbols
+  were allowed previously.
+
 ## [0.20.1] - 2024-02-25
 
 - Fix issue with :if plugin used together with :batch plugin.

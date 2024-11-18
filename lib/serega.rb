@@ -167,6 +167,7 @@ class Serega
         modifiers_opts = FROZEN_EMPTY_HASH
         serialize_opts = nil
       else
+        opts.transform_keys!(&:to_sym)
         serialize_opts = opts.except(*initiate_keys)
         modifiers_opts = opts.slice(*initiate_keys)
       end
@@ -296,7 +297,14 @@ class Serega
     # @option opts [Boolean] :validate Validates provided modifiers (Default is true)
     #
     def initialize(opts = nil)
-      @opts = (opts.nil? || opts.empty?) ? FROZEN_EMPTY_HASH : parse_modifiers(opts)
+      @opts =
+        if opts.nil? || opts.empty?
+          FROZEN_EMPTY_HASH
+        else
+          opts.transform_keys!(&:to_sym)
+          parse_modifiers(opts)
+        end
+
       self.class::CheckInitiateParams.new(@opts).validate if opts&.fetch(:check_initiate_params) { config.check_initiate_params }
 
       @plan = self.class::SeregaPlan.call(@opts)
@@ -320,10 +328,10 @@ class Serega
     # @return [Hash] Serialization result
     #
     def call(object, opts = nil)
-      self.class::CheckSerializeParams.new(opts).validate if opts&.any?
-      opts ||= {}
-      opts[:context] ||= {}
+      opts = opts ? opts.transform_keys!(&:to_sym) : {}
+      self.class::CheckSerializeParams.new(opts).validate unless opts.empty?
 
+      opts[:context] ||= {}
       serialize(object, opts)
     end
 
