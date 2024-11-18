@@ -180,62 +180,78 @@ RSpec.describe Serega do
       end
     end
 
-    let(:opts) { {except: :except} }
-    let(:serializer) { serializer_class.new(**opts) }
+    let(:modifiers) { {except: :except} }
+    let(:serialize_opts) { {context: {data: "bar"}} }
+
+    let(:serializer) { serializer_class.new(modifiers) }
 
     describe "#call" do
       it "returns serialized response" do
-        expect(serializer.call("foo", context: {data: "bar"}))
-          .to eq({obj: "foo", ctx: "bar"})
+        expect(serializer.call("foo", serialize_opts)).to eq({obj: "foo", ctx: "bar"})
+      end
+
+      context "with string opts" do
+        before do
+          modifiers.transform_keys!(&:to_s)
+          serialize_opts.transform_keys!(&:to_s)
+        end
+
+        it "returns correct response when options provided with string keys" do
+          expect(serializer.call("foo", serialize_opts)).to eq({obj: "foo", ctx: "bar"})
+        end
       end
     end
 
     describe "#to_h" do
       it "returns serialized response same as .call method" do
-        expect(serializer.to_h("foo", context: {data: "bar"}))
-          .to eq({obj: "foo", ctx: "bar"})
+        expect(serializer.to_h("foo", serialize_opts)).to eq({obj: "foo", ctx: "bar"})
       end
     end
 
     describe "#to_json" do
       it "returns serialized to json response" do
-        expect(serializer.to_json("foo", context: {data: "bar"}))
-          .to eq('{"obj":"foo","ctx":"bar"}')
+        expect(serializer.to_json("foo", serialize_opts)).to eq('{"obj":"foo","ctx":"bar"}')
       end
     end
 
     describe "#as_json" do
       it "returns serialized as json response (with JSON compatible types)" do
-        expect(serializer.as_json("foo", context: {data: "bar"}))
-          .to eq({"obj" => "foo", "ctx" => "bar"})
+        expect(serializer.as_json("foo", serialize_opts)).to eq({"obj" => "foo", "ctx" => "bar"})
       end
     end
 
     describe ".call" do
       it "returns serialized to response" do
-        expect(serializer_class.call("foo", **opts, context: {data: "bar"}))
-          .to eq({obj: "foo", ctx: "bar"})
+        expect(serializer_class.call("foo", modifiers.merge(serialize_opts))).to eq({obj: "foo", ctx: "bar"})
+      end
+
+      context "with string opts" do
+        before do
+          modifiers.transform_keys!(&:to_s)
+          serialize_opts.transform_keys!(&:to_s)
+        end
+
+        it "returns correct response when options provided with string keys" do
+          expect(serializer_class.call("foo", modifiers.merge(serialize_opts))).to eq({obj: "foo", ctx: "bar"})
+        end
       end
     end
 
     describe ".to_h" do
       it "returns serialized response same as .call method" do
-        expect(serializer_class.to_h("foo", **opts, context: {data: "bar"}))
-          .to eq({obj: "foo", ctx: "bar"})
+        expect(serializer_class.to_h("foo", modifiers.merge(serialize_opts))).to eq({obj: "foo", ctx: "bar"})
       end
     end
 
     describe ".to_json" do
       it "returns serialized to json response" do
-        expect(serializer_class.to_json("foo", **opts, context: {data: "bar"}))
-          .to eq('{"obj":"foo","ctx":"bar"}')
+        expect(serializer_class.to_json("foo", modifiers.merge(serialize_opts))).to eq('{"obj":"foo","ctx":"bar"}')
       end
     end
 
     describe ".as_json" do
       it "returns serialized as json response (with JSON compatible types)" do
-        expect(serializer_class.as_json("foo", **opts, context: {data: "bar"}))
-          .to eq({"obj" => "foo", "ctx" => "bar"})
+        expect(serializer_class.as_json("foo", modifiers.merge(serialize_opts))).to eq({"obj" => "foo", "ctx" => "bar"})
       end
     end
   end
