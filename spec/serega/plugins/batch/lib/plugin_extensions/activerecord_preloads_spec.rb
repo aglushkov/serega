@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "support/activerecord"
-require "rspec-sqlimit"
 
 load_plugin_code :batch
 
@@ -71,13 +70,17 @@ RSpec.describe Serega::SeregaPlugins::Batch do
     it "preloads data to batch loaded records", :with_rollback do
       users = AR::User.all
 
-      result = nil
-      expect { result = user_serializer.to_h(users) }.not_to exceed_query_limit(3)
+      queries_count = 0
+      ActiveSupport::Notifications.subscribe("sql.active_record") { queries_count += 1 }
+
+      result = user_serializer.to_h(users)
 
       expect(result.count).to eq 1 # 1 user
       expect(result[0][:posts].count).to eq 2 # 2 posts
       expect(result[0][:posts][0][:comments].count).to eq 2 # 2 comments of post1
       expect(result[0][:posts][1][:comments].count).to eq 1 # 1 comment of post2
+
+      expect(queries_count).to eq 3
     end
   end
 
@@ -102,11 +105,15 @@ RSpec.describe Serega::SeregaPlugins::Batch do
     it "preloads data correctly", :with_rollback do
       users = AR::User.all
 
-      result = nil
-      expect { result = user_serializer.to_h(users) }.not_to exceed_query_limit(3)
+      queries_count = 0
+      ActiveSupport::Notifications.subscribe("sql.active_record") { queries_count += 1 }
+
+      result = user_serializer.to_h(users)
 
       expect(result[0][:posts_count]).to eq 2
       expect(result[0][:comments_count]).to eq 3
+
+      expect(queries_count).to eq 3
     end
   end
 
@@ -146,14 +153,17 @@ RSpec.describe Serega::SeregaPlugins::Batch do
 
     it "preloads data to batch loaded records", :with_rollback do
       users = AR::User.all
+      queries_count = 0
+      ActiveSupport::Notifications.subscribe("sql.active_record") { queries_count += 1 }
 
-      result = nil
-      expect { result = user_serializer.to_h(users) }.not_to exceed_query_limit(3)
+      result = user_serializer.to_h(users)
 
       expect(result.count).to eq 1 # 1 user
       expect(result[0][:posts].count).to eq 2 # 2 posts
       expect(result[0][:posts][0][:comments].count).to eq 2 # 2 comments of post1
       expect(result[0][:posts][1][:comments].count).to eq 1 # 1 comment of post2
+
+      expect(queries_count).to eq 3
     end
   end
 end

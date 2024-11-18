@@ -5,9 +5,9 @@ source "https://rubygems.org"
 gem "sqlite3", "~> 1.4.4", platforms: [:ruby]
 gem "activerecord", "~> 6.1.0"
 gem "activerecord-jdbcsqlite3-adapter", "61.0", platforms: [:jruby]
+gem "zeitwerk", "2.6.18" # zeitwerk 2.7 supports ruby from 3.2
 
 gem "rake", "~> 13.0"
 gem "rspec", "~> 3.11", require: false
-gem "rspec-sqlimit", "~> 0.0.5", require: false
 
 gemspec name: "serega", path: "../"

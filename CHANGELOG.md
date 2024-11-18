@@ -1,15 +1,17 @@
 # CHANGELOG
 
-## [Unreleased]
+## [0.21.0] - 2024-11-19
 
 - Allow to provide modifiers and serialization options as strings. Only symbols
   were allowed previously.
+
+- Test compatibility with ActiveRecord 8.0.
 
 ## [0.20.1] - 2024-02-25
 
 - Fix issue with :if plugin used together with :batch plugin.
   We kept `key => nil` attribute when key should have been skipped
-  because of :if_value or :unelss_value option
+  because of :if_value or :unless_value option
 
 ## [0.20.0] - 2023-12-29
 
