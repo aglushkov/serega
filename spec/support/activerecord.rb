@@ -2,7 +2,11 @@
 
 require "active_record"
 
-conn = ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: ":memory:").connection
+pool = ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: ":memory:")
+
+# :nocov:
+conn = (ActiveRecord.version >= Gem::Version.new("8.0.0")) ? pool.lease_connection : pool.connection
+# :nocov:
 
 conn.create_table(:users) do |t|
   t.string :first_name

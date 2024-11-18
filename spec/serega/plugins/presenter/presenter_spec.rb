@@ -53,8 +53,10 @@ RSpec.describe Serega::SeregaPlugins::Presenter do
   end
 
   it "works in nested relation" do
+    struct = Struct.new(:nested).new("123")
+
     current_serializer = serializer
-    serializer.attribute(:rev) { |obj| obj.rev }
+    current_serializer.attribute(:rev)
     current_serializer::Presenter.class_exec do
       def rev
         reverse
@@ -65,9 +67,7 @@ RSpec.describe Serega::SeregaPlugins::Presenter do
       attribute :nested, serializer: current_serializer
     end
 
-    base = OpenStruct.new(nested: "123")
-
-    result = base_serializer.new.to_h(base)
+    result = base_serializer.new.to_h(struct, many: false)
     expect(result).to eq({nested: {rev: "321"}})
   end
 end
