@@ -35,7 +35,7 @@ class Serega
 
           def check_value(value)
             check_value_type(value)
-            signature = SeregaUtils::MethodSignature.call(value, pos_limit: 2, keyword_args: [:ctx])
+            signature = SeregaUtils::MethodSignature.call(value, pos_limit: 2, keyword_args: %i[ctx lazy])
             raise SeregaError, signature_error unless valid_signature?(signature)
           end
 
@@ -49,9 +49,13 @@ class Serega
               true
             when "1"      # (object)
               true
-            when "2"      # (object, context)
-              true
             when "1_ctx"  # (object, :ctx)
+              true
+            when "1_lazy" # (object, :lazy)
+              true
+            when "1_ctx_lazy" # (object, :lazy)
+              true
+            when "2"      # (object, context)
               true
             else
               false
@@ -61,10 +65,12 @@ class Serega
           def signature_error
             <<~ERROR.strip
               Invalid attribute :value option parameters, valid parameters signatures:
-              - ()                # no parameters
-              - (object)          # one positional parameter
-              - (object, context) # two positional parameters
-              - (object, :ctx)    # one positional parameter and :ctx keyword
+              - ()                    # no parameters
+              - (object)              # one positional parameter
+              - (object, :ctx)        # one positional parameter and :ctx keyword
+              - (object, :lazy)       # one positional parameter and :lazy keyword
+              - (object, :ctx, :lazy) # one positional parameter, :ctx, and :lazy keywords
+              - (object, context)     # two positional parameters
             ERROR
           end
 

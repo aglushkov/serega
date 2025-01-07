@@ -10,7 +10,7 @@ class Serega
     # SeregaObjectSerializer instance methods
     #
     module InstanceMethods
-      attr_reader :context, :plan, :many, :opts
+      attr_reader :context, :plan, :many, :opts, :lazy_loaders
 
       # @param plan [SeregaPlan] Serialization plan
       # @param context [Hash] Serialization context
@@ -23,6 +23,7 @@ class Serega
         @plan = plan
         @many = many
         @opts = opts
+        @lazy_loaders = opts[:lazy_loaders]
       end
 
       # Serializes object(s)
@@ -57,13 +58,18 @@ class Serega
       # Patched in:
       # - plugin :if (conditionally skips serializing this point)
       def serialize_point(object, point, container)
-        attach_value(object, point, container)
+        if point.lazy?
+          lazy_loaders.remember(self, point, object, container)
+          container[point.name] = nil # Reserve attribute place in resulted hash. We will set correct value later
+        else
+          attach_value(object, point, container, lazy: nil)
+        end
       end
 
       # Patched in:
       # - plugin :batch (remembers key for batch loading values instead of attaching)
-      def attach_value(object, point, container)
-        value = point.value(object, context)
+      def attach_value(object, point, container, lazy: nil)
+        value = point.value(object, context, lazy: lazy)
         final_value = final_value(value, point)
         attach_final_value(final_value, point, container)
       end

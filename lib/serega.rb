@@ -24,6 +24,10 @@ require_relative "serega/json/adapter"
 
 require_relative "serega/attribute"
 require_relative "serega/attribute_normalizer"
+require_relative "serega/lazy/auto_resolver"
+require_relative "serega/lazy/auto_resolver_factory"
+require_relative "serega/lazy/loader"
+require_relative "serega/lazy/loaders"
 require_relative "serega/validations/utils/check_allowed_keys"
 require_relative "serega/validations/utils/check_opt_is_bool"
 require_relative "serega/validations/utils/check_opt_is_hash"
@@ -33,6 +37,7 @@ require_relative "serega/validations/attribute/check_name"
 require_relative "serega/validations/attribute/check_opt_const"
 require_relative "serega/validations/attribute/check_opt_hide"
 require_relative "serega/validations/attribute/check_opt_delegate"
+require_relative "serega/validations/attribute/check_opt_lazy"
 require_relative "serega/validations/attribute/check_opt_many"
 require_relative "serega/validations/attribute/check_opt_method"
 require_relative "serega/validations/attribute/check_opt_serializer"
@@ -40,6 +45,7 @@ require_relative "serega/validations/attribute/check_opt_value"
 require_relative "serega/validations/initiate/check_modifiers"
 require_relative "serega/validations/check_attribute_params"
 require_relative "serega/validations/check_initiate_params"
+require_relative "serega/validations/check_lazy_loader_params"
 require_relative "serega/validations/check_serialize_params"
 
 require_relative "serega/config"
@@ -65,6 +71,16 @@ class Serega
   check_serialize_params_class = Class.new(SeregaValidations::CheckSerializeParams)
   check_serialize_params_class.serializer_class = self
   const_set(:CheckSerializeParams, check_serialize_params_class)
+
+  # Validates `Serializer.lazy_loader` params
+  check_lazy_loader_params_class = Class.new(SeregaValidations::CheckLazyLoaderParams)
+  check_lazy_loader_params_class.serializer_class = self
+  const_set(:CheckLazyLoaderParams, check_lazy_loader_params_class)
+
+  # Assigns `SeregaLazyLoader` constant to current class
+  check_lazy_loader_params_class = Class.new(SeregaLazy::Loader)
+  check_lazy_loader_params_class.serializer_class = self
+  const_set(:SeregaLazyLoader, check_lazy_loader_params_class)
 
   #
   # Serializers class methods
@@ -128,6 +144,15 @@ class Serega
     end
 
     #
+    # Lists lazy loaders
+    #
+    # @return [Hash] lazy loaders list
+    #
+    def lazy_loaders
+      @lazy_loaders ||= {}
+    end
+
+    #
     # Adds attribute
     #
     # Patched in:
@@ -142,6 +167,41 @@ class Serega
     def attribute(name, **opts, &block)
       attribute = self::SeregaAttribute.new(name: name, opts: opts, block: block)
       attributes[attribute.name] = attribute
+    end
+
+    #
+    # Defines a lazy loader
+    #
+    # @example
+    #   lazy_loader :tags, PostTagsLoader
+    #
+    # @example with block
+    #   lazy_loader(:tags) do |posts|
+    #     Tags.where(post: posts).group(:post_id).pluck(:post_id, Arel.sql('ARRAY_AGG(tags.tag ORDER BY tag)')).to_h
+    #   end
+    #
+    #   attribute :tags, lazy: :tags, value: { |post, lazy:| lazy[:tags][post.id] }
+    #
+    # @example with context
+    #   lazy_loader(:tags) do |posts, ctx:|
+    #     next {} if ctx[:bot]
+    #
+    #     Tags.where(post: posts).group(:post_id).pluck(:post_id, Arel.sql('ARRAY_AGG(tags.tag ORDER BY tag)')).to_h
+    #   end
+    #
+    #   attribute :tags, lazy: :tags, value: { |post, lazy:| lazy[:tags][post.id] }
+    #
+    # @param name [Symbol] A lazy loader name
+    # @param value [#call] Lazy loader
+    # @param block [Proc] Lazy loader
+    #
+    # @return [#call] Lazy loader
+    #
+    def lazy_loader(name, value = nil, &block)
+      raise SeregaError, "Please define lazy loader with a callable value or block" if (value && block) || (!value && !block)
+
+      lazy_loader = self::SeregaLazyLoader.new(name: name, block: value || block)
+      lazy_loaders[lazy_loader.name] = lazy_loader
     end
 
     #
@@ -256,6 +316,10 @@ class Serega
       plan_point_class.serializer_class = subclass
       subclass.const_set(:SeregaPlanPoint, plan_point_class)
 
+      lazy_loader_class = Class.new(self::SeregaLazyLoader)
+      lazy_loader_class.serializer_class = subclass
+      subclass.const_set(:SeregaLazyLoader, lazy_loader_class)
+
       object_serializer_class = Class.new(self::SeregaObjectSerializer)
       object_serializer_class.serializer_class = subclass
       subclass.const_set(:SeregaObjectSerializer, object_serializer_class)
@@ -272,10 +336,19 @@ class Serega
       check_serialize_params_class.serializer_class = subclass
       subclass.const_set(:CheckSerializeParams, check_serialize_params_class)
 
+      check_lazy_loader_params_class = Class.new(self::CheckLazyLoaderParams)
+      check_lazy_loader_params_class.serializer_class = self
+      subclass.const_set(:CheckLazyLoaderParams, check_lazy_loader_params_class)
+
       # Assign same attributes
       attributes.each_value do |attr|
         params = attr.initials
         subclass.attribute(params[:name], **params[:opts], &params[:block])
+      end
+
+      # Assign same lazy loaders
+      lazy_loaders.each_value do |loader|
+        subclass.lazy_loader(loader.name, loader.block)
       end
 
       super
@@ -401,9 +474,10 @@ class Serega
     # - plugin :context_metadata (adds context metadata to final result)
     # - plugin :metadata (adds metadata to final result)
     def serialize(object, opts)
-      self.class::SeregaObjectSerializer
-        .new(**opts, plan: plan)
-        .serialize(object)
+      lazy_loaders = plan.has_lazy_points ? SeregaLazy::Loaders.new : nil
+      result = self.class::SeregaObjectSerializer.new(**opts, lazy_loaders: lazy_loaders, plan: plan).serialize(object)
+      lazy_loaders&.load_all(opts[:context])
+      result
     end
   end
 

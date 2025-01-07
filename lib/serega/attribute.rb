@@ -29,6 +29,10 @@ class Serega
       # @return [Boolean, nil] Attribute :hide option
       attr_reader :hide
 
+      # Lazy loader names required to detect attribute value
+      # @return [Array<Symbol>] Lazy loader names
+      attr_reader :lazy_loaders
+
       #
       # Initializes new attribute
       #
@@ -85,12 +89,14 @@ class Serega
       # @return [Object] Serialized attribute value
       #
       #
-      def value(object, context)
+      def value(object, context, lazy: nil)
         result =
           case value_block_signature
           when "1" then value_block.call(object)
-          when "2" then value_block.call(object, context)
           when "1_ctx" then value_block.call(object, ctx: context)
+          when "1_lazy" then value_block.call(object, lazy: lazy)
+          when "1_ctx_lazy" then value_block.call(object, ctx: context, lazy: lazy)
+          when "2" then value_block.call(object, context)
           else value_block.call # signature is "0" - no parameters
           end
 
@@ -132,6 +138,7 @@ class Serega
         @value_block_signature = normalizer.value_block_signature
         @hide = normalizer.hide
         @serializer = normalizer.serializer
+        @lazy_loaders = normalizer.lazy_loaders
       end
     end
 

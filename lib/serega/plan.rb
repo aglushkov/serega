@@ -65,6 +65,10 @@ class Serega
       # @return [Array<SeregaPlanPoint>] points to serialize
       attr_reader :points
 
+      # Shows if plan includes lazy points
+      # @return [Array<SeregaPlanPoint>] points to serialize
+      attr_reader :has_lazy_points
+
       #
       # Instantiate new serialization plan
       #
@@ -80,6 +84,7 @@ class Serega
       # @return [SeregaPlan] Serialization plan
       #
       def initialize(parent_plan_point, modifiers)
+        @has_lazy_points = false # should be before assigning points, generated points can change this attribute
         @parent_plan_point = parent_plan_point
         @points = attributes_points(modifiers)
       end
@@ -89,6 +94,13 @@ class Serega
       #
       def serializer_class
         self.class.serializer_class
+      end
+
+      def mark_as_has_lazy_points
+        return if has_lazy_points
+
+        @has_lazy_points = true
+        parent_plan_point.plan.mark_as_has_lazy_points if parent_plan_point # rubocop:disable Style/SafeNavigation
       end
 
       private

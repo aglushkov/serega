@@ -46,8 +46,8 @@ class Serega
 
       # Attribute `value`
       # @see SeregaAttribute::AttributeInstanceMethods#value
-      def value(obj, ctx)
-        attribute.value(obj, ctx)
+      def value(obj, ctx, lazy: nil)
+        attribute.value(obj, ctx, lazy: lazy)
       end
 
       # Attribute `name`
@@ -68,6 +68,16 @@ class Serega
         attribute.serializer
       end
 
+      def lazy?
+        !attribute.lazy_loaders.empty?
+      end
+
+      # Attribute `lazy_loaders` option
+      # @see SeregaAttribute::AttributeInstanceMethods#lazy_loaders
+      def lazy_loaders
+        attribute.lazy_loaders
+      end
+
       #
       # @return [SeregaObjectSerializer] object serializer for child plan
       #
@@ -82,6 +92,7 @@ class Serega
       # - plugin :preloads (prepares @preloads and @preloads_path)
       def set_normalized_vars
         @child_plan = prepare_child_plan
+        plan.mark_as_has_lazy_points if lazy?
       end
 
       def prepare_child_plan

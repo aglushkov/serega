@@ -13,14 +13,15 @@ class Serega
     DEFAULTS = {
       plugins: [],
       initiate_keys: %i[only with except check_initiate_params].freeze,
-      attribute_keys: %i[method value serializer many hide const delegate default].freeze,
+      attribute_keys: %i[method value serializer many hide const delegate default lazy].freeze,
       serialize_keys: %i[context many].freeze,
       check_attribute_name: true,
       check_initiate_params: true,
       delegate_default_allow_nil: false,
       max_cached_plans_per_serializer_count: 0,
-      to_json: (SeregaJSON.adapter == :oj) ? SeregaJSON::OjDump : SeregaJSON::JSONDump,
-      from_json: (SeregaJSON.adapter == :oj) ? SeregaJSON::OjLoad : SeregaJSON::JSONLoad
+      hide_lazy_attributes: false,
+      to_json: (::Serega::SeregaJSON.adapter == :oj) ? SeregaJSON::OjDump : SeregaJSON::JSONDump,
+      from_json: (::Serega::SeregaJSON.adapter == :oj) ? SeregaJSON::OjLoad : SeregaJSON::JSONLoad
     }.freeze
     # :nocov:
 
@@ -100,6 +101,22 @@ class Serega
       def delegate_default_allow_nil=(value)
         raise SeregaError, "Must have boolean value, #{value.inspect} provided" if (value != true) && (value != false)
         opts[:delegate_default_allow_nil] = value
+      end
+
+      # Returns :hide_lazy_attributes config option
+      # @return [Boolean] Current :hide_lazy_attributes config option
+      def hide_lazy_attributes
+        opts.fetch(:hide_lazy_attributes)
+      end
+
+      # Sets :hide_lazy_attributes config option
+      #
+      # @param value [Boolean] Set :hide_lazy_attributes config option
+      #
+      # @return [Boolean] :hide_lazy_attributes config option
+      def hide_lazy_attributes=(value)
+        raise SeregaError, "Must have boolean value, #{value.inspect} provided" if (value != true) && (value != false)
+        opts[:hide_lazy_attributes] = value
       end
 
       # Returns :max_cached_plans_per_serializer_count config option

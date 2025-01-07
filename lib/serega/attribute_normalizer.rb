@@ -69,9 +69,7 @@ class Serega
       # @return [Boolean, nil] if attribute must be hidden by default
       #
       def hide
-        return @hide if instance_variable_defined?(:@hide)
-
-        @hide = prepare_hide
+        @hide ||= prepare_hide
       end
 
       #
@@ -80,9 +78,7 @@ class Serega
       # @return [Boolean, nil] if attribute is specified to be a one-to-many relationship
       #
       def many
-        return @many if instance_variable_defined?(:@many)
-
-        @many = prepare_many
+        @many ||= prepare_many
       end
 
       #
@@ -90,9 +86,7 @@ class Serega
       # @return [Serega, String, #callable, nil] specified serializer
       #
       def serializer
-        return @serializer if instance_variable_defined?(:@serializer)
-
-        @serializer = prepare_serializer
+        @serializer ||= prepare_serializer
       end
 
       #
@@ -108,6 +102,29 @@ class Serega
         @default = prepare_default
       end
 
+      #
+      # Shows specified lazy loaders names
+      # @return [Array<Symbol>] specified serializer
+      #
+      def lazy_loaders
+        @lazy_loaders ||= begin
+          lazy_opt = init_opts[:lazy]
+
+          if lazy_opt.nil?
+            []
+          elsif lazy_opt == true || lazy_opt.respond_to?(:call)
+            [name]
+          elsif lazy_opt.is_a?(Symbol)
+            [lazy_opt]
+          elsif lazy_opt.is_a?(String)
+            [lazy_opt.to_sym]
+          else
+            use_opt = lazy_opt.fetch(:use)
+            use_opt.respond_to?(:call) ? [name] : Array(use_opt).map(&:to_sym)
+          end
+        end
+      end
+
       private
 
       def prepare_name
@@ -115,7 +132,12 @@ class Serega
       end
 
       def prepare_value_block
-        init_block || init_opts[:value] || prepare_const_block || prepare_delegate_block || prepare_keyword_block
+        init_block \
+          || init_opts[:value] \
+          || prepare_const_block \
+          || prepare_delegate_block \
+          || prepare_lazy_loader_block \
+          || prepare_keyword_block
       end
 
       #
@@ -124,7 +146,9 @@ class Serega
       # - plugin :batch (returns true by default if auto_hide option was set and attribute has batch loader)
       #
       def prepare_hide
-        init_opts[:hide]
+        res = init_opts[:hide]
+        res = self.class.serializer_class.config.hide_lazy_attributes if res.nil? && !lazy_loaders.empty?
+        res
       end
 
       def prepare_many
@@ -151,6 +175,13 @@ class Serega
         proc do |object|
           object.public_send(key_method_name)
         end
+      end
+
+      def prepare_lazy_loader_block
+        lazy_opt = init_opts[:lazy]
+        return unless lazy_opt
+
+        SeregaLazy::AutoResolverFactory.get(self.class.serializer_class, name, lazy_opt)
       end
 
       def prepare_default
