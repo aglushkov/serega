@@ -13,7 +13,7 @@ class Serega
     DEFAULTS = {
       plugins: [],
       initiate_keys: %i[only with except check_initiate_params].freeze,
-      attribute_keys: %i[method value serializer many hide const delegate default].freeze,
+      attribute_keys: %i[method value serializer many hide const delegate default batch].freeze,
       serialize_keys: %i[context many].freeze,
       check_attribute_name: true,
       check_initiate_params: true,
