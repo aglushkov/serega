@@ -68,6 +68,7 @@ class Serega
           Attribute::CheckOptMany.call(opts)
           Attribute::CheckOptSerializer.call(opts)
           Attribute::CheckOptValue.call(opts, block)
+          Attribute::CheckOptLazy.call(self.class.serializer_class, opts, block)
         end
 
         def check_block

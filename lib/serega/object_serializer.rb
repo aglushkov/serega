@@ -23,6 +23,7 @@ class Serega
         @plan = plan
         @many = many
         @opts = opts
+        @lazy_loaders = []
       end
 
       # Serializes object(s)
@@ -33,7 +34,15 @@ class Serega
       def serialize(object)
         return if object.nil?
 
-        array?(object, many) ? serialize_array(object) : serialize_object(object)
+        response = array?(object, many) ? serialize_array(object) : serialize_object(object)
+
+        lazy_loaders.each do |lazy_loader, records_with_points_and_containers|
+
+          lazy_values = lazy_loader.call(records_with_containers.values, ctx: context)
+
+          value = point.value(object, ctx: context, lazy: { lazy_name => lazy_values })
+        end
+
       end
 
       private
@@ -63,9 +72,14 @@ class Serega
       # Patched in:
       # - plugin :batch (remembers key for batch loading values instead of attaching)
       def attach_value(object, point, container)
-        value = point.value(object, context)
-        final_value = final_value(value, point)
-        attach_final_value(final_value, point, container)
+        if point.lazy?
+          lazy_loaders
+          lazy_loaders.concat(point.lazy_loaders)
+        else
+          value = point.value(object, context)
+          final_value = final_value(value, point)
+          attach_final_value(final_value, point, container)
+        end
       end
 
       # Patched in:

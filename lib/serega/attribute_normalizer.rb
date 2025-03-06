@@ -69,9 +69,7 @@ class Serega
       # @return [Boolean, nil] if attribute must be hidden by default
       #
       def hide
-        return @hide if instance_variable_defined?(:@hide)
-
-        @hide = prepare_hide
+        @hide ||= prepare_hide
       end
 
       #
@@ -80,9 +78,7 @@ class Serega
       # @return [Boolean, nil] if attribute is specified to be a one-to-many relationship
       #
       def many
-        return @many if instance_variable_defined?(:@many)
-
-        @many = prepare_many
+        @many ||= prepare_many
       end
 
       #
@@ -90,9 +86,7 @@ class Serega
       # @return [Serega, String, #callable, nil] specified serializer
       #
       def serializer
-        return @serializer if instance_variable_defined?(:@serializer)
-
-        @serializer = prepare_serializer
+        @serializer ||= prepare_serializer
       end
 
       #
@@ -115,7 +109,12 @@ class Serega
       end
 
       def prepare_value_block
-        init_block || init_opts[:value] || prepare_const_block || prepare_delegate_block || prepare_keyword_block
+        init_block \
+          || init_opts[:value] \
+          || prepare_const_block \
+          || prepare_delegate_block \
+          || prepare_keyword_block \
+          || prepare_lazy_block
       end
 
       #
@@ -151,6 +150,42 @@ class Serega
         proc do |object|
           object.public_send(key_method_name)
         end
+      end
+
+      def prepare_lazy_block
+        lazy = opts[:lazy]
+        return unless lazy
+
+        if lazy == true # attribute :foo, lazy: true
+          prepare_lazy_loader_class(name, :id)
+        elsif lazy.respond_to?(:call) # attribute :foo, lazy: FooLazyLoader.new
+          serializer_class.lazy_loader(name, lazy)
+          prepare_lazy_loader_class(name, :id)
+        else # attribute :foo, lazy: { use: :foo, id: :custom_id }
+          loader_name = lazy[:use]
+
+          # attribute :foo, lazy: { use: FooLoader, id: :custom_id }
+          if loader_name.respond_to?(:call)
+            loader = loader_name
+            loader_name = name
+            serializer_class.lazy_loader(loader_name, loader)
+          end
+
+          prepare_lazy_loader_class(loader_name, lazy[:id] || :id)
+        end
+      end
+
+      def prepare_lazy_loader_class(loader_name, id_method)
+        Class.new do
+          def initialize(loader_name, id_method)
+            @id_method = id_method
+            @loader_name = loader_name
+          end
+
+          def call(obj, lazy:)
+            lazy[@loader_name][obj.public_send(id_method)]
+          end
+        end.new(loader_name, id_method)
       end
 
       def prepare_default
