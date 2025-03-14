@@ -1,28 +1,28 @@
 # frozen_string_literal: true
 
 RSpec.describe Serega::SeregaValidations::Attribute::CheckBlock do
-  let(:params_count_error) { "Block can have maximum two parameters (object, context)" }
-  let(:keyword_error) { "Invalid block. It should not have any required keyword arguments" }
   let(:block) { nil }
+  let(:signature_error) do
+    <<~ERR.strip
+      Invalid attribute block parameters, valid parameters signatures:
+      - ()                # no parameters
+      - (object)          # one positional parameter
+      - (object, context) # two positional parameters
+      - (object, :ctx)    # one positional parameter and :ctx keyword
+    ERR
+  end
 
   it "allows no block" do
     expect { described_class.call(nil) }.not_to raise_error
   end
 
-  it "checks extra keyword arguments" do
-    expect { described_class.call(proc { |a:| }) }.to raise_error Serega::SeregaError, keyword_error
-  end
-
-  it "checks block has maximum 2 args" do
-    block = proc {}
-    counter = Serega::SeregaUtils::ParamsCount
-    allow(counter).to receive(:call).and_return(0, 1, 2, 3)
-
-    expect { described_class.call(block) }.not_to raise_error
-    expect { described_class.call(block) }.not_to raise_error
-    expect { described_class.call(block) }.not_to raise_error
-    expect { described_class.call(block) }.to raise_error Serega::SeregaError, params_count_error
-
-    expect(counter).to have_received(:call).with(block, max_count: 2).exactly(4).times
+  it "checks value parameters signature" do
+    expect { described_class.call(lambda {}) }.not_to raise_error
+    expect { described_class.call(lambda { |obj| }) }.not_to raise_error
+    expect { described_class.call(lambda { |obj, ctx| }) }.not_to raise_error
+    expect { described_class.call(lambda { |obj, ctx:| }) }.not_to raise_error
+    expect { described_class.call(lambda { |obj, ctx: {}| }) }.not_to raise_error
+    expect { described_class.call(lambda { |obj, context, ctx:| }) }
+      .to raise_error Serega::SeregaError, signature_error
   end
 end

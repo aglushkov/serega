@@ -81,6 +81,7 @@ class Serega
       def self.load_plugin(serializer_class, **_opts)
         serializer_class::SeregaConfig.include(ConfigInstanceMethods)
         serializer_class::SeregaAttributeNormalizer.include(AttributeNormalizerInstanceMethods)
+        serializer_class::SeregaAttribute.include(AttributeInstanceMethods)
         serializer_class::CheckAttributeParams.include(CheckAttributeParamsInstanceMethods)
       end
 
@@ -155,7 +156,7 @@ class Serega
       end
 
       #
-      # Attribute class additional/patched instance methods
+      # AttributeNormalizer class additional/patched instance methods
       #
       # @see SeregaAttributeNormalizer
       #
@@ -163,29 +164,56 @@ class Serega
         # Block or callable instance that will format attribute values
         # @return [Proc, #call, nil] Block or callable instance that will format attribute values
         def formatter
-          return @formatter if instance_variable_defined?(:@formatter)
+          @formatter ||= prepare_formatter
+        end
 
-          @formatter = prepare_formatter
+        def formatter_signature
+          @formatter_signature ||= prepare_formatter_signature
         end
 
         private
-
-        def prepare_value_block
-          return super unless formatter
-
-          # Wrap original block into formatter block
-          proc do |object, context|
-            value = super.call(object, context)
-            formatter.call(value, context)
-          end
-        end
 
         def prepare_formatter
           formatter = init_opts[:format]
           return unless formatter
 
           formatter = self.class.serializer_class.config.formatters.opts.fetch(formatter) if formatter.is_a?(Symbol)
-          prepare_callable_proc(formatter)
+          formatter
+        end
+
+        def prepare_formatter_signature
+          return unless formatter
+
+          SeregaUtils::MethodSignature.call(formatter, pos_limit: 2, keyword_args: [:ctx])
+        end
+      end
+
+      #
+      # Attribute class additional/patched instance methods
+      #
+      # @see SeregaAttribute
+      #
+      module AttributeInstanceMethods
+        def value(object, context)
+          result = super
+          return result unless formatter
+
+          case formatter_signature
+          when "1" then formatter.call(result)
+          when "1_ctx" then formatter.call(result, ctx: context)
+          else # "2"
+            formatter.call(result, context)
+          end
+        end
+
+        private
+
+        attr_reader :formatter, :formatter_signature
+
+        def set_normalized_vars(normalizer)
+          super
+          @formatter = normalizer.formatter
+          @formatter_signature = normalizer.formatter_signature
         end
       end
 
@@ -241,12 +269,32 @@ class Serega
           def call(formatter_name, formatter)
             raise Serega::SeregaError, "Option #{formatter_name.inspect} must have callable value" unless formatter.respond_to?(:call)
 
-            SeregaValidations::Utils::CheckExtraKeywordArg.call(formatter, "#{formatter_name.inspect} value")
-            params_count = SeregaUtils::ParamsCount.call(formatter, max_count: 2)
+            signature = SeregaUtils::MethodSignature.call(formatter, pos_limit: 2, keyword_args: [:ctx])
+            raise SeregaError, signature_error unless valid_signature?(signature)
+          end
 
-            if params_count > 2
-              raise SeregaError, "Formatter can have maximum 2 parameters (value to format, context)"
+          private
+
+          def valid_signature?(signature)
+            case signature
+            when "1"      # (object)
+              true
+            when "2"      # (object, context)
+              true
+            when "1_ctx"  # (object, :ctx)
+              true
+            else
+              false
             end
+          end
+
+          def signature_error
+            <<~ERROR.strip
+              Invalid formatter parameters, valid parameters signatures:
+              - (object)          # one positional parameter
+              - (object, context) # two positional parameters
+              - (object, :ctx)    # one positional parameter and :ctx keyword
+            ERROR
           end
         end
       end

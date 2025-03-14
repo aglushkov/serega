@@ -3,16 +3,18 @@
 load_plugin_code :if
 
 RSpec.describe Serega::SeregaPlugins::If::CheckOptIfValue do
-  let(:callable_parameters_error) do
-    "Option :if_value value should have up to 2 parameters (value, context)"
-  end
-
   let(:must_be_callable) do
     "Invalid attribute option :if_value. It must be a Symbol, a Proc or respond to :call"
   end
 
-  let(:keyword_error) do
-    "Invalid :if_value option. It should not have any required keyword arguments"
+  let(:signature_error) do
+    <<~ERR.strip
+      Invalid attribute option :if_value parameters, valid parameters signatures:
+      - ()               # no parameters
+      - (value)          # one positional parameter
+      - (value, context) # two positional parameters
+      - (value, :ctx)    # one positional parameter and :ctx keyword
+    ERR
   end
 
   let(:no_serializer) do
@@ -32,21 +34,12 @@ RSpec.describe Serega::SeregaPlugins::If::CheckOptIfValue do
     expect { described_class.call(if_value: Object.new) }.to raise_error Serega::SeregaError, must_be_callable
   end
 
-  it "checks extra keyword arguments" do
-    expect { described_class.call(if_value: proc { |a:| }) }.to raise_error Serega::SeregaError, keyword_error
-  end
-
-  it "checks callable has maximum 2 params" do
-    value = proc {}
-    counter = Serega::SeregaUtils::ParamsCount
-    allow(counter).to receive(:call).and_return(0, 1, 2, 3)
-
-    expect { described_class.call(if_value: value) }.not_to raise_error
-    expect { described_class.call(if_value: value) }.not_to raise_error
-    expect { described_class.call(if_value: value) }.not_to raise_error
-    expect { described_class.call(if_value: value) }.to raise_error Serega::SeregaError, callable_parameters_error
-
-    expect(counter).to have_received(:call).with(value, max_count: 2).exactly(4).times
+  it "checks callable parameters signature" do
+    expect { described_class.call(if_value: lambda {}) }.not_to raise_error
+    expect { described_class.call(if_value: lambda { |obj| }) }.not_to raise_error
+    expect { described_class.call(if_value: lambda { |obj, ctx| }) }.not_to raise_error
+    expect { described_class.call(if_value: lambda { |obj, ctx:| }) }.not_to raise_error
+    expect { described_class.call(if_value: lambda { |foo:| }) }.to raise_error Serega::SeregaError, signature_error
   end
 
   it "allows symbols" do

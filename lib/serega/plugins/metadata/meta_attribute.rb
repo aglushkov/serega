@@ -40,6 +40,8 @@ class Serega
             @opts = SeregaUtils::EnumDeepDup.call(opts)
             @block = block
             @normalized_block = normalize_block(opts[:value], opts[:const], block)
+            @normalized_block_signature =
+              SeregaUtils::MethodSignature.call(@normalized_block, pos_limit: 2, keyword_args: [])
           end
 
           #
@@ -51,7 +53,11 @@ class Serega
           # @return [Object] Serialized meta attribute value
           #
           def value(object, context)
-            normalized_block.call(object, context)
+            case normalized_block_signature
+            when "0" then normalized_block.call
+            when "1" then normalized_block.call(object)
+            else normalized_block.call(object, context)
+            end
           end
 
           def hide?(value)
@@ -60,19 +66,12 @@ class Serega
 
           private
 
-          attr_reader :normalized_block
+          attr_reader :normalized_block, :normalized_block_signature
 
           def normalize_block(value, const, block)
             return proc { const } if const
 
-            callable = value || block
-            params_count = SeregaUtils::ParamsCount.call(callable, max_count: 2)
-
-            case params_count
-            when 0 then proc { callable.call }
-            when 1 then proc { |obj| callable.call(obj) }
-            else callable
-            end
+            value || block
           end
 
           def check(path, opts, block)

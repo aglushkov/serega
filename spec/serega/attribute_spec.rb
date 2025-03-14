@@ -39,14 +39,16 @@ RSpec.describe Serega::SeregaAttribute do
         hide: nil,
         serializer: nil,
         method: nil,
-        value_block: nil
+        value_block: nil,
+        value_block_signature: nil
       )
 
       initials = {name: :name, opts: {}, block: nil}
       allow(serializer_class::SeregaAttributeNormalizer).to receive(:new).with(initials).and_return(normalizer)
       attribute = attribute_class.new(**initials)
 
-      expect(attribute.instance_variables).to include(:@name, :@default, :@value_block, :@many, :@hide, :@serializer)
+      expect(attribute.instance_variables)
+        .to include(:@name, :@default, :@value_block, :@value_block_signature, :@many, :@hide, :@serializer)
     end
   end
 
@@ -92,6 +94,26 @@ RSpec.describe Serega::SeregaAttribute do
         block = proc { |obj, ctx| [obj.name, ctx[:foo]] }
         attribute = attribute_class.new(name: :name, block: block)
         expect(attribute.value(obj, ctx)).to eq ["NAME", "CTX"]
+      end
+    end
+
+    context "with 1 arg and ctx keyword" do
+      it "gets value" do
+        obj = double(name: "NAME")
+        ctx = {foo: "CTX"}
+        block = lambda { |obj, ctx:| [obj.name, ctx[:foo]] }
+        attribute = attribute_class.new(name: :name, block: block)
+        expect(attribute.value(obj, ctx)).to eq ["NAME", "CTX"]
+      end
+    end
+
+    context "when returning value is nil" do
+      it "returns default" do
+        obj = nil
+        ctx = {foo: "CTX"}
+        block = lambda { |obj| obj }
+        attribute = attribute_class.new(name: :name, block: block, opts: {default: 42})
+        expect(attribute.value(obj, ctx)).to eq 42
       end
     end
 

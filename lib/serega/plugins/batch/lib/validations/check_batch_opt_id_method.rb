@@ -22,14 +22,13 @@ class Serega
 
             raise SeregaError, must_be_callable unless id.respond_to?(:call)
 
-            SeregaValidations::Utils::CheckExtraKeywordArg.call(id, "batch option :id_method")
-            params_count = SeregaUtils::ParamsCount.call(id, max_count: 2)
-            raise SeregaError, params_count_error if params_count > 2
+            signature = SeregaUtils::MethodSignature.call(id, pos_limit: 2, keyword_args: [])
+            raise SeregaError, signature_error unless %w[0 1 2].include?(signature)
           end
 
           private
 
-          def params_count_error
+          def signature_error
             "Invalid :batch option :id_method. It can accept maximum 2 parameters (object, context)"
           end
 

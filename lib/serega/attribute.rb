@@ -72,6 +72,11 @@ class Serega
       end
 
       #
+      # Method #value patched in:
+      # - plugin :formatters (formats result additionally)
+      #
+
+      #
       # Finds attribute value
       #
       # @param object [Object] Serialized object
@@ -79,8 +84,17 @@ class Serega
       #
       # @return [Object] Serialized attribute value
       #
+      #
       def value(object, context)
-        value_block.call(object, context)
+        result =
+          case value_block_signature
+          when "1" then value_block.call(object)
+          when "2" then value_block.call(object, context)
+          when "1_ctx" then value_block.call(object, ctx: context)
+          else value_block.call # signature is "0" - no parameters
+          end
+
+        result.nil? ? default : result
       end
 
       #
@@ -108,13 +122,14 @@ class Serega
 
       private
 
-      attr_reader :value_block
+      attr_reader :value_block, :value_block_signature
 
       def set_normalized_vars(normalizer)
         @name = normalizer.name
         @many = normalizer.many
         @default = normalizer.default
         @value_block = normalizer.value_block
+        @value_block_signature = normalizer.value_block_signature
         @hide = normalizer.hide
         @serializer = normalizer.serializer
       end

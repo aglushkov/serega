@@ -116,18 +116,29 @@ class Serega
           }.freeze
         end
 
+        def if_options_signatures
+          @if_options_signatures ||= {
+            if: if_option_signature(:if),
+            unless: if_option_signature(:unless),
+            if_value: if_option_signature(:if_value),
+            unless_value: if_option_signature(:unless_value)
+          }.freeze
+        end
+
         private
+
+        def if_option_signature(option_name)
+          callable = if_options[option_name]
+          return unless callable
+
+          SeregaUtils::MethodSignature.call(callable, pos_limit: 2, keyword_args: [:ctx])
+        end
 
         def prepare_if_option(if_option)
           return unless if_option
           return proc { |val| val.public_send(if_option) } if if_option.is_a?(Symbol)
 
-          params_count = SeregaUtils::ParamsCount.call(if_option, max_count: 2)
-          case params_count
-          when 0 then proc { if_option.call }
-          when 1 then proc { |obj| if_option.call(obj) }
-          else if_option
-          end
+          if_option
         end
       end
 
@@ -137,14 +148,18 @@ class Serega
       # @see Serega::SeregaAttribute
       #
       module AttributeInstanceMethods
-        # @return provided :if options
+        # @return [Hash] provided :if options
         attr_reader :opt_if
+
+        # @return [Hash] signatures for provided :if options
+        attr_reader :opt_if_signatures
 
         private
 
         def set_normalized_vars(normalizer)
           super
           @opt_if = normalizer.if_options
+          @opt_if_signatures = normalizer.if_options_signatures
         end
       end
 
@@ -177,9 +192,21 @@ class Serega
           opt_unless = attribute.opt_if[opt_unless_name]
           return true if opt_if.nil? && opt_unless.nil?
 
-          res_if = opt_if ? opt_if.call(obj, ctx) : true
-          res_unless = opt_unless ? !opt_unless.call(obj, ctx) : true
+          res_if = opt_if ? check_condition(opt_if, opt_if_name, obj, ctx) : true
+          res_unless = opt_unless ? !check_condition(opt_unless, opt_unless_name, obj, ctx) : true
           res_if && res_unless
+        end
+
+        def check_condition(condition, condition_name, object, context)
+          signature = attribute.opt_if_signatures[condition_name]
+
+          case signature
+          when "1" then condition.call(object)
+          when "2" then condition.call(object, context)
+          when "1_ctx" then condition.call(object, ctx: context)
+          else # "0"
+            condition.call
+          end
         end
       end
 

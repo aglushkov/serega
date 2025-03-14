@@ -4,7 +4,15 @@ RSpec.describe Serega::SeregaValidations::Attribute::CheckOptValue do
   let(:opts) { {} }
 
   let(:type_error) { "Option :value value must be a Proc or respond to #call" }
-  let(:params_count_error) { "Option :value value can have maximum 2 parameters (object, context)" }
+  let(:signature_error) do
+    <<~ERR.strip
+      Invalid attribute :value option parameters, valid parameters signatures:
+      - ()                # no parameters
+      - (object)          # one positional parameter
+      - (object, context) # two positional parameters
+      - (object, :ctx)    # one positional parameter and :ctx keyword
+    ERR
+  end
 
   it "prohibits to use with :method opt" do
     expect { described_class.call({value: proc {}, method: :foo}) }
@@ -21,26 +29,14 @@ RSpec.describe Serega::SeregaValidations::Attribute::CheckOptValue do
       .to raise_error Serega::SeregaError, "Option :value can not be used together with block"
   end
 
-  it "prohibits to use keyword as value" do
-    validator = Serega::SeregaValidations::Utils::CheckExtraKeywordArg
-    allow(validator).to receive(:call)
-
-    value = proc { |one| }
-    described_class.call(value: value)
-    expect(validator).to have_received(:call).with(value, ":value option")
-  end
-
-  it "checks callable has maximum 2 params" do
-    value = proc { |one| }
-    counter = Serega::SeregaUtils::ParamsCount
-    allow(counter).to receive(:call).and_return(0, 1, 2, 3)
-
-    expect { described_class.call(value: value) }.not_to raise_error
-    expect { described_class.call(value: value) }.not_to raise_error
-    expect { described_class.call(value: value) }.not_to raise_error
-    expect { described_class.call(value: value) }.to raise_error Serega::SeregaError, params_count_error
-
-    expect(counter).to have_received(:call).with(value, max_count: 2).exactly(4).times
+  it "checks value parameters signature" do
+    expect { described_class.call(value: lambda {}) }.not_to raise_error
+    expect { described_class.call(value: lambda { |obj| }) }.not_to raise_error
+    expect { described_class.call(value: lambda { |obj, ctx| }) }.not_to raise_error
+    expect { described_class.call(value: lambda { |obj, ctx:| }) }.not_to raise_error
+    expect { described_class.call(value: lambda { |obj, ctx: {}| }) }.not_to raise_error
+    expect { described_class.call(value: lambda { |obj, context, ctx:| }) }
+      .to raise_error Serega::SeregaError, signature_error
   end
 
   it "checks keyword value" do

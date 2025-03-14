@@ -25,15 +25,10 @@ RSpec.describe Serega::SeregaPlugins::Batch::CheckBatchOptIdMethod do
   end
 
   it "checks callable value params with maximum 2 params" do
-    value = proc {}
-    counter = Serega::SeregaUtils::ParamsCount
-    allow(counter).to receive(:call).and_return(0, 1, 2, 3)
-
-    expect { described_class.call(value) }.not_to raise_error
-    expect { described_class.call(value) }.not_to raise_error
-    expect { described_class.call(value) }.not_to raise_error
-    expect { described_class.call(value) }.to raise_error Serega::SeregaError, callable_parameters_error
-
-    expect(counter).to have_received(:call).with(value, max_count: 2).exactly(4).times
+    expect { described_class.call(lambda {}) }.not_to raise_error
+    expect { described_class.call(lambda { |obj| }) }.not_to raise_error
+    expect { described_class.call(lambda { |obj, ctx| }) }.not_to raise_error
+    expect { described_class.call(lambda { |obj, ctx, foo| }) }
+      .to raise_error Serega::SeregaError, callable_parameters_error
   end
 end

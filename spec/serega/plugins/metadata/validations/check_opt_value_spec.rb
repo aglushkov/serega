@@ -22,26 +22,12 @@ RSpec.describe Serega::SeregaPlugins::Metadata::MetaAttribute::CheckOptValue do
     expect { described_class.call({}, proc {}) }.not_to raise_error
   end
 
-  it "prohibits to use keyword as value" do
-    validator = Serega::SeregaValidations::Utils::CheckExtraKeywordArg
-    allow(validator).to receive(:call)
-
-    value = proc { |one| }
-    described_class.call(value: value)
-    expect(validator).to have_received(:call).with(value, ":value option")
-  end
-
   it "checks it has maximum 2 params" do
-    value = proc { |one| }
-    counter = Serega::SeregaUtils::ParamsCount
-    allow(counter).to receive(:call).and_return(0, 1, 2, 3)
-
-    expect { described_class.call(value: value) }.not_to raise_error
-    expect { described_class.call(value: value) }.not_to raise_error
-    expect { described_class.call(value: value) }.not_to raise_error
-    expect { described_class.call(value: value) }.to raise_error Serega::SeregaError, params_count_error
-
-    expect(counter).to have_received(:call).with(value, max_count: 2).exactly(4).times
+    expect { described_class.call(value: lambda {}) }.not_to raise_error
+    expect { described_class.call(value: lambda { |obj| }) }.not_to raise_error
+    expect { described_class.call(value: lambda { |obj, ctx| }) }.not_to raise_error
+    expect { described_class.call(value: lambda { |obj, ctx, foo| }) }
+      .to raise_error Serega::SeregaError, params_count_error
   end
 
   it "checks keyword value" do

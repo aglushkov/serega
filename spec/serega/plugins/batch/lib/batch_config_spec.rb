@@ -11,10 +11,6 @@ RSpec.describe Serega::SeregaPlugins::Batch::BatchConfig do
     "Batch loader can have maximum 3 parameters (ids, context, plan)"
   end
 
-  let(:keyword_error) do
-    "Invalid batch loader `name`. It should not have any required keyword arguments"
-  end
-
   describe "#define" do
     it "defines named loader" do
       loader = proc { |a| }
@@ -27,22 +23,13 @@ RSpec.describe Serega::SeregaPlugins::Batch::BatchConfig do
         .to raise_error Serega::SeregaError, "Batch loader can be specified with one of arguments - callable value or &block"
     end
 
-    it "checks extra keyword arguments" do
-      expect { batch_config.define(:name) { |a:| } }.to raise_error Serega::SeregaError, keyword_error
-    end
-
     it "checks loader has maximum 3 args" do
-      value = proc {}
-      counter = Serega::SeregaUtils::ParamsCount
-      allow(counter).to receive(:call).and_return(0, 1, 2, 3, 4)
-
-      expect { batch_config.define(:name, &value) }.not_to raise_error
-      expect { batch_config.define(:name, &value) }.not_to raise_error
-      expect { batch_config.define(:name, &value) }.not_to raise_error
-      expect { batch_config.define(:name, &value) }.not_to raise_error
-      expect { batch_config.define(:name, &value) }.to raise_error Serega::SeregaError, params_count_error
-
-      expect(counter).to have_received(:call).with(value, max_count: 3).exactly(5).times
+      expect { batch_config.define(:name, &lambda {}) }.not_to raise_error
+      expect { batch_config.define(:name, &lambda { |ids| }) }.not_to raise_error
+      expect { batch_config.define(:name, &lambda { |ids, ctx| }) }.not_to raise_error
+      expect { batch_config.define(:name, &lambda { |ids, ctx, plan| }) }.not_to raise_error
+      expect { batch_config.define(:name, &lambda { |a, b, c, d| }) }
+        .to raise_error Serega::SeregaError, params_count_error
     end
   end
 

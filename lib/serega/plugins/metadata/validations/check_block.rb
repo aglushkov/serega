@@ -29,10 +29,8 @@ class Serega
             # @return [void]
             #
             def call(block)
-              SeregaValidations::Utils::CheckExtraKeywordArg.call(block, "block")
-              params_count = SeregaUtils::ParamsCount.call(block, max_count: 2)
-
-              raise SeregaError, block_error if params_count > 2
+              signature = SeregaUtils::MethodSignature.call(block, pos_limit: 2, keyword_args: [])
+              raise SeregaError, block_error unless %w[0 1 2].include?(signature)
             end
 
             private

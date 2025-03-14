@@ -53,10 +53,10 @@ class Serega
         def prepare_batch_id_method(id_method)
           return proc { |object| object.public_send(id_method) } if id_method.is_a?(Symbol)
 
-          params_count = SeregaUtils::ParamsCount.call(id_method, max_count: 2)
-          case params_count
-          when 0 then proc { id_method.call }
-          when 1 then proc { |object| id_method.call(object) }
+          signature = SeregaUtils::MethodSignature.call(id_method, pos_limit: 2, keyword_args: [])
+          case signature
+          when "0" then proc { id_method.call }
+          when "1" then proc { |object| id_method.call(object) }
           else id_method
           end
         end
@@ -64,11 +64,11 @@ class Serega
         def prepare_batch_loader(loader)
           loader = self.class.serializer_class.config.batch.loaders.fetch(loader) if loader.is_a?(Symbol)
 
-          params_count = SeregaUtils::ParamsCount.call(loader, max_count: 3)
-          case params_count
-          when 0 then proc { loader.call }
-          when 1 then proc { |object| loader.call(object) }
-          when 2 then proc { |object, context| loader.call(object, context) }
+          signature = SeregaUtils::MethodSignature.call(loader, pos_limit: 3, keyword_args: [])
+          case signature
+          when "0" then proc { loader.call }
+          when "1" then proc { |object| loader.call(object) }
+          when "2" then proc { |object, context| loader.call(object, context) }
           else loader
           end
         end
