@@ -62,30 +62,21 @@ RSpec.describe Serega::SeregaPlugins::Formatters do
     end
 
     it "checks formatter params when defined as config option" do
-      formatter = proc {}
-      counter = Serega::SeregaUtils::ParamsCount
-      allow(counter).to receive(:call).and_return(0, 1, 2, 3)
-
-      expect { serializer.config.formatters.add(foo: formatter) }.not_to raise_error
-      expect { serializer.config.formatters.add(foo: formatter) }.not_to raise_error
-      expect { serializer.config.formatters.add(foo: formatter) }.not_to raise_error
-      expect { serializer.config.formatters.add(foo: formatter) }
-        .to raise_error Serega::SeregaError, "Formatter can have maximum 2 parameters (value to format, context)"
-
-      expect(counter).to have_received(:call).with(formatter, max_count: 2).exactly(4).times
+      expect { serializer.config.formatters.add(foo: lambda { |obj| }) }.not_to raise_error
+      expect { serializer.config.formatters.add(foo: lambda { |obj, ctx| }) }.not_to raise_error
+      expect { serializer.config.formatters.add(foo: lambda { |obj, ctx:| }) }.not_to raise_error
+      expect { serializer.config.formatters.add(foo: lambda {}) }
+        .to raise_error Serega::SeregaError, <<~ERR.strip
+          Invalid formatter parameters, valid parameters signatures:
+          - (object)          # one positional parameter
+          - (object, context) # two positional parameters
+          - (object, :ctx)    # one positional parameter and :ctx keyword
+        ERR
     end
 
     it "checks formatter is defined when adding attribute" do
       expect { serializer.attribute :foo, format: :some }
         .to raise_error Serega::SeregaError, "Formatter `:some` was not defined"
-    end
-
-    it "checks formatter has maximum 2 args when adding attribute" do
-      expect { serializer.attribute :foo, format: lambda {} }.not_to raise_error
-      expect { serializer.attribute :foo, format: lambda { |a| } }.not_to raise_error
-      expect { serializer.attribute :foo, format: lambda { |a, b| } }.not_to raise_error
-      expect { serializer.attribute :foo, format: lambda { |a, b, c| } }
-        .to raise_error Serega::SeregaError, "Formatter can have maximum 2 parameters (value to format, context)"
     end
   end
 
@@ -133,6 +124,20 @@ RSpec.describe Serega::SeregaPlugins::Formatters do
 
     context "when formatter uses context" do
       let(:money) { ->(cents, ctx) { cents.to_f / 10**ctx[:money_digits] } }
+
+      before do
+        serializer.config.formatters.add(money: money)
+      end
+
+      it "formats result of attribute value" do
+        attribute = serializer.attribute(:a, method: :itself, format: :money)
+
+        expect(attribute.value(123, {money_digits: 2})).to eq 1.23
+      end
+    end
+
+    context "when formatter uses ctx keyword" do
+      let(:money) { ->(cents, ctx:) { cents.to_f / 10**ctx[:money_digits] } }
 
       before do
         serializer.config.formatters.add(money: money)

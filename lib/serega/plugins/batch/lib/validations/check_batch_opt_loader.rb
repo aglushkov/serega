@@ -40,9 +40,8 @@ class Serega
           def check_callable(loader)
             raise SeregaError, must_be_callable unless loader.respond_to?(:call)
 
-            SeregaValidations::Utils::CheckExtraKeywordArg.call(loader, ":batch option :loader")
-            params_count = SeregaUtils::ParamsCount.call(loader, max_count: 3)
-            raise SeregaError, params_count_error if params_count > 3
+            signature = SeregaUtils::MethodSignature.call(loader, pos_limit: 3, keyword_args: [])
+            raise SeregaError, params_count_error unless %w[0 1 2 3].include?(signature)
           end
 
           def params_count_error

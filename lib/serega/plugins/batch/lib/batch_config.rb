@@ -28,10 +28,10 @@ class Serega
           end
 
           callable ||= block
-          SeregaValidations::Utils::CheckExtraKeywordArg.call(callable, "batch loader `#{loader_name}`")
-          params_count = SeregaUtils::ParamsCount.call(callable, max_count: 3)
 
-          if params_count > 3
+          signature = SeregaUtils::MethodSignature.call(callable, pos_limit: 3, keyword_args: [])
+
+          unless %w[0 1 2 3].include?(signature)
             raise SeregaError, "Batch loader can have maximum 3 parameters (ids, context, plan)"
           end
 

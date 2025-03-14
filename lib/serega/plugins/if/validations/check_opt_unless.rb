@@ -29,16 +29,37 @@ class Serega
             return if value.is_a?(Symbol)
             raise SeregaError, must_be_callable unless value.respond_to?(:call)
 
-            SeregaValidations::Utils::CheckExtraKeywordArg.call(value, ":unless option")
-            params_count = SeregaUtils::ParamsCount.call(value, max_count: 2)
-
-            if params_count > 2
-              raise SeregaError, "Option :unless value should have up to 2 parameters (object, context)"
-            end
+            signature = SeregaUtils::MethodSignature.call(value, pos_limit: 2, keyword_args: [:ctx])
+            raise SeregaError, signature_error unless valid_signature?(signature)
           end
 
           def must_be_callable
             "Invalid attribute option :unless. It must be a Symbol, a Proc or respond to :call"
+          end
+
+          def valid_signature?(signature)
+            case signature
+            when "0"      # no parameters
+              true
+            when "1"      # (object)
+              true
+            when "2"      # (object, context)
+              true
+            when "1_ctx"  # (object, :ctx)
+              true
+            else
+              false
+            end
+          end
+
+          def signature_error
+            <<~ERROR.strip
+              Invalid attribute option :unless parameters, valid parameters signatures:
+              - ()                # no parameters
+              - (object)          # one positional parameter
+              - (object, context) # two positional parameters
+              - (object, :ctx)    # one positional parameter and :ctx keyword
+            ERROR
           end
         end
       end

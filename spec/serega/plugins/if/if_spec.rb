@@ -31,28 +31,6 @@ RSpec.describe Serega::SeregaPlugins::If do
     end
   end
 
-  describe "attributes options" do
-    before { serializer.plugin :if }
-
-    it "allows to provide condition with 0 arguments" do
-      cond = lambda { 0 }
-      attribute = serializer.attribute :foo, if: cond
-      expect(attribute.opt_if[:if].call(1, 2)).to eq 0
-    end
-
-    it "allows to provide cond with 1 argument" do
-      cond = lambda { |a| a }
-      attribute = serializer.attribute :foo, if: cond
-      expect(attribute.opt_if[:if].call(1, 2)).to eq 1
-    end
-
-    it "allows to provide cond with 2 arguments" do
-      cond = lambda { |a, b| b }
-      attribute = serializer.attribute :foo, if: cond
-      expect(attribute.opt_if[:if].call(1, 2)).to eq 2
-    end
-  end
-
   describe "SeregaPlanPoint methods" do
     before { serializer.plugin :if }
 
@@ -82,6 +60,19 @@ RSpec.describe Serega::SeregaPlugins::If do
         point = point(attribute)
         expect(point.satisfy_if_conditions?(1, ctx)).to be false
         expect(point.satisfy_if_conditions?(2, ctx)).to be true
+      end
+
+      it "works when :if is a Proc with ctx keyword" do
+        attribute = serializer.attribute :next, if: lambda { |_obj, ctx:| ctx[:allowed] }
+        point = point(attribute)
+        ctx = {allowed: true}
+        expect(point.satisfy_if_conditions?(1, ctx)).to be true
+      end
+
+      it "works when :if is a Proc with no params" do
+        attribute = serializer.attribute :next, if: lambda { false }
+        point = point(attribute)
+        expect(point.satisfy_if_conditions?(1, ctx)).to be false
       end
 
       it "works when :if is #callable" do

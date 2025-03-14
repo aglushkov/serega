@@ -9,10 +9,6 @@ RSpec.describe Serega::SeregaPlugins::Batch::CheckBatchOptLoader do
     "Invalid :batch option :loader. It can accept maximum 3 parameters (ids, context, plan)"
   end
 
-  let(:param_type_error) do
-    "Invalid :batch option :loader. It should not have any required keyword arguments"
-  end
-
   let(:must_be_callable) do
     "Invalid :batch option :loader. It must be a Symbol, a Proc or respond to :call"
   end
@@ -26,23 +22,12 @@ RSpec.describe Serega::SeregaPlugins::Batch::CheckBatchOptLoader do
     expect { described_class.call(Object.new, serializer) }.to raise_error Serega::SeregaError, must_be_callable
   end
 
-  it "prohibits to add loader with required keyword args" do
-    value = proc { |a:| }
-    expect { described_class.call(value, serializer) }.to raise_error Serega::SeregaError, param_type_error
-  end
-
   it "allows loaders with maximum 3 args" do
-    value = proc {}
-    counter = Serega::SeregaUtils::ParamsCount
-    allow(counter).to receive(:call).and_return(0, 1, 2, 3, 4)
-
-    expect { described_class.call(value, serializer) }.not_to raise_error
-    expect { described_class.call(value, serializer) }.not_to raise_error
-    expect { described_class.call(value, serializer) }.not_to raise_error
-    expect { described_class.call(value, serializer) }.not_to raise_error
-    expect { described_class.call(value, serializer) }.to raise_error Serega::SeregaError, params_count_error
-
-    expect(counter).to have_received(:call).with(value, max_count: 3).exactly(5).times
+    expect { described_class.call(lambda {}, serializer) }.not_to raise_error
+    expect { described_class.call(lambda { |ids| }, serializer) }.not_to raise_error
+    expect { described_class.call(lambda { |ids, ctx| }, serializer) }.not_to raise_error
+    expect { described_class.call(lambda { |ids, ctx, plan| }, serializer) }.not_to raise_error
+    expect { described_class.call(lambda { |a, b, c, d| }, serializer) }.to raise_error Serega::SeregaError, params_count_error
   end
 
   context "when Symbol provided as loader_name" do

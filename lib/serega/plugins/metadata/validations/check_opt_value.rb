@@ -36,10 +36,9 @@ class Serega
             def check_value(value)
               check_value_type(value)
 
-              SeregaValidations::Utils::CheckExtraKeywordArg.call(value, ":value option")
-              params_count = SeregaUtils::ParamsCount.call(value, max_count: 2)
+              signature = SeregaUtils::MethodSignature.call(value, pos_limit: 2, keyword_args: [])
 
-              raise SeregaError, params_count_error if params_count > 2
+              raise SeregaError, params_count_error unless %w[0 1 2].include?(signature)
             end
 
             def check_value_type(value)

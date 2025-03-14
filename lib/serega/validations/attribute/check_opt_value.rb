@@ -35,23 +35,41 @@ class Serega
 
           def check_value(value)
             check_value_type(value)
-
-            SeregaValidations::Utils::CheckExtraKeywordArg.call(value, ":value option")
-            params_count = SeregaUtils::ParamsCount.call(value, max_count: 2)
-
-            raise SeregaError, params_count_error if params_count > 2
+            signature = SeregaUtils::MethodSignature.call(value, pos_limit: 2, keyword_args: [:ctx])
+            raise SeregaError, signature_error unless valid_signature?(signature)
           end
 
           def check_value_type(value)
             raise SeregaError, type_error if !value.is_a?(Proc) && !value.respond_to?(:call)
           end
 
-          def type_error
-            "Option :value value must be a Proc or respond to #call"
+          def valid_signature?(signature)
+            case signature
+            when "0"      # no parameters
+              true
+            when "1"      # (object)
+              true
+            when "2"      # (object, context)
+              true
+            when "1_ctx"  # (object, :ctx)
+              true
+            else
+              false
+            end
           end
 
-          def params_count_error
-            "Option :value value can have maximum 2 parameters (object, context)"
+          def signature_error
+            <<~ERROR.strip
+              Invalid attribute :value option parameters, valid parameters signatures:
+              - ()                # no parameters
+              - (object)          # one positional parameter
+              - (object, context) # two positional parameters
+              - (object, :ctx)    # one positional parameter and :ctx keyword
+            ERROR
+          end
+
+          def type_error
+            "Option :value value must be a Proc or respond to #call"
           end
         end
       end

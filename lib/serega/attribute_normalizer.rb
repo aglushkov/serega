@@ -55,6 +55,15 @@ class Serega
       end
 
       #
+      # Detects value block parameters signature
+      #
+      # @return [String] value block parameters signature
+      #
+      def value_block_signature
+        @value_block_signature ||= SeregaUtils::MethodSignature.call(value_block, pos_limit: 2, keyword_args: [:ctx])
+      end
+
+      #
       # Shows if attribute is specified to be hidden
       #
       # @return [Boolean, nil] if attribute must be hidden by default
@@ -105,19 +114,8 @@ class Serega
         init_name.to_sym
       end
 
-      #
-      # Patched in:
-      # - plugin :formatters (wraps resulted block in formatter block and formats :const values)
-      #
       def prepare_value_block
-        value_block =
-          prepare_init_block ||
-          prepare_value_option_block ||
-          prepare_const_block ||
-          prepare_delegate_block ||
-          prepare_keyword_block
-
-        prepare_value_block_with_default(value_block)
+        init_block || init_opts[:value] || prepare_const_block || prepare_delegate_block || prepare_keyword_block
       end
 
       #
@@ -153,35 +151,6 @@ class Serega
         proc do |object|
           object.public_send(key_method_name)
         end
-      end
-
-      def prepare_init_block
-        prepare_callable_proc(init_block)
-      end
-
-      def prepare_value_option_block
-        prepare_callable_proc(init_opts[:value])
-      end
-
-      def prepare_callable_proc(callable)
-        return unless callable
-
-        params_count = SeregaUtils::ParamsCount.call(callable, max_count: 2)
-        case params_count
-        when 0 then proc { |obj, _ctx| callable.call }
-        when 1 then proc { |obj, _ctx| callable.call(obj) }
-        else callable
-        end
-      end
-
-      def prepare_value_block_with_default(callable)
-        default_value = default
-        return callable if default_value.nil?
-
-        proc { |obj, ctx|
-          res = callable.call(obj, ctx)
-          res.nil? ? default_value : res
-        }
       end
 
       def prepare_default
