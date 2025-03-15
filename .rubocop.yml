@@ -1,5 +1,7 @@
 require:
   - standard
+
+plugins:
   - rubocop-performance
   - rubocop-rspec
   - rubocop-rake
