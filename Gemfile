@@ -9,8 +9,8 @@ gem "rake", "~> 13.0"
 gem "rspec", "~> 3.0", require: false
 gem "standard", "~> 1.42", require: false
 gem "simplecov", "~> 0.21", require: false
-gem "rubocop-rake", "~> 0.6.0", require: false
-gem "rubocop-rspec", "~> 3.2.0", require: false
+gem "rubocop-rake", "~> 0.6", require: false
+gem "rubocop-rspec", "~> 3.2", require: false
 gem "rubocop-performance", "~> 1.22", require: false
 gem "redcarpet", "~> 3.5", require: false
 # Can be used in test like:
@@ -24,10 +24,10 @@ gem "redcarpet", "~> 3.5", require: false
 #
 gem "allocation_stats", require: false
 gem "yard", require: false
-gem "mdl", "~> 0.13.0", require: false
+gem "mdl", "~> 0.13", require: false
 
 if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("3.1")
-  gem "debug", ">= 1.0.0"
+  gem "debug", ">= 1.0"
 else
   gem "pry-byebug", "~> 3.9"
 end

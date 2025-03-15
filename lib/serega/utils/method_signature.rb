@@ -31,7 +31,7 @@ class Serega
           # Procs (but not lambdas) can accept all provided parameters
           return full_signature(pos_limit, keyword_args) if params.empty? && callable.is_a?(Proc) && !callable.lambda?
 
-          # Return signle positional argument for Symbol#to_proc
+          # Return single positional argument for Symbol#to_proc
           return "1" if (params == SYMBOL_TO_PROC_SIGNATURE_RUBY2) || (params == SYMBOL_TO_PROC_SIGNATURE_RUBY3)
 
           keyword_args = keyword_args.dup
