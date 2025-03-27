@@ -194,7 +194,7 @@ class Serega
       # @see SeregaAttribute
       #
       module AttributeInstanceMethods
-        def value(object, context)
+        def value(object, context, lazy: nil)
           result = super
           return result unless formatter
 

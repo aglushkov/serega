@@ -11,7 +11,7 @@ class Serega
       module SeregaObjectSerializerInstanceMethods
         private
 
-        def attach_value(object, point, container)
+        def attach_value(object, point, container, lazy: nil)
           batch = point.batch
           return super unless batch
 

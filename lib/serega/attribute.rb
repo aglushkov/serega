@@ -97,6 +97,7 @@ class Serega
           when "1_lazy" then value_block.call(object, lazy: lazy)
           when "1_ctx_lazy" then value_block.call(object, ctx: context, lazy: lazy)
           when "2" then value_block.call(object, context)
+          when "2_ctx_lazy" then value_block.call(object, context, ctx: context, lazy: lazy)
           else value_block.call # signature is "0" - no parameters
           end
 

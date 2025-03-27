@@ -57,6 +57,8 @@ class Serega
               true
             when "2"      # (object, context)
               true
+            when "2_ctx_lazy"      # (object, context)
+              true
             else
               false
             end

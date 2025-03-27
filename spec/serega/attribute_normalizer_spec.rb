@@ -32,7 +32,6 @@ RSpec.describe Serega::SeregaAttributeNormalizer do
 
     it "returns saved :many option" do
       norm = normalizer.new(opts: {many: true})
-
       expect(norm.many).to be true
       expect(norm.instance_variable_get(:@many)).to be true
 
@@ -56,6 +55,24 @@ RSpec.describe Serega::SeregaAttributeNormalizer do
 
       norm.instance_variable_set(:@hide, nil)
       expect(norm.hide).to be_nil
+    end
+
+    context "with :lazy option" do
+      subject(:hide) { normalizer.new(opts: {lazy: {use: :foo}}).hide }
+
+      it "returns nil if `hide_lazy_attributes` setting is not set" do
+        expect(hide).to be_nil
+      end
+
+      it "returns true if `hide_lazy_attributes` is set to true" do
+        serializer_class.config.hide_lazy_attributes = true
+        expect(hide).to be true
+      end
+
+      it "returns nil if `hide_lazy_attributes` is set to false" do
+        serializer_class.config.hide_lazy_attributes = false
+        expect(hide).to be_nil
+      end
     end
   end
 

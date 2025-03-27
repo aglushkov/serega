@@ -69,7 +69,9 @@ class Serega
       # @return [Boolean, nil] if attribute must be hidden by default
       #
       def hide
-        @hide ||= prepare_hide
+        return @hide if instance_variable_defined?(:@hide)
+
+        @hide = prepare_hide
       end
 
       #
@@ -78,7 +80,9 @@ class Serega
       # @return [Boolean, nil] if attribute is specified to be a one-to-many relationship
       #
       def many
-        @many ||= prepare_many
+        return @many if instance_variable_defined?(:@many)
+
+        @many = prepare_many
       end
 
       #
@@ -86,7 +90,9 @@ class Serega
       # @return [Serega, String, #callable, nil] specified serializer
       #
       def serializer
-        @serializer ||= prepare_serializer
+        return @serializer if instance_variable_defined?(:@serializer)
+
+        @serializer = prepare_serializer
       end
 
       #
@@ -147,7 +153,12 @@ class Serega
       #
       def prepare_hide
         res = init_opts[:hide]
-        res = self.class.serializer_class.config.hide_lazy_attributes if res.nil? && !lazy_loaders.empty?
+
+        if res.nil? && lazy_loaders.any?
+          hide_lazy_attributes = self.class.serializer_class.config.hide_lazy_attributes
+          res = hide_lazy_attributes if hide_lazy_attributes
+        end
+
         res
       end
 

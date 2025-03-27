@@ -38,6 +38,7 @@ RSpec.describe Serega::SeregaAttribute do
         default: nil,
         hide: nil,
         serializer: nil,
+        lazy_loaders: nil,
         method: nil,
         value_block: nil,
         value_block_signature: nil
@@ -48,7 +49,7 @@ RSpec.describe Serega::SeregaAttribute do
       attribute = attribute_class.new(**initials)
 
       expect(attribute.instance_variables)
-        .to include(:@name, :@default, :@value_block, :@value_block_signature, :@many, :@hide, :@serializer)
+        .to include(:@name, :@default, :@value_block, :@value_block_signature, :@lazy_loaders, :@many, :@hide, :@serializer)
     end
   end
 
