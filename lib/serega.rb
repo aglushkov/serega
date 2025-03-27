@@ -78,9 +78,9 @@ class Serega
   const_set(:CheckLazyLoaderParams, check_lazy_loader_params_class)
 
   # Assigns `SeregaLazyLoader` constant to current class
-  check_lazy_loader_params_class = Class.new(SeregaLazy::Loader)
-  check_lazy_loader_params_class.serializer_class = self
-  const_set(:SeregaLazyLoader, check_lazy_loader_params_class)
+  lazy_loader_class = Class.new(SeregaLazy::Loader)
+  lazy_loader_class.serializer_class = self
+  const_set(:SeregaLazyLoader, lazy_loader_class)
 
   #
   # Serializers class methods
